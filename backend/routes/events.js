@@ -1,9 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const db = require("../config/db");
 
-// temporary GET API
-router.get('/', (req, res) => {
-  res.json([{ id: 1, title: "Test Event", date: "2025-10-01" }]);
+// GET all events
+router.get("/", (req, res) => {
+  db.query("SELECT * FROM events", (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
 });
 
 module.exports = router;

@@ -1,6 +1,12 @@
 const express = require('express');
+
+// Serve static folders
+// app.use("/uploads/events", express.static("uploads/events")); 
+// app.use("/uploads/profiles", express.static("uploads/profiles"));
+// app.use("/uploads/gallery", express.static("uploads/gallery")); 
 const cors = require('cors');
 require('dotenv').config();
+const authRoutes = require('./routes/auth');
 
 const eventRoutes = require('./routes/events');
 
@@ -9,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 
 const PORT = process.env.PORT || 5000;
