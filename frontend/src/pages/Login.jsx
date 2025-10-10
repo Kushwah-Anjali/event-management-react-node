@@ -1,111 +1,129 @@
 // src/components/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // for redirecting
-import axios from "axios";
-import "../styles/login.css"; // your existing CSS
-import Swal from "sweetalert2"; // for nice alerts
-
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
+import Swal from "sweetalert2";
+import "../styles/login.css"; // importing your custom CSS
+import Footer from "../components/Footer";
 const Login = () => {
   // -----------------------------
-  // Step 1: State for form inputs
+  // 🧠 State variables
   // -----------------------------
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // show spinner while API call
+  const [email, setEmail] = useState(""); // stores what user types in email field
+  const [password, setPassword] = useState(""); // stores password input
+  const [loading, setLoading] = useState(false); // to show loading spinner while login
 
-  const navigate = useNavigate(); // used to redirect after login
+  const navigate = useNavigate(); // helps to move to another page after login
 
   // -----------------------------
-  // Step 2: Handle form submission
+  // 🚀 Function when form is submitted
   // -----------------------------
   const handleSubmit = async (e) => {
-    e.preventDefault(); // prevent page refresh
-    setLoading(true);
+    e.preventDefault(); // stops page refresh (default form behavior)
+    setLoading(true); // shows spinner
 
     try {
-      // POST to Node backend
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      // calling backend API via helper function
+      const data = await loginUser({ email, password });
 
-      if (response.data.status === "success") {
-        // Save JWT in localStorage
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+      if (data.status === "success") {
+        // store token and user info in browser (to remember logged-in user)
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Show success alert
         await Swal.fire({
           icon: "success",
-          title: "Login Successful",
-          text: `Welcome ${response.data.user.name}!`,
+          title: "Welcome!",
+          text: `Hey ${data.user.name}, glad to see you!`,
           timer: 1500,
           showConfirmButton: false,
         });
 
-        // Redirect based on role (like your PHP version)
-        if (response.data.user.role === "root") {
-          navigate("/users"); // React route for admin
+        // redirect based on role
+        if (data.user.role === "root") {
+          navigate("/users");
         } else {
-          navigate("/events"); // React route for regular users
+          navigate("/events");
         }
       }
     } catch (err) {
-      console.error("Login error:", err);
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: err.response?.data?.message || "Invalid credentials",
+        text: err.response?.data?.message || "Please check your email or password.",
       });
     } finally {
-      setLoading(false); // stop loading spinner
+      setLoading(false); // stop spinner
     }
   };
 
+  // -----------------------------
+  // 🧱 JSX (HTML-like structure)
+  // -----------------------------
   return (
-    <div className="login-wrapper">
-      <div className="card login-card">
-        <h4 className="fw-bold text-center">
-          <i className="fas fa-right-to-bracket me-1"></i> Login
-        </h4>
-        <form onSubmit={handleSubmit}>
-          {/* Email Input */}
-          <div className="input-group mb-3">
-            <span className="input-group-text">
-              <i className="fas fa-envelope"></i>
-            </span>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Password Input */}
-          <div className="input-group mb-4">
-            <span className="input-group-text">
-              <i className="fas fa-lock"></i>
-            </span>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Login Button */}
-          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+   <div className="login-wrapper">
+  {/* Card container centers only the login card */}
+  <div className="login-card-container">
+    <div className="card login-card shadow-lg">
+      {/* App Logo */}
+      <div className="text-center mb-3">
+        <img src="/logo.svg" alt="App Logo" className="login-logo" />
       </div>
+
+      {/* Title */}
+      <h4 className="fw-bold text-center text-gradient mb-4">
+        <i className="fas fa-right-to-bracket me-2"></i> Sign In
+      </h4>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <div className="input-group mb-3">
+          <span className="input-group-text bg-light">
+            <i className="fas fa-envelope"></i>
+          </span>
+          <input
+            type="email"
+            id="email"
+            className="form-control"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="input-group mb-4">
+          <span className="input-group-text bg-light">
+            <i className="fas fa-lock"></i>
+          </span>
+          <input
+            type="password"
+            id="password"
+            className="form-control"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+          />
+        </div>
+
+        <button type="submit" className="btn btn-gradient w-100" disabled={loading}>
+          {loading ? (
+            <div className="spinner-border spinner-border-sm text-light" role="status"></div>
+          ) : (
+            "Login"
+          )}
+        </button>
+      </form>
     </div>
+  </div>
+
+  {/* Footer now sticks at the bottom */}
+  <Footer />
+</div>
+
   );
 };
 

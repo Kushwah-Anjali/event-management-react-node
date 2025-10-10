@@ -2,15 +2,14 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
-// GET all events
-router.get("/", (req, res) => {
-  db.query("SELECT * FROM events", (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Database error" });
-    }
+router.get("/", async (req, res) => {
+  try {
+    const [results] = await db.query("SELECT * FROM events");
     res.json(results);
-  });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 module.exports = router;
