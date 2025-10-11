@@ -3,7 +3,7 @@ import Hero from "../components/Hero";
 import Welcome from "../components/Welcome";
 import Events from "../components/Events";
 import Feedback from "../components/Feedback";
-import Footer from "../components/Footer";
+
 const Home = () => {
   return (
     <>
@@ -14,7 +14,7 @@ const Home = () => {
       <Welcome />
         <Events />
         <Feedback/>
-        <Footer/>
+       
     </>
   );
 };

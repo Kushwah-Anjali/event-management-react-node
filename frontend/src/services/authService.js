@@ -17,7 +17,7 @@ console.log("Backend URL:", API_URL);
 export const loginUser = async (credentials) => {
   try {
     // ✅ Send POST request to backend login route
-    const response = await axios.post(`${API_URL}/api/auth/login`, credentials);
+    const response = await axios.post(`${API_URL}/auth/login`, credentials);
 
     // ✅ Return the backend response data to the component
     // This includes status, token, and user info

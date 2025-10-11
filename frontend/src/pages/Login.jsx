@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/login.css"; // importing your custom CSS
-import Footer from "../components/Footer";
-import Logo from "../components/Logo";
 const Login = () => {
   // -----------------------------
   // 🧠 State variables
@@ -67,9 +65,7 @@ const Login = () => {
   <div className="login-card-container">
     <div className="card login-card shadow-lg">
       {/* App Logo */}
-     <div className="text-center mb-3">
-  <Logo width={60} height={60} />
-</div>
+    
 
       {/* Title */}
       <h4 className="fw-bold text-center text-gradient mb-4">
@@ -121,8 +117,6 @@ const Login = () => {
     </div>
   </div>
 
-  {/* Footer now sticks at the bottom */}
-  <Footer />
 </div>
 
   );

@@ -7,7 +7,7 @@ export default function EventsCard({ event }) {
       {/* Event Image */}
       <div className="event-img-wrapper">
         {event.image ? (
-          <img src={event.image} className="event-img" />
+          <img src={event.image} alt={event.name}  className="event-img" />
         ) : (
           // Example for event image
           // const imageUrl = `http://localhost:5000/uploads/events/${event.image}`;
