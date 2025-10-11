@@ -1,69 +1,150 @@
-/* Modern Dashboard Style */
-
+/* === Base Styling === */
 body {
   font-family: 'Inter', sans-serif;
+  background-color: #f8f9fc;
+  color: #333;
 }
 
-.card-header .btn {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card-header .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.05);
-}
-
-.input-group-text {
-  border-radius: 0.375rem 0 0 0.375rem !important;
-}
-
-input.form-control {
-  border-radius: 0 0.375rem 0.375rem 0 !important;
-}
-
-@media (max-width: 768px) {
-  .table-responsive {
-    overflow-x: auto;
-  }
-  .card-header {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-  .input-group {
-    margin-top: 0.5rem;
-  }
-}
-/* Polished Table + Header Styling */
+/* === Card === */
 .user-table-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   animation: fadeIn 0.4s ease-in-out;
+  padding: 1rem 1.5rem;
 }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.05);
-  transition: background-color 0.2s ease;
+/* === Header === */
+.card-header-custom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
 }
 
-.btn-outline-success:hover,
-.btn-outline-danger:hover {
-  transform: translateY(-2px);
+.card-header-custom h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0d6efd;
+}
+
+/* === Buttons === */
+.btn-custom {
+  background-color: #0d6efd;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
   transition: all 0.2s ease;
 }
 
-/* Input & Header */
+.btn-custom:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+}
+
+/* === Table === */
+.table {
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+}
+
+.table thead th {
+  background-color: #f1f3f6;
+  border: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.table tbody tr {
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+}
+
+.table td, .table th {
+  border: none;
+  padding: 1rem;
+}
+
+/* === Search Box === */
+.input-group {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 0.5rem;
+}
+
 .input-group-text {
-  border-radius: 0.375rem 0 0 0.375rem !important;
+  background: white;
+  border: none;
+  border-right: 1px solid #ddd;
 }
 
 input.form-control {
-  border-radius: 0 0.375rem 0.375rem 0 !important;
+  border: none;
+  box-shadow: none !important;
 }
 
-/* Smooth fade-in effect */
+input.form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
+}
+
+/* === Animations === */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .card-header-custom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .table {
+    font-size: 0.9rem;
+  }
+}
+/* === Table Header Color === */
+.table-header {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.table-header th {
+  font-weight: 600;
+  padding: 1rem;
+}
+
+/* === Filter Row === */
+.table-filter-row input {
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+}
+
+/* === Pagination Buttons === */
+.btn-outline-primary.btn-sm {
+  border-radius: 0.4rem;
+}
+
+/* Hover effect */
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+th.sortable { cursor: pointer; user-select: none; }
+.sort-indicator { margin-left: .4rem; font-size: .8rem; opacity: .85; }
+.table-header { background-color: #0d6efd; color: #fff; }
+th.sortable:hover { opacity: .95; }
+th.active { font-weight: 700; }
