@@ -49,7 +49,7 @@ const Login = () => {
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: err.response?.data?.message || "Please check your email or password.",
+        text: err.response?.data?.message || "User not found or wrong password",
       });
     } finally {
       setLoading(false); // stop spinner

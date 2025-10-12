@@ -8,10 +8,6 @@ import axios from "axios";
 // CRA uses process.env.REACT_APP_* for environment variables
 // Fallback to "http://localhost:5000" if env variable is missing
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
-// 👀 Debug: make sure URL is correct
-console.log("Backend URL:", API_URL);
-
 // Step 3: Create a function to log in a user
 // credentials = { email: "abc@gmail.com", password: "12345" }
 export const loginUser = async (credentials) => {

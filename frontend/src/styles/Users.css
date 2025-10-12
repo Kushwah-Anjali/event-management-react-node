@@ -1,8 +1,7 @@
 /* === Base Styling === */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f8f9fc;
-  color: #333;
+background-color: #c9c3c3; 
 }
 
 /* === Card === */
@@ -33,16 +32,16 @@ body {
 
 /* === Buttons === */
 .btn-custom {
-  background-color: #0d6efd;
-  color: white;
-  border-radius: 0.5rem;
-  font-weight: 600;
+  background-color: #181717;
+  color: #ffff;
+  border-radius: 0.5rem; 
+  font-weight: 500;
   padding: 0.5rem 1rem;
   transition: all 0.2s ease;
 }
 
 .btn-custom:hover {
-  background-color: #0b5ed7;
+  background-color: #b6cbe2;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
 }
@@ -148,3 +147,32 @@ th.sortable { cursor: pointer; user-select: none; }
 .table-header { background-color: #0d6efd; color: #fff; }
 th.sortable:hover { opacity: .95; }
 th.active { font-weight: 700; }
+@media (max-width: 576px) {
+  .btn-custom {
+    width: 100%;
+    text-align: center;
+  }
+  .card-header-custom h2 {
+    font-size: 1.2rem;
+  }
+  .table td, .table th {
+     padding: 0.5rem 1rem;      /* consistent padding */
+  vertical-align: middle;  
+  }
+  .btn-sm {
+    padding: 0.3rem 0.5rem;
+
+  }
+  
+}
+.table-responsive {
+  overflow-x: auto;         /* allow horizontal scroll */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
+  scrollbar-width: none;    /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+   scroll-behavior: smooth;
+}
+
+.table-responsive::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
