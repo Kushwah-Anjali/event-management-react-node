@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
+import Events from "./pages/Events";
 function App() {
   return (
     <Router>
@@ -13,10 +14,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
-         <Route path="/users" element={<Users />} />
-
+        <Route path="/users" element={<Users />} />
+        <Route path="/events" element={<Events />} />
       </Routes>
-       <Footer/>
+      <Footer />
     </Router>
   );
 }
