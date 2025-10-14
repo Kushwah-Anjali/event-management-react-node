@@ -7,33 +7,33 @@
   --easing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ----------------- Navbar Base ----------------- */
-.navbar {
+/* ---------- Header Base ---------- */
+.headerContainer {
   background: var(--bg-dark);
   backdrop-filter: blur(8px);
   padding: 12px 24px;
   transition: all var(--transition-speed) var(--easing);
   z-index: 999;
 }
-.navbar.scrolled {
+.headerScrolled {
   background: rgba(10, 10, 10, 0.95);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
 }
 
-/* Brand */
-.navbar__brand {
+/* ---------- Logo / Brand ---------- */
+.headerLogo {
   font-size: 1.4rem;
   font-weight: 700;
   color: #f5f5f5;
   transition: transform var(--transition-speed) var(--easing);
 }
-.navbar__brand:hover {
+.headerLogo:hover {
   color: var(--primary-color);
   transform: translateY(-1px) scale(1.02);
 }
 
-/* Links */
-.navbar__link {
+/* ---------- Nav Links ---------- */
+.headerLink {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-light) !important;
@@ -41,12 +41,12 @@
   transition: color var(--transition-speed) var(--easing),
               transform var(--transition-speed) var(--easing);
 }
-.navbar__link:hover,
-.navbar__link.active {
+.headerLink:hover,
+.activeLink {
   color: var(--primary-color) !important;
   transform: translateY(-2px);
 }
-.navbar__link::after {
+.headerLink::after {
   content: "";
   position: absolute;
   width: 0;
@@ -57,26 +57,25 @@
   transition: width var(--transition-speed) var(--easing);
   border-radius: 3px;
 }
-.navbar__link:hover::after,
-.navbar__link.active::after {
+.headerLink:hover::after,
+.activeLink::after {
   width: 100%;
 }
 
-/* Icon inside link */
-.navbar__icon {
+/* ---------- Link Icons ---------- */
+.headerLinkIcon {
   font-size: 1.5rem;
   margin-right: 6px;
   transition: transform var(--transition-speed) var(--easing);
 }
-.navbar__link:hover .navbar__icon {
+.headerLink:hover .headerLinkIcon {
   transform: translateY(-2px) scale(1.05);
 }
 
-/* ----------------- Hamburger Toggler ----------------- */
-.navbar__toggler {
+/* ---------- Hamburger Toggle ---------- */
+.headerToggleBtn {
   border: none;
   background: transparent;
-  outline: none;
   width: 36px;
   height: 36px;
   display: flex;
@@ -85,15 +84,15 @@
   position: relative;
   z-index: 10;
 }
-.navbar__toggler-icon {
+.headerToggleIcon {
   width: 25px;
   height: 2px;
   background: var(--text-light);
   position: relative;
   transition: all var(--transition-speed) var(--easing);
 }
-.navbar__toggler-icon::before,
-.navbar__toggler-icon::after {
+.headerToggleIcon::before,
+.headerToggleIcon::after {
   content: "";
   position: absolute;
   left: 0;
@@ -102,28 +101,17 @@
   background: var(--text-light);
   transition: all var(--transition-speed) var(--easing);
 }
-.navbar__toggler-icon::before { top: -8px; }
-.navbar__toggler-icon::after { top: 8px; }
-
-/* Animate hamburger to X */
-.navbar__toggler[aria-expanded="true"] .navbar__toggler-icon {
-  background: transparent;
+.headerToggleIcon::before { top: -8px; }
+.headerToggleIcon::after { top: 8px; }
+.headerToggleBtn[aria-expanded="true"] .headerToggleIcon { background: transparent; }
+.headerToggleBtn[aria-expanded="true"] .headerToggleIcon::before {
+  transform: rotate(45deg); top: 0;
 }
-.navbar__toggler[aria-expanded="true"] .navbar__toggler-icon::before {
-  transform: rotate(45deg);
-  top: 0;
-}
-.navbar__toggler[aria-expanded="true"] .navbar__toggler-icon::after {
-  transform: rotate(-45deg);
-  top: 0;
-}
-.navbar__toggler:focus,
-.navbar__toggler:active {
-  outline: none;
-  box-shadow: none;
+.headerToggleBtn[aria-expanded="true"] .headerToggleIcon::after {
+  transform: rotate(-45deg); top: 0;
 }
 
-/* ----------------- Mobile Collapse ----------------- */
+/* ---------- Mobile Collapse ---------- */
 @media (max-width: 992px) {
   .navbar-collapse {
     position: absolute;
@@ -137,28 +125,26 @@
     transition: transform var(--transition-speed) var(--easing);
     z-index: 998;
   }
-  .navbar-collapse.show {
-    transform: scaleY(1);
-  }
+  .navbar-collapse.show { transform: scaleY(1); }
 
-  .navbar__link {
+  .headerLink {
     display: block;
     width: 100%;
     text-align: left;
     margin-bottom: 10px;
   }
 
-  /* Add subtle fade-in animation */
-  .navbar-collapse.show .navbar__link {
+  .navbar-collapse.show .headerLink {
     animation: fadeSlide 0.3s ease forwards;
   }
+
   @keyframes fadeSlide {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
   }
 }
 
-/* ----------------- Accessibility ----------------- */
+/* ---------- Reduced Motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
