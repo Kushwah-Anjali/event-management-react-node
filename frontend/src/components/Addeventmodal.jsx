@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import Select from "react-select"; // modern select replacement
+import Select from "react-select";
 import "../styles/Addeventmodal.css";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,172 +15,125 @@ const steps = ["Basic Info", "Details", "Image Upload", "Documents"];
 
 const Addeventmodal = ({ isOpen, onClose, onSubmit, categories }) => {
   const totalSteps = steps.length;
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    title: "",
-    category: null,
-    description: "",
-    date: "",
-    author: "",
-    venue: "",
-    fees: "",
-    contact: "",
-    image: null,
-    required_docs: [],
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState({
+    title: "", category: null, description: "", date: "",
+    author: "", venue: "", fees: "", contact: "",
+    image: null, required_docs: [],
   });
 
-  useEffect(() => {
-    if(isOpen) setCurrentStep(0); // reset on open
-  }, [isOpen]);
+  useEffect(() => { if(isOpen) setStep(0); }, [isOpen]);
 
-  const handleNext = () => {
-    if(validateStep(currentStep)) {
-      if(currentStep < totalSteps - 1) setCurrentStep(currentStep + 1);
-    }
-  };
+  const handleNext = () => { if(validate(step) && step < totalSteps - 1) setStep(s => s + 1); };
+  const handlePrev = () => setStep(s => s - 1);
 
-  const handlePrev = () => setCurrentStep(currentStep - 1);
-
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, files } = e.target;
-
-    if(type === "file") {
-      setFormData(prev => ({ ...prev, [name]: files[0] }));
-    } else if(type === "checkbox") {
-      setFormData(prev => {
-        const docs = prev.required_docs.includes(value)
-          ? prev.required_docs.filter(d => d !== value)
-          : [...prev.required_docs, value];
-        return {...prev, required_docs: docs };
+    if(type === "file") setData(d => ({ ...d, [name]: files[0] }));
+    else if(type === "checkbox") {
+      setData(d => {
+        const docs = d.required_docs.includes(value)
+          ? d.required_docs.filter(v => v !== value)
+          : [...d.required_docs, value];
+        return { ...d, required_docs: docs };
       });
-    } else setFormData(prev => ({ ...prev, [name]: value }));
+    } else setData(d => ({ ...d, [name]: value }));
   };
 
-  const handleCategoryChange = (selectedOption) => {
-    setFormData(prev => ({ ...prev, category: selectedOption }));
-  };
+  const handleCategoryChange = opt => setData(d => ({ ...d, category: opt }));
 
-  const validateStep = (step) => {
+  const validate = s => {
     let msg = "";
-    if(step === 0) {
-      if(!formData.title) msg = "Please enter event title";
-      else if(!formData.category) msg = "Please select category";
-      else if(!formData.date) msg = "Please select date";
-    } else if(step === 1) {
-      if(!formData.author) msg = "Author/Organizer required";
-      else if(!formData.venue) msg = "Venue required";
-      else if(!formData.fees || isNaN(formData.fees)) msg = "Fees must be a number";
-      else if(!/^\d{10}$/.test(formData.contact)) msg = "Contact must be 10 digits";
-    } else if(step === 2 && !formData.image) {
-      msg = "Please upload an image";
-    }
+    if(s === 0 && (!data.title || !data.category || !data.date)) msg = "Please fill all required fields";
+    else if(s === 1 && (!data.author || !data.venue || !data.fees || isNaN(data.fees) || !/^\d{10}$/.test(data.contact))) msg = "Check details: author, venue, fees, contact";
+    else if(s === 2 && !data.image) msg = "Please upload an image";
 
-    if(msg) {
-      Swal.fire({ icon: "error", title: "Validation Error", text: msg, confirmButtonColor: "#0d6efd" });
-      return false;
-    }
+    if(msg) { Swal.fire({ icon: "error", title: "Error", text: msg, confirmButtonColor: "#0d6efd" }); return false; }
     return true;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if(validateStep(currentStep)) onSubmit(formData);
-  };
+  const handleSubmit = e => { e.preventDefault(); if(validate(step)) onSubmit(data); };
 
-  const progressPercent = ((currentStep + 1)/totalSteps) * 100;
+  const progress = ((step + 1) / totalSteps) * 100;
+
+  if(!isOpen) return null;
 
   return (
-    isOpen && (
-      <div className="modal-overlay">
-        <div className="modal-dialog">
-          <form className="modal-content glass-card" onSubmit={handleSubmit}>
+    <div className="modalOverlay">
+      <div className="modalBox">
+        <form className="modalCard" onSubmit={handleSubmit}>
+          
+          {/* Header */}
+          <div className="modalHead">
+            <h5>{step === totalSteps-1 ? "Add Event - Final Step" : "Add New Event"}</h5>
+            <button type="button" className="btnClose" onClick={onClose}>×</button>
+          </div>
 
-            {/* Header */}
-            <div className="modal-header">
-              <h5 className="modal-title">
-                {currentStep === totalSteps - 1 ? "Add Event - Final Step" : "Add New Event"}
-              </h5>
-              <button type="button" className="close-btn" onClick={onClose}>×</button>
+          {/* Progress */}
+          <div className="progressWrapper">
+            <span className="progressText">{`Step ${step+1} of ${totalSteps}`}</span>
+            <div className="progressBarBg">
+              <div className="progressBarFill" style={{ width: `${progress}%` }}></div>
             </div>
+          </div>
 
-            {/* Progress */}
-            <div className="progress-wrapper">
-              <span className="progress-text">{`Step ${currentStep+1} of ${totalSteps}`}</span>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
-              </div>
-            </div>
+          {/* Body */}
+          <div className="modalBody">
+            {step === 0 && <>
+              <label><FontAwesomeIcon icon={faHeading}/> Event Title *</label>
+              <input name="title" value={data.title} onChange={handleChange} className="inputField" placeholder="Event Title"/>
+              
+              <label className="mt2"><FontAwesomeIcon icon={faTags}/> Category *</label>
+              <Select options={categories} value={data.category} onChange={handleCategoryChange} placeholder="Select category" />
 
-            {/* Step Content */}
-            <div className="modal-body">
-              {currentStep === 0 && (
-                <>
-                  <label className="form-label"><FontAwesomeIcon icon={faHeading}/> Event Title *</label>
-                  <input name="title" value={formData.title} onChange={handleChange} className="form-control" placeholder="Event Title"/>
-                  
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faTags}/> Category *</label>
-                  <Select
-                    options={categories}
-                    value={formData.category}
-                    onChange={handleCategoryChange}
-                    placeholder="Select category"
-                  />
+              <label className="mt2"><FontAwesomeIcon icon={faAlignLeft}/> Description</label>
+              <textarea name="description" value={data.description} onChange={handleChange} className="inputField" rows="3"/>
 
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faAlignLeft}/> Description</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange} className="form-control" rows="3"/>
-                  
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faCalendarDays}/> Date *</label>
-                  <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-control"/>
-                </>
-              )}
+              <label className="mt2"><FontAwesomeIcon icon={faCalendarDays}/> Date *</label>
+              <input type="date" name="date" value={data.date} onChange={handleChange} className="inputField"/>
+            </>}
 
-              {currentStep === 1 && (
-                <>
-                  <label className="form-label"><FontAwesomeIcon icon={faUser}/> Author/Organizer *</label>
-                  <input name="author" value={formData.author} onChange={handleChange} className="form-control" placeholder="Organizer"/>
-                  
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faLocationDot}/> Venue *</label>
-                  <input name="venue" value={formData.venue} onChange={handleChange} className="form-control"/>
-                  
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faMoneyBillWave}/> Fees *</label>
-                  <input name="fees" value={formData.fees} onChange={handleChange} className="form-control"/>
-                  
-                  <label className="form-label mt-2"><FontAwesomeIcon icon={faPhone}/> Contact *</label>
-                  <input name="contact" value={formData.contact} onChange={handleChange} className="form-control"/>
-                </>
-              )}
+            {step === 1 && <>
+              <label><FontAwesomeIcon icon={faUser}/> Author/Organizer *</label>
+              <input name="author" value={data.author} onChange={handleChange} className="inputField" placeholder="Organizer"/>
+              
+              <label className="mt2"><FontAwesomeIcon icon={faLocationDot}/> Venue *</label>
+              <input name="venue" value={data.venue} onChange={handleChange} className="inputField"/>
 
-              {currentStep === 2 && (
-                <>
-                  <label className="form-label"><FontAwesomeIcon icon={faImage}/> Upload Image *</label>
-                  <input type="file" name="image" onChange={handleChange} className="form-control"/>
-                  {formData.image && <img src={URL.createObjectURL(formData.image)} alt="Preview" className="preview-img"/>}
-                </>
-              )}
+              <label className="mt2"><FontAwesomeIcon icon={faMoneyBillWave}/> Fees *</label>
+              <input name="fees" value={data.fees} onChange={handleChange} className="inputField"/>
 
-              {currentStep === 3 && (
-                <>
-                  <label className="form-label"><FontAwesomeIcon icon={faFileLines}/> Required Documents</label>
-                  {["Aadhar Card","Resume","Marksheet","Photo"].map(doc => (
-                    <div key={doc} className="form-check">
-                      <input className="form-check-input" type="checkbox" value={doc} checked={formData.required_docs.includes(doc)} onChange={handleChange}/>
-                      <label className="form-check-label">{doc}</label>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
+              <label className="mt2"><FontAwesomeIcon icon={faPhone}/> Contact *</label>
+              <input name="contact" value={data.contact} onChange={handleChange} className="inputField"/>
+            </>}
 
-            {/* Footer */}
-            <div className="modal-footer">
-              {currentStep > 0 && <button type="button" className="btn btn-prev" onClick={handlePrev}><FontAwesomeIcon icon={faArrowLeft}/> Previous</button>}
-              {currentStep < totalSteps - 1 && <button type="button" className="btn btn-next" onClick={handleNext}>Next <FontAwesomeIcon icon={faArrowRight}/></button>}
-              {currentStep === totalSteps -1 && <button type="submit" className="btn btn-submit"><FontAwesomeIcon icon={faPlusCircle}/> Add Event</button>}
-            </div>
-          </form>
-        </div>
+            {step === 2 && <>
+              <label><FontAwesomeIcon icon={faImage}/> Upload Image *</label>
+              <input type="file" name="image" onChange={handleChange} className="inputField"/>
+              {data.image && <img src={URL.createObjectURL(data.image)} alt="Preview" className="previewImg"/>}
+            </>}
+
+            {step === 3 && <>
+              <label><FontAwesomeIcon icon={faFileLines}/> Required Documents</label>
+              {["Aadhar Card","Resume","Marksheet","Photo"].map(d => (
+                <div key={d} className="docCheck">
+                  <input type="checkbox" value={d} checked={data.required_docs.includes(d)} onChange={handleChange}/>
+                  <label>{d}</label>
+                </div>
+              ))}
+            </>}
+          </div>
+
+          {/* Footer */}
+          <div className="modalFoot">
+            {step>0 && <button type="button" className="btnPrev" onClick={handlePrev}><FontAwesomeIcon icon={faArrowLeft}/> Previous</button>}
+            {step<totalSteps-1 && <button type="button" className="btnNext" onClick={handleNext}>Next <FontAwesomeIcon icon={faArrowRight}/></button>}
+            {step===totalSteps-1 && <button type="submit" className="btnSubmit"><FontAwesomeIcon icon={faPlusCircle}/> Add Event</button>}
+          </div>
+
+        </form>
       </div>
-    )
+    </div>
   );
 };
 

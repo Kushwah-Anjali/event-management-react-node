@@ -3,45 +3,33 @@ import "../styles/Footer.css";
 
 const Footer = () => {
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        
+    <footer className="footerMain">
+      <div className="footerContent">
         {/* Brand Section */}
-        <div className="footer-section about">
+        <div className="footerBrand">
           <h3>Eventify</h3>
-          <p>
-            Simplifying event management with innovation, precision, and
-            seamless coordination.
-          </p>
-          <div className="footer-social">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer">
-              <i className="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer">
-              <i className="fab fa-instagram"></i>
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer">
-              <i className="fab fa-linkedin-in"></i>
-            </a>
-            <a href="https://wa.me/1234567890" target="_blank" rel="noreferrer">
-              <i className="fab fa-whatsapp"></i>
-            </a>
+          <p>Simplifying event management with innovation and seamless coordination.</p>
+          <div className="footerSocial">
+            <a href="https://facebook.com" target="_blank" rel="noreferrer"><i className="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer"><i className="fab fa-instagram"></i></a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer"><i className="fab fa-linkedin-in"></i></a>
+            <a href="https://wa.me/1234567890" target="_blank" rel="noreferrer"><i className="fab fa-whatsapp"></i></a>
           </div>
         </div>
 
-        {/* Quick Links Section */}
-        <div className="footer-section links">
+        {/* Quick Links */}
+        <div className="footerLinks">
           <h4>Quick Links</h4>
           <ul>
             <li><i className="fas fa-home"></i> <a href="#home">Home</a></li>
             <li><i className="fas fa-calendar-alt"></i> <a href="#events">Events</a></li>
-            <li><i className="fas fa-envelope"></i> <a href="../">Contact</a></li>
+            <li><i className="fas fa-envelope"></i> <a href="#contact">Contact</a></li>
             <li><i className="fas fa-comment-dots"></i> <a href="#feedback">Feedback</a></li>
           </ul>
         </div>
 
-        {/* Contact Section */}
-        <div className="footer-section contact">
+        {/* Contact */}
+        <div className="footerContact">
           <h4>Contact</h4>
           <ul>
             <li><i className="fas fa-envelope"></i> info@eventify.com</li>
@@ -51,11 +39,8 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="footer-bottom">
-        <p>
-          &copy; {new Date().getFullYear()} Eventify. Crafted with{" "}
-          <span className="heart">❤</span> by <strong>Anju</strong>.
-        </p>
+      <div className="footerBottom">
+        <p>&copy; {new Date().getFullYear()} Eventify. Crafted with <span className="footerHeart">❤</span> by <strong>Anju</strong>.</p>
       </div>
     </footer>
   );

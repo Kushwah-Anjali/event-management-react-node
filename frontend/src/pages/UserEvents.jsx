@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import "../styles/UserEvents.css"; // new updated CSS
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faEnvelope, faCalendarDays, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-// import Addeventmodal from "../components/Addeventmodal"; 
+import Addeventmodal from "../components/Addeventmodal"; 
 import Swal from "sweetalert2"; 
 
-const Events = () => {
+const UserEvents = () => {
   const [user, setUser] = useState({ name: "Loading name...", email: "Loading email..." });
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -135,7 +135,7 @@ const closeModal = () => setIsModalOpen(false);
           </button>
         ))}
       </div>
-  {/* <Addeventmodal
+  <Addeventmodal
   isOpen={isModalOpen}
   onClose={closeModal}
   categories={[
@@ -153,11 +153,11 @@ const closeModal = () => setIsModalOpen(false);
       confirmButtonColor: "#0d6efd",
     });
   }}
-/> */}
+/>
 
     </div> 
   
   );
 };
 
-export default Events;
+export default UserEvents;
