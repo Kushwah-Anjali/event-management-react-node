@@ -1,3 +1,39 @@
+/* Smooth fade-in modal */
+.modal.show {
+  animation: fadeInModal 0.25s ease forwards;
+}
+
+/* Inputs and selects */
+.modal-content input.form-control,
+.modal-content textarea.form-control,
+.modal-content .react-select__control {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.modal-content input.form-control:focus,
+.modal-content textarea.form-control:focus,
+.modal-content .react-select__control--is-focused {
+  border-color: #0d6efd;
+  box-shadow: 0 0 4px rgba(13, 110, 253, 0.3);
+}
+
+/* Buttons hover effect */
+.modal-content .btn-primary,
+.modal-content .btn-success,
+.modal-content .btn-outline-secondary {
+  transition: 0.2s;
+}
+
+.modal-content .btn-primary:hover,
+.modal-content .btn-success:hover,
+.modal-content .btn-outline-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Header underline */
 .underline-accent {
   width: 100%;
   height: 4px;
@@ -6,4 +42,10 @@
   margin-top: 4px;
   animation: fadeIn 0.5s ease;
   display: block;
+}
+
+/* Fade-in animation */
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
