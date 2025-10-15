@@ -1,7 +1,7 @@
 // src/components/Logo.jsx
 import React from "react";
 
-const Logo = ({ width = 60, height = 60 }) => {
+const Logo = ({ width = 60, height = 60  }) => {
   return (
     <svg
       width={width}

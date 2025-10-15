@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHouse,
+  faEnvelope,
+  faUserCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import "../styles/Header.css";
 import Logo from "./Logo";
 
 const navLinks = [
-  { path: "/", label: "Home" },
-  { path: "/contact", label: "Contact" },
-  { path: "/login", label: "Login", icon: "bi bi-person-circle" },
+  { path: "/", label: "Home", icon: faHouse },
+  { path: "/contact", label: "Contact", icon: faEnvelope },
+  { path: "/login", label: "Login", icon: faUserCircle },
 ];
 
 const Header = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const headerRef = useRef();
 
   useEffect(() => {
@@ -22,53 +28,49 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (headerRef.current && !headerRef.current.contains(e.target)) {
-        setIsExpanded(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const isActive = (path) => (location.pathname === path ? "activeLink" : "");
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Navbar
       expand="lg"
+      variant="dark"
+      bg="dark"
       sticky="top"
-      className={`headerContainer ${scrolled ? "headerScrolled" : ""}`}
-      expanded={isExpanded}
+      expanded={expanded}
       ref={headerRef}
-      aria-label="Main navigation"
+      className={`shadow-sm py-2 ${scrolled ? "navbar-scrolled" : ""}`}
     >
       <Container fluid>
-        <Navbar.Brand as={Link} to="/" className="headerLogo d-flex align-items-center gap-2">
+        {/* Brand Section */}
+        <Navbar.Brand
+          as={Link}
+          to="/"
+          className="d-flex align-items-center fw-bold fs-4 text-light"
+        >
           <Logo width={40} height={40} />
           Eventify
         </Navbar.Brand>
 
+        {/* Toggle for Mobile */}
         <Navbar.Toggle
           aria-controls="main-nav"
-          aria-expanded={isExpanded}
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="headerToggleBtn"
-        >
-          <span className="headerToggleIcon"></span>
-        </Navbar.Toggle>
+          onClick={() => setExpanded(!expanded)}
+        />
 
+        {/* Navigation Links */}
         <Navbar.Collapse id="main-nav" className="justify-content-end">
-          <Nav className="headerNav gap-4 px-3 align-items-center">
+          <Nav className="align-items-center">
             {navLinks.map((link) => (
               <Nav.Link
                 key={link.path}
                 as={Link}
                 to={link.path}
-                className={`headerLink ${isActive(link.path)}`}
-                onClick={() => setIsExpanded(false)}
+                onClick={() => setExpanded(false)}
+                className={`text-light fw-semibold px-3 d-flex align-items-center gap-2 ${
+                  isActive(link.path) ? "active-link" : ""
+                }`}
               >
-                {link.icon && <i className={`${link.icon} headerLinkIcon`}></i>}
+                <FontAwesomeIcon icon={link.icon} className="fs-5" />
                 {link.label}
               </Nav.Link>
             ))}
