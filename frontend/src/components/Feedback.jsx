@@ -1,16 +1,12 @@
 import React from "react";
-import "../styles/Feedback.css";
-
-// Swiper imports
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/autoplay";
-
-// Import modules directly
 import { Navigation, Autoplay } from "swiper/modules";
+import "../styles/Feedback.css";
 
-// Feedback Data
 const feedbackData = [
   {
     text: "Amazing experience! The team managed everything smoothly and the event went beyond expectations.",
@@ -34,20 +30,26 @@ const feedbackData = [
 
 export default function Feedback() {
   return (
-    <section id="feedback" className="feedback-section">
+    <section
+      id="feedback"
+      className="py-5 text-center text-white position-relative"
+      style={{ background: "#0d0d4d" }}
+    >
       <div className="container">
-        <h2 className="section-title">💬 What Our Customers Say</h2>
-        <p className="section-subtitle">
+        <h2 className="fw-bold text-uppercase mb-3 display-6 text-white">
+          💬 What Our Customers Say
+        </h2>
+        <p className="text-light opacity-75 mb-5">
           Real experiences from people who trusted us with their events
         </p>
 
         <Swiper
-          modules={[Navigation, Autoplay]} // Pass modules here
+          modules={[Navigation, Autoplay]}
           spaceBetween={30}
           slidesPerView={1}
           navigation
           autoplay={{ delay: 3000, disableOnInteraction: false }}
-          loop={true}
+          loop
           breakpoints={{
             640: { slidesPerView: 1 },
             768: { slidesPerView: 2 },
@@ -56,13 +58,25 @@ export default function Feedback() {
         >
           {feedbackData.map((f, i) => (
             <SwiperSlide key={i}>
-              <div className="feedback-card">
-                <div className="feedback-text">{f.text}</div>
-                <div className="feedback-user">
-                  <img src={f.img} alt={f.name} className="user-img" />
-                  <div>
-                    <h4>{f.name}</h4>
-                    <span>{f.role}</span>
+              <div className="card border-0 shadow feedback-card mx-2">
+                <div className="card-body text-start">
+                  <p className="fst-italic text-dark mb-4">{f.text}</p>
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={f.img}
+                      alt={f.name}
+                      className="rounded-circle me-3"
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        border: "2px solid #0d0d2d",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <div>
+                      <h6 className="mb-0 fw-bold text-dark">{f.name}</h6>
+                      <small className="text-primary">{f.role}</small>
+                    </div>
                   </div>
                 </div>
               </div>
