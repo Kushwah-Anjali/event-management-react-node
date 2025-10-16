@@ -12,9 +12,8 @@ const Home = () => {
 
       {/* Welcome Section */}
       <Welcome />
-        <Events />
-        <Feedback/>
-       
+      <Events />
+      <Feedback />
     </>
   );
 };

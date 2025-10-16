@@ -1,0 +1,101 @@
+/* =============================== */
+/*         Background Layer        */
+/* =============================== */
+.hero-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../assets/images/HeroImg.jpg") center/cover no-repeat fixed;
+  transform: scale(var(--scroll-scale, 1));
+  transition: transform 12s ease;
+  z-index: -3;
+}
+.hero-section:hover::before {
+  transform: scale(1.1);
+}
+
+/* =============================== */
+/*         Overlay & Layout        */
+/* =============================== */
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.35);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* =============================== */
+/*          Text Styling           */
+/* =============================== */
+.hero-caption,
+.hero-title,
+.hero-subcaption {
+  font-family: "Poppins", sans-serif;
+  opacity: 0;
+}
+
+.hero-caption {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+  color: #ec4899;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  animation: fadeIn 1.2s ease forwards 0.2s;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeUp 1.5s ease forwards 0.5s, floaty 6s ease-in-out infinite;
+}
+
+.hero-subcaption {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: #e5e7eb;
+  margin: 15px 0 30px;
+  font-weight: 400;
+  animation: fadeIn 1.5s ease forwards 0.8s;
+}
+
+/* =============================== */
+/*            Button               */
+/* =============================== */
+.hero-btn {
+  padding: clamp(10px, 2vw, 14px) clamp(20px, 4vw, 34px);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  border-radius: 35px;
+  border: none;
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+  animation: fadeIn 2s ease forwards 1.2s;
+  transition: all 0.4s ease;
+}
+.hero-btn:hover {
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 0 40px rgba(236, 72, 153, 0.8);
+}
+
+/* =============================== */
+/*         Animations              */
+/* =============================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

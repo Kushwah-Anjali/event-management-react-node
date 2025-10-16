@@ -1,22 +1,32 @@
-import React from "react";
-import styles from "../styles/Hero.module.css";
-import heroBg from "../assets/images/HeroImg.jpg";
+import React, { useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/Hero.css";
 
 const Hero = () => {
+  useEffect(() => {
+    const hero = document.querySelector(".hero-section");
+    const handleScroll = () => {
+      const scaleValue = 1 + window.scrollY * 0.0005;
+      hero.style.setProperty("--scroll-scale", scaleValue);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <section
-      className={styles.heroSection}
-      style={{ backgroundImage: `url(${heroBg})` }}
+      className="hero-section d-flex flex-column justify-content-center align-items-center text-center position-relative overflow-hidden"
+      style={{ minHeight: "calc(100vh - 65px)" }}
     >
-      <div className={styles.container}>
-        <p className={styles.heroCaption}>Celebrate • Connect • Create</p>
-        <h1 className={styles.heroTitle}>Your Event, Your Way</h1>
-        <p className={styles.heroSubcaption}>
-          Discover, Experience, and Make Memories
-        </p>
-        <a href="#event-section" className={styles.heroBtn}>
-          Explore Events
-        </a>
+      {/* Overlay for readability */}
+      <div className="hero-overlay"></div>
+
+      {/* Content */}
+      <div className="container py-5 position-relative">
+        <p className="hero-caption">Celebrate • Connect • Create</p>
+        <h1 className="hero-title mb-3">Your Event, Your Way</h1>
+        <p className="hero-subcaption">Discover, Experience, and Make Memories</p>
+        <a href="#event-section" className="btn hero-btn">Explore Events</a>
       </div>
     </section>
   );
