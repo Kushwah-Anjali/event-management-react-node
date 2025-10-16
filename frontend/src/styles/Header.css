@@ -1,19 +1,20 @@
+/* Navbar scrolled */
 .navbar-scrolled {
   background-color: rgba(0, 0, 0, 0.95) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: background 0.3s ease;
 }
 
-.active-link {
+/* Active link gradient underline */
+.nav-link.active-link {
   color: #ff4ecd !important;
   position: relative;
   font-weight: 700;
 }
-
-.active-link::after {
+.nav-link.active-link::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: 0;
   left: 10%;
   width: 80%;
   height: 2px;
@@ -21,10 +22,17 @@
   border-radius: 3px;
 }
 
+/* Hover effect */
 .nav-link:hover {
   color: #ff4ecd !important;
-  transition: color 0.3s ease;
 }
-.logo_name{
-  margin-right: 20px !important ;
+
+/* Mobile nav animation */
+@keyframes slideFadeIn {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.mobile-nav-item {
+  animation: slideFadeIn 0.3s forwards;
+  opacity: 0;
 }
