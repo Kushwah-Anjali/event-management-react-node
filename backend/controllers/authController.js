@@ -1,7 +1,7 @@
 // controllers/authController.js
-const db = require("../config/db"); 
+const db = require("../config/db");
 const bcrypt = require("bcrypt"); // used to compare password
-const jwt = require("jsonwebtoken");// used to create token
+const jwt = require("jsonwebtoken"); // used to create token
 
 // Secret key for JWT (in production, store in .env file)
 const JWT_SECRET = "your_super_secret_key";
@@ -47,7 +47,7 @@ const login = async (req, res) => {
       JWT_SECRET,
       { expiresIn: "1h" } // token expires in 1 hour
     );
-    
+
     // Step 5: Return success with token
     return res.json({
       status: "success",

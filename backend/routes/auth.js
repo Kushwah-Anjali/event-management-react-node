@@ -1,8 +1,6 @@
 // routes/auth.js
-
 // 1️⃣ We bring in 'express' — it’s a Node.js library that helps us create a web server easily.
 const express = require("express");
-
 // 2️⃣ We create a "router" object — think of it like a small bus that handles only 'auth' (login/signup) routes.
 const router = express.Router();
 
