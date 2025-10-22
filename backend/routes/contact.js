@@ -11,54 +11,53 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    // 1️⃣ Create transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // App password
+        pass: process.env.EMAIL_PASS,
       },
     });
 
-    // 2️⃣ Professional HTML email for admin
+    // Admin Email (you)
     const adminMail = {
       from: `"Event Manager Contact" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
-      subject: `📩 New Message from ${name}`,
+      subject: `📨 New Inquiry from ${name}`,
       html: `
-        <div style="font-family:'Poppins',sans-serif;color:#333;line-height:1.6;">
-          <h2 style="color:#505add;">📥 New Contact Inquiry</h2>
-          <p><b>Name:</b> ${name}</p>
-          <p><b>Email:</b> ${email}</p>
-          <p><b>Message:</b></p>
-          <div style="background:#f7f7f7;padding:12px;border-radius:8px;">
-            ${message}
+        <div style="font-family:Poppins,sans-serif;background:#f9fafc;padding:20px;border-radius:10px;">
+          <div style="max-width:600px;margin:auto;background:white;padding:20px;border-radius:10px;">
+            <h2 style="color:#007bff;">New Message from Contact Form</h2>
+            <p><b>Name:</b> ${name}</p>
+            <p><b>Email:</b> ${email}</p>
+            <p><b>Message:</b></p>
+            <blockquote style="border-left:4px solid #007bff;padding-left:10px;">${message}</blockquote>
+            <p style="font-size:12px;color:#888;">Sent via Event Management Website 💼</p>
           </div>
-          <hr style="border:0.5px solid #ddd;margin-top:20px;">
-          <p style="font-size:12px;color:#888;">Sent via Event Management Contact Form 💼</p>
         </div>
       `,
     };
 
-    // 3️⃣ Auto-reply to user
+    // Auto reply to user
     const autoReply = {
       from: `"Event Manager" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "✅ We’ve received your message!",
       html: `
-        <div style="font-family:'Poppins',sans-serif;color:#333;">
-          <h3>Hey ${name},</h3>
-          <p>Thanks for reaching out! We’ve received your message:</p>
-          <blockquote style="border-left:4px solid #505add;padding-left:10px;color:#555;">
-            ${message}
-          </blockquote>
-          <p>Our team will respond within 24 hours.</p>
-          <p style="color:#505add;">– Event Manager Support Team</p>
+        <div style="font-family:Poppins,sans-serif;background:#f8f9fa;padding:20px;">
+          <div style="max-width:600px;margin:auto;background:white;border-radius:10px;padding:20px;text-align:center;">
+            <img src="https://img.icons8.com/color/96/event.png" alt="logo" width="80"/>
+            <h2 style="color:#007bff;">Thanks for Reaching Out!</h2>
+            <p style="color:#555;">Hey <b>${name}</b>, your message has been received by our team.</p>
+            <p style="font-style:italic;">"${message}"</p>
+            <p>We’ll get back to you within 24 hours 🚀</p>
+            <hr/>
+            <p style="color:#888;font-size:12px;">Event Manager • Mumbai, India</p>
+          </div>
         </div>
       `,
     };
 
-    // Send both emails
     await transporter.sendMail(adminMail);
     await transporter.sendMail(autoReply);
 
