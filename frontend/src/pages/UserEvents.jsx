@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,69 +13,77 @@ import Swal from "sweetalert2";
 const UserEvents = () => {
   const navigate = useNavigate();
 
-  // ✅ Get user from localStorage
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
-
+  // ✅ State Initialization
+  const [user, setUser] = useState(null);
+  const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  // ✅ Fetch logged-in user's events
+  // ✅ Load user from localStorage once
   useEffect(() => {
-    if (!user) return;
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/userevents/user/${user.id}`);
-        const data = await res.json();
-        if (data.status === "success") {
-          setEvents(data.events);
-        } else {
-          Swal.fire("Error", data.message || "Failed to load events", "error");
-        }
-      } catch (err) {
-        console.error(err);
-        Swal.fire("Error", "Server not reachable", "error");
-      } finally {
-        setLoading(false);
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        navigate("/login");
       }
-    };
-    fetchEvents();
+    } catch (err) {
+      console.error("Error parsing user:", err);
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // ✅ Fetch user events (Memoized)
+  const fetchEvents = useCallback(async () => {
+    if (!user?.id) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/userevents/user/${user.id}`
+      );
+      const data = await res.json();
+
+      if (data.status === "success" && Array.isArray(data.events)) {
+        setEvents(data.events);
+      } else {
+        Swal.fire("Error", data.message || "Failed to load events", "error");
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      Swal.fire("Error", "Server not reachable", "error");
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
-  // 🔍 Search + Pagination
-  const filteredEvents = events.filter((e) =>
-    e.title.toLowerCase().includes(search.toLowerCase())
-  );
-  const totalPages = Math.ceil(filteredEvents.length / rowsPerPage);
-  const startIdx = (currentPage - 1) * rowsPerPage;
-  const currentEvents = filteredEvents.slice(startIdx, startIdx + rowsPerPage);
+  // ✅ Fetch events after user loads
+  useEffect(() => {
+    if (user?.id) {
+      fetchEvents();
+    }
+  }, [user, fetchEvents]);
 
-  // 🧠 Add Event
+  // ✅ Add Event
   const handleAddEvent = async (newEvent) => {
+    if (!user?.id) {
+      Swal.fire("Error", "User not found. Please log in again.", "error");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/userevents/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...newEvent, user_id: user.id }),
       });
+
       const data = await res.json();
+
       if (data.status === "success") {
         setEvents((prev) => [...prev, data.event]);
         Swal.fire("Success", "Event added successfully!", "success");
@@ -85,8 +93,9 @@ const UserEvents = () => {
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Failed to connect to backend", "error");
+    } finally {
+      setIsModalOpen(false);
     }
-    closeModal();
   };
 
   // ✅ Logout
@@ -96,21 +105,32 @@ const UserEvents = () => {
     navigate("/login");
   };
 
+  // ✅ Search & Pagination Logic
+  const filteredEvents = events.filter((e) =>
+    e.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredEvents.length / rowsPerPage) || 1;
+  const startIdx = (currentPage - 1) * rowsPerPage;
+  const currentEvents = filteredEvents.slice(startIdx, startIdx + rowsPerPage);
+
   return (
     <div className="container py-4">
-      {/* Header */}
+      {/* 🔹 Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="fw-bold mb-1">
             <FontAwesomeIcon icon={faUser} className="me-2 text-primary" />
-            {user?.name}
+            {user?.name || "Loading..."}
           </h2>
           <p className="text-muted mb-0">
-            <FontAwesomeIcon icon={faEnvelope} className="me-1" /> {user?.email}
+            <FontAwesomeIcon icon={faEnvelope} className="me-1" />{" "}
+            {user?.email || ""}
           </p>
         </div>
+
         <div>
-          <button className="btn btn-primary me-2" onClick={openModal}>
+          <button className="btn btn-primary me-2" onClick={() => setIsModalOpen(true)}>
             Add Event
           </button>
           <button className="btn btn-outline-danger" onClick={handleLogout}>
@@ -119,7 +139,7 @@ const UserEvents = () => {
         </div>
       </div>
 
-      {/* Toolbar */}
+      {/* 🔹 Toolbar */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="fw-semibold">
           <FontAwesomeIcon icon={faCalendarDays} className="me-2 text-primary" />
@@ -158,7 +178,7 @@ const UserEvents = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* 🔹 Events Table */}
       <div className="table-responsive">
         <table className="table table-striped table-hover align-middle">
           <thead className="table-dark">
@@ -175,12 +195,16 @@ const UserEvents = () => {
                   Loading events...
                 </td>
               </tr>
-            ) : currentEvents.length ? (
+            ) : currentEvents.length > 0 ? (
               currentEvents.map((event) => (
                 <tr key={event.id}>
                   <td>{event.title}</td>
-                  <td>{new Date(event.date).toLocaleDateString()}</td>
-                  <td>{event.venue}</td>
+                  <td>
+                    {event.date
+                      ? new Date(event.date).toLocaleDateString()
+                      : "No Date"}
+                  </td>
+                  <td>{event.venue || "N/A"}</td>
                 </tr>
               ))
             ) : (
@@ -194,12 +218,14 @@ const UserEvents = () => {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* 🔹 Pagination */}
       <div className="d-flex justify-content-center mt-3">
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
           <button
             key={num}
-            className={`btn btn-sm mx-1 ${currentPage === num ? "btn-primary" : "btn-outline-secondary"}`}
+            className={`btn btn-sm mx-1 ${
+              currentPage === num ? "btn-primary" : "btn-outline-secondary"
+            }`}
             onClick={() => setCurrentPage(num)}
           >
             {num}
@@ -207,17 +233,19 @@ const UserEvents = () => {
         ))}
       </div>
 
-      {/* Add Event Modal */}
-      <Addeventmodal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        categories={[
-          { value: "Workshop", label: "Workshop" },
-          { value: "Seminar", label: "Seminar" },
-          { value: "Competition", label: "Competition" },
-        ]}
-        onSubmit={handleAddEvent}
-      />
+      {/* 🔹 Add Event Modal */}
+      {isModalOpen && (
+        <Addeventmodal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          categories={[
+            { value: "Workshop", label: "Workshop" },
+            { value: "Seminar", label: "Seminar" },
+            { value: "Competition", label: "Competition" },
+          ]}
+          onSubmit={handleAddEvent}
+        />
+      )}
     </div>
   );
 };

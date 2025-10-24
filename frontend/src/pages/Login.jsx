@@ -25,17 +25,20 @@ const Login = () => {
         }
 
         // ✅ Show success alert first
-        Swal.fire({
-          icon: "success",
-          title: "Welcome!",
-          text: data.user?.name
-            ? `Hey ${data.user.name}, glad to see you!`
-            : "Login successful!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "Welcome!",
+        //   text: data.user?.name
+        //     ? `Hey ${data.user.name}, glad to see you!`
+        //     : "Login successful!",
+        //   timer: 1500,
+        //   showConfirmButton: false,
+        // });
         if (data.user.role === "root") navigate("/users");
-        else if (data.user.role === "admin") navigate("/userevents");
+        else if (data.user.role === "admin"){
+          console.log("Navigating to user events for admin", data.user.role);
+          navigate("/userevents");
+        } 
         else Swal.fire("Error", "Unknown role", "error");
       } else {
         Swal.fire(
