@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -6,154 +6,135 @@ import {
   faEnvelope,
   faCalendarDays,
   faMagnifyingGlass,
+  faPlus,
+  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
 
 const UserEvents = () => {
   const navigate = useNavigate();
+  const [state, setState] = useState({
+    user: null,
+    events: [],
+    search: "",
+    rowsPerPage: 5,
+    currentPage: 1,
+    isModalOpen: false,
+    loading: false,
+  });
 
-  // ✅ State Initialization
-  const [user, setUser] = useState(null);
-  const [events, setEvents] = useState([]);
-  const [search, setSearch] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { user, events, search, rowsPerPage, currentPage, isModalOpen, loading } = state;
 
-  // ✅ Load user from localStorage once
+  // --- Auth Check ---
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
-        navigate("/login");
-      }
-    } catch (err) {
-      console.error("Error parsing user:", err);
-      navigate("/login");
-    }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
+    else navigate("/login");
   }, [navigate]);
 
-  // ✅ Fetch user events (Memoized)
-  const fetchEvents = useCallback(async () => {
+  // --- Fetch Events ---
+  useEffect(() => {
     if (!user?.id) return;
 
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/userevents/user/${user.id}`
-      );
-      const data = await res.json();
-
-      if (data.status === "success" && Array.isArray(data.events)) {
-        setEvents(data.events);
-      } else {
-        Swal.fire("Error", data.message || "Failed to load events", "error");
+    const fetchEvents = async () => {
+      setState((prev) => ({ ...prev, loading: true }));
+      try {
+        const res = await fetch(`http://localhost:5000/api/userevents/user/${user.id}`);
+        const data = await res.json();
+        if (data.status === "success") setState((prev) => ({ ...prev, events: data.events }));
+        else Swal.fire("Error", data.message || "Failed to load events", "error");
+      } catch {
+        Swal.fire("Error", "Server not reachable", "error");
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
       }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      Swal.fire("Error", "Server not reachable", "error");
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchEvents();
   }, [user]);
 
-  // ✅ Fetch events after user loads
-  useEffect(() => {
-    if (user?.id) {
-      fetchEvents();
-    }
-  }, [user, fetchEvents]);
-
-  // ✅ Add Event
+  // --- Add Event ---
   const handleAddEvent = async (newEvent) => {
-    if (!user?.id) {
-      Swal.fire("Error", "User not found. Please log in again.", "error");
-      return;
-    }
-
+    if (!user?.id) return Swal.fire("Error", "User not found. Please log in.", "error");
     try {
       const res = await fetch("http://localhost:5000/api/userevents/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...newEvent, user_id: user.id }),
       });
-
       const data = await res.json();
-
       if (data.status === "success") {
-        setEvents((prev) => [...prev, data.event]);
+        setState((prev) => ({ ...prev, events: [...prev.events, data.event] }));
         Swal.fire("Success", "Event added successfully!", "success");
-      } else {
-        Swal.fire("Error", data.message || "Failed to add event", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "Failed to connect to backend", "error");
+      } else Swal.fire("Error", data.message || "Failed to add event", "error");
+    } catch {
+      Swal.fire("Error", "Backend connection failed", "error");
     } finally {
-      setIsModalOpen(false);
+      setState((prev) => ({ ...prev, isModalOpen: false }));
     }
   };
 
-  // ✅ Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  // ✅ Search & Pagination Logic
-  const filteredEvents = events.filter((e) =>
-    e.title?.toLowerCase().includes(search.toLowerCase())
-  );
+  // --- Filter & Pagination ---
+  const filteredEvents = useMemo(() => {
+    return events.filter((e) => e.title?.toLowerCase().includes(search.toLowerCase()));
+  }, [events, search]);
 
   const totalPages = Math.ceil(filteredEvents.length / rowsPerPage) || 1;
-  const startIdx = (currentPage - 1) * rowsPerPage;
-  const currentEvents = filteredEvents.slice(startIdx, startIdx + rowsPerPage);
+  const currentEvents = useMemo(() => {
+    const startIdx = (currentPage - 1) * rowsPerPage;
+    return filteredEvents.slice(startIdx, startIdx + rowsPerPage);
+  }, [filteredEvents, currentPage, rowsPerPage]);
 
   return (
     <div className="container py-4">
-      {/* 🔹 Header Section */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
           <h2 className="fw-bold mb-1">
             <FontAwesomeIcon icon={faUser} className="me-2 text-primary" />
             {user?.name || "Loading..."}
           </h2>
           <p className="text-muted mb-0">
-            <FontAwesomeIcon icon={faEnvelope} className="me-1" />{" "}
-            {user?.email || ""}
+            <FontAwesomeIcon icon={faEnvelope} className="me-1" /> {user?.email || ""}
           </p>
         </div>
-
-        <div>
-          <button className="btn btn-primary me-2" onClick={() => setIsModalOpen(true)}>
-            Add Event
+        <div className="d-flex gap-2 flex-wrap">
+          <button
+            className="btn btn-primary d-flex align-items-center gap-1"
+            onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
+          >
+            <FontAwesomeIcon icon={faPlus} /> Add Event
           </button>
-          <button className="btn btn-outline-danger" onClick={handleLogout}>
-            Logout
+          <button
+            className="btn btn-outline-danger d-flex align-items-center gap-1"
+            onClick={handleLogout}
+          >
+            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
           </button>
         </div>
       </div>
 
-      {/* 🔹 Toolbar */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      {/* Toolbar */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <h4 className="fw-semibold">
           <FontAwesomeIcon icon={faCalendarDays} className="me-2 text-primary" />
           Your Events
         </h4>
 
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex gap-2 flex-wrap">
           <select
             className="form-select w-auto"
             value={rowsPerPage}
-            onChange={(e) => {
-              setRowsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
+            onChange={(e) =>
+              setState((prev) => ({ ...prev, rowsPerPage: Number(e.target.value), currentPage: 1 }))
+            }
           >
             <option value={5}>5 rows</option>
             <option value={10}>10 rows</option>
@@ -169,75 +150,99 @@ const UserEvents = () => {
               className="form-control"
               placeholder="Search events..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) =>
+                setState((prev) => ({ ...prev, search: e.target.value, currentPage: 1 }))
+              }
             />
           </div>
         </div>
       </div>
 
-      {/* 🔹 Events Table */}
-      <div className="table-responsive">
+      {/* Events Table */}
+      <div className="table-responsive shadow-sm rounded">
         <table className="table table-striped table-hover align-middle">
           <thead className="table-dark">
             <tr>
-              <th>Title</th>
-              <th>Date</th>
-              <th>Location</th>
+              {["Title","Category","Description","Date","Organizer","Venue","Fees","Contact","Image","Documents"].map((th) => (
+                <th key={th}>{th}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={3} className="text-center py-4">
+                <td colSpan={10} className="text-center py-4">
                   Loading events...
                 </td>
               </tr>
-            ) : currentEvents.length > 0 ? (
-              currentEvents.map((event) => (
-                <tr key={event.id}>
-                  <td>{event.title}</td>
-                  <td>
-                    {event.date
-                      ? new Date(event.date).toLocaleDateString()
-                      : "No Date"}
-                  </td>
-                  <td>{event.venue || "N/A"}</td>
-                </tr>
-              ))
-            ) : (
+            ) : currentEvents.length === 0 ? (
               <tr>
-                <td colSpan={3} className="text-center py-4">
+                <td colSpan={10} className="text-center py-4 text-muted">
                   No events found
                 </td>
               </tr>
+            ) : (
+              currentEvents.map((event) => (
+                <tr key={event.id}>
+                  <td>{event.title}</td>
+                  <td>{event.category || "-"}</td>
+                  <td className="text-truncate" style={{ maxWidth: "150px" }}>
+                    {event.description || "-"}
+                  </td>
+                  <td>{event.date ? new Date(event.date).toLocaleDateString() : "-"}</td>
+                  <td>{event.author || "-"}</td>
+                  <td>{event.venue || "-"}</td>
+                  <td>{event.fees ? `$${event.fees}` : "-"}</td>
+                  <td>{event.contact || "-"}</td>
+                  <td>
+                    {event.image ? (
+                      <img src={event.image} alt="Event" className="rounded" width="50" />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td>{event.required_docs?.join(", ") || "-"}</td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
       </div>
 
-      {/* 🔹 Pagination */}
-      <div className="d-flex justify-content-center mt-3">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
           <button
-            key={num}
-            className={`btn btn-sm mx-1 ${
-              currentPage === num ? "btn-primary" : "btn-outline-secondary"
-            }`}
-            onClick={() => setCurrentPage(num)}
+            className="btn btn-outline-secondary btn-sm"
+            disabled={currentPage === 1}
+            onClick={() => setState((prev) => ({ ...prev, currentPage: currentPage - 1 }))}
           >
-            {num}
+            Previous
           </button>
-        ))}
-      </div>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+            <button
+              key={num}
+              className={`btn btn-sm ${currentPage === num ? "btn-primary" : "btn-outline-secondary"}`}
+              onClick={() => setState((prev) => ({ ...prev, currentPage: num }))}
+            >
+              {num}
+            </button>
+          ))}
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            disabled={currentPage === totalPages}
+            onClick={() => setState((prev) => ({ ...prev, currentPage: currentPage + 1 }))}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
-      {/* 🔹 Add Event Modal */}
+      {/* Add Event Modal */}
       {isModalOpen && (
         <Addeventmodal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setState((prev) => ({ ...prev, isModalOpen: false }))}
           categories={[
             { value: "Workshop", label: "Workshop" },
             { value: "Seminar", label: "Seminar" },

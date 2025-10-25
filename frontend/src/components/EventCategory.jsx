@@ -1,0 +1,22 @@
+// eventCategories.js
+export const EventCategory = [
+  { value: "sports", label: "Sports" },
+  { value: "hackathons", label: "Hackathons" },
+  { value: "workshops", label: "Workshops" },
+  { value: "seminars", label: "Seminars" },
+  { value: "webinars", label: "Webinars" },
+  { value: "cultural", label: "Cultural" },
+  { value: "dance", label: "Dance" },
+  { value: "music", label: "Music Shows" },
+  { value: "fashion", label: "Fashion Shows" },
+  { value: "quiz", label: "Quiz Competitions" },
+  { value: "debate", label: "Debates" },
+  { value: "drama", label: "Drama/Theatre" },
+  { value: "networking", label: "Networking Events" },
+  { value: "orientation", label: "Orientation" },
+  { value: "alumni", label: "Alumni Meet" },
+  { value: "farewell", label: "Farewell" },
+  { value: "reunion", label: "Reunions" },
+  { value: "social", label: "Social Service" },
+  // { value: "all", label: "All Events" }, 
+];

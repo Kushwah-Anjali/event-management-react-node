@@ -3,12 +3,26 @@ import Swal from "sweetalert2";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faArrowLeft, faArrowRight, faPlusCircle, faCheckCircle
+  faArrowLeft,
+  faArrowRight,
+  faPlusCircle,
+  faCheckCircle,
+  faHeading,
+  faTags,
+  faAlignLeft,
+  faCalendarDays,
+  faUser,
+  faLocationDot,
+  faMoneyBillWave,
+  faPhone,
+  faImage,
+  faFileLines,
 } from "@fortawesome/free-solid-svg-icons";
+import { EventCategory } from "./EventCategory";
 
 const steps = ["Basic Info", "Details", "Image", "Documents"];
 
-export default function AddEventModal({ isOpen, onClose, onSubmit, categories }) {
+export default function AddEventModal({ isOpen, onClose, onSubmit }) {
   const totalSteps = steps.length;
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
@@ -20,9 +34,8 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "auto";
-    return () => { document.body.style.overflow = "auto"; }
+    document.body.style.overflow = isOpen ? "hidden" : "auto";
+    return () => { document.body.style.overflow = "auto"; };
   }, [isOpen]);
 
   // Reset modal state when opened
@@ -39,7 +52,7 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
   }, [isOpen]);
 
   const handleChange = e => {
-    const { name, value, type, files, checked } = e.target;
+    const { name, value, files, checked } = e.target;
     let updatedValue = value;
 
     switch (name) {
@@ -133,20 +146,13 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
       zIndex: 1050,
       padding: "15px",
     }}>
-      <div className="modal-dialog" style={{
-        width: "100%",
-        maxWidth: "550px",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%", // modal takes full viewport height
-      }}>
-        <form className="modal-content shadow rounded-4 d-flex flex-column" style={{ flex: 1 }} onSubmit={handleSubmit}>
+      <div className="modal-dialog d-flex flex-column" style={{ width: "100%", maxWidth: "550px", maxHeight: "90vh" }}>
+        <form className="modal-content shadow rounded-4 d-flex flex-column" style={{ flex: 1, overflow: "hidden" }} onSubmit={handleSubmit}>
 
           {/* Header */}
           <div className="modal-header flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2">
-              <FontAwesomeIcon icon={faPlusCircle} className="text-primary" />
-              Add Event
+              <FontAwesomeIcon icon={faPlusCircle} className="text-primary" /> Add Event
             </h5>
             <button type="button" className="btn-close position-absolute top-0 end-0 m-3" onClick={onClose}></button>
           </div>
@@ -165,24 +171,24 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
             ))}
           </div>
 
-          {/* Body - SCROLLABLE */}
+          {/* Body (scrollable) */}
           <div className="modal-body px-4 flex-grow-1" style={{ overflowY: "auto" }}>
             {/* Step 0 */}
             {step === 0 && <>
-              <label className="form-label fw-semibold">Event Title *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faHeading} className="me-2 text-primary" /> Event Title *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="title" value={data.title} onChange={handleChange} className={`form-control ${errors.title ? "is-invalid" : ""}`} placeholder="Event Title" />
                 {renderCheckIcon("title")}
               </div>
               {errors.title && <div className="invalid-feedback">{errors.title}</div>}
 
-              <label className="form-label fw-semibold">Category *</label>
-              <Select options={categories} value={data.category} onChange={handleCategoryChange} placeholder="Select category" className="mb-3" />
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faTags} className="me-2 text-primary" /> Category *</label>
+              <Select options={EventCategory} value={data.category} onChange={handleCategoryChange} placeholder="Select category" className="mb-3" />
 
-              <label className="form-label fw-semibold">Description</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faAlignLeft} className="me-2 text-primary" /> Description</label>
               <textarea name="description" value={data.description} onChange={handleChange} className="form-control mb-3" rows="3" />
 
-              <label className="form-label fw-semibold">Date *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faCalendarDays} className="me-2 text-primary" /> Date *</label>
               <div className="d-flex align-items-center mb-3">
                 <input type="date" name="date" value={data.date} onChange={handleChange} className={`form-control ${errors.date ? "is-invalid" : ""}`} />
                 {renderCheckIcon("date")}
@@ -192,28 +198,28 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
 
             {/* Step 1 */}
             {step === 1 && <>
-              <label className="form-label fw-semibold">Organizer *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faUser} className="me-2 text-primary" /> Organizer *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="author" value={data.author} onChange={handleChange} className={`form-control ${errors.author ? "is-invalid" : ""}`} placeholder="Organizer" />
                 {renderCheckIcon("author")}
               </div>
               {errors.author && <div className="invalid-feedback">{errors.author}</div>}
 
-              <label className="form-label fw-semibold">Venue *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faLocationDot} className="me-2 text-primary" /> Venue *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="venue" value={data.venue} onChange={handleChange} className={`form-control ${errors.venue ? "is-invalid" : ""}`} />
                 {renderCheckIcon("venue")}
               </div>
               {errors.venue && <div className="invalid-feedback">{errors.venue}</div>}
 
-              <label className="form-label fw-semibold">Fees *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faMoneyBillWave} className="me-2 text-primary" /> Fees *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="fees" value={data.fees} onChange={handleChange} className={`form-control ${errors.fees ? "is-invalid" : ""}`} placeholder="Enter amount" />
                 {renderCheckIcon("fees")}
               </div>
               {errors.fees && <div className="invalid-feedback">{errors.fees}</div>}
 
-              <label className="form-label fw-semibold">Contact *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faPhone} className="me-2 text-primary" /> Contact *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="contact" value={data.contact} onChange={handleChange} className={`form-control ${errors.contact ? "is-invalid" : ""}`} placeholder="10-digit mobile" />
                 {renderCheckIcon("contact")}
@@ -223,7 +229,7 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
 
             {/* Step 2 */}
             {step === 2 && <>
-              <label className="form-label fw-semibold">Upload Image *</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faImage} className="me-2 text-primary" /> Upload Image *</label>
               <input type="file" name="image" onChange={handleChange} className="form-control mb-2" />
               {errors.image && <div className="text-danger small mt-1">{errors.image}</div>}
               {data.image && <img src={URL.createObjectURL(data.image)} alt="Preview" className="img-thumbnail mt-2" style={{ width: "120px" }} />}
@@ -231,7 +237,7 @@ export default function AddEventModal({ isOpen, onClose, onSubmit, categories })
 
             {/* Step 3 */}
             {step === 3 && <>
-              <label className="form-label fw-semibold">Required Documents</label>
+              <label className="form-label fw-semibold"><FontAwesomeIcon icon={faFileLines} className="me-2 text-primary" /> Required Documents</label>
               <div className="d-flex flex-wrap gap-3 mt-2">
                 {["Aadhar Card", "Resume", "Marksheet", "Photo"].map(d => (
                   <div key={d} className="form-check">
