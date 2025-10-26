@@ -150,8 +150,9 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
     formData.append("venue", data.venue);
     formData.append("fees", data.fees);
     formData.append("contact", data.contact);
-    formData.append("image", data.image); // Image file
-    formData.append("required_docs", JSON.stringify(data.required_docs));
+    formData.append("image", data.image);
+    // Backend expects an array of docs
+    data.required_docs.forEach(doc => formData.append("required_docs[]", doc));
 
     onSubmit(formData);
   };
@@ -170,7 +171,7 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
     >
       <div className="modal-dialog d-flex flex-column" style={{ width: "100%", maxWidth: "550px", maxHeight: "90vh" }}>
         <form className="modal-content shadow rounded-4 d-flex flex-column" style={{ flex: 1, overflow: "hidden" }} onSubmit={handleSubmit}>
-
+          
           {/* Header */}
           <div className="modal-header flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2">

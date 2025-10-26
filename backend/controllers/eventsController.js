@@ -43,8 +43,7 @@ exports.addEvent = async (req, res) => {
       event: {
         id: result.insertId,
         ...req.body,
-        image,
-      },
+        image,},
     });
   } catch (err) {
     console.error("Add Event Error:", err);
@@ -55,21 +54,9 @@ exports.addEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const {
-      title,
-      category,
-      description,
-      date,
-      author,
-      venue,
-      fees,
-      contact,
-      required_docs,
-    } = req.body;
+    const { title, category, description, date, author, venue, fees, contact, required_docs } = req.body;
 
-    const image = req.file
-      ? `uploads/events/${req.file.filename}`
-      : req.body.image_url || null;
+    const image = req.file ? `uploads/events/${req.file.filename}` : (req.body.image_url || null);
 
     const sql = `UPDATE events 
       SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 
@@ -95,6 +82,7 @@ exports.updateEvent = async (req, res) => {
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
+
 
 // Delete Event
 exports.deleteEvent = async (req, res) => {

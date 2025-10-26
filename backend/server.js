@@ -6,6 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 // Serve static folders
 app.use("/uploads/events", express.static("uploads/events"));
+
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/gallery", express.static("uploads/gallery"));
 
