@@ -10,7 +10,7 @@ import {
   Spinner,
 } from "react-bootstrap";
 
-
+import "../styles/Contact.css"; // minimal styles
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
@@ -73,10 +73,9 @@ const Contact = () => {
   }, [alert.show]);
 
   return (
-    <section
+    <section 
       id="contact"
-      className="py-5"
-      style={{ background: "linear-gradient(180deg,#f8f9fa,#e9ecef)" }}
+      className=" contact-section py-5"
     >
       {/* Top-right alert */}
       {alert.show && (

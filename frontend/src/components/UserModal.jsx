@@ -41,7 +41,7 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
     <div
       className="modal fade show d-block"
       tabIndex="-1"
-      style={{
+     style={{
         backgroundColor: "rgba(0,0,0,0.35)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",

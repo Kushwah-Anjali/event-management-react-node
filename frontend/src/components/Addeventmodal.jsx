@@ -106,10 +106,11 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
     setData(d => ({ ...d, [name]: updatedValue }));
   };
 
-  const handleCategoryChange = opt => {
-    setData(d => ({ ...d, category: opt }));
-    setErrors(prev => ({ ...prev, category: "" }));
-  };
+const handleCategoryChange = opt => {
+  setData(d => ({ ...d, category: opt })); // store full object
+  setErrors(prev => ({ ...prev, category: "" }));
+};
+
 
   const validateStep = s => {
     if (s === 0) return data.title && data.category && data.date && !errors.title && !errors.date;
@@ -125,27 +126,28 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
     if (!validateStep(step)) {
       Swal.fire({ icon: "warning", title: "Validation Error", text: "Please fix the highlighted fields.", confirmButtonColor: "#0d6efd" });
       return;
-    }
-    onSubmit(data);
-  };
+    } 
+  const payload = {
+  ...data,
+  category: data.category?.label || "" // store human-readable label
+};
 
+  onSubmit(payload);
+
+  };
+  
   if (!isOpen) return null;
 
   const renderCheckIcon = field => !errors[field] && data[field] ? <FontAwesomeIcon icon={faCheckCircle} className="text-success ms-2" /> : null;
 
   return (
     <div className="modal show d-flex align-items-center justify-content-center" style={{
-      backgroundColor: "rgba(0,0,0,0.35)",
-      backdropFilter: "blur(6px)",
-      WebkitBackdropFilter: "blur(6px)",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100vh",
-      zIndex: 1050,
-      padding: "15px",
-    }}>
+        backgroundColor: "rgba(0,0,0,0.35)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+        transition: "opacity 0.25s ease",
+      }}
+    >
       <div className="modal-dialog d-flex flex-column" style={{ width: "100%", maxWidth: "550px", maxHeight: "90vh" }}>
         <form className="modal-content shadow rounded-4 d-flex flex-column" style={{ flex: 1, overflow: "hidden" }} onSubmit={handleSubmit}>
 
@@ -183,7 +185,13 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
               {errors.title && <div className="invalid-feedback">{errors.title}</div>}
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faTags} className="me-2 text-primary" /> Category *</label>
-              <Select options={EventCategory} value={data.category} onChange={handleCategoryChange} placeholder="Select category" className="mb-3" />
+             <Select
+  options={EventCategory}
+  value={EventCategory.find(c => c.value === data.category)} // find the full object from the string
+  onChange={handleCategoryChange}
+  placeholder="Select category"
+  className="mb-3"
+/>
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faAlignLeft} className="me-2 text-primary" /> Description</label>
               <textarea name="description" value={data.description} onChange={handleChange} className="form-control mb-3" rows="3" />
@@ -241,7 +249,7 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
               <div className="d-flex flex-wrap gap-3 mt-2">
                 {["Aadhar Card", "Resume", "Marksheet", "Photo"].map(d => (
                   <div key={d} className="form-check">
-                    <input type="checkbox" value={d} checked={data.required_docs.includes(d)} onChange={handleChange} className="form-check-input" id={d} />
+                    <input type="checkbox"  name="required_docs"    value={d} checked={data.required_docs.includes(d)} onChange={handleChange} className="form-check-input" id={d} />
                     <label className="form-check-label" htmlFor={d}>{d}</label>
                   </div>
                 ))}
