@@ -3,42 +3,95 @@ const db = require("../config/db");
 // Add Event
 exports.addEvent = async (req, res) => {
   try {
-    const { title, category, description, date, author, venue, fees, contact, required_docs, user_id } = req.body;
-    const imageName = req.file ? req.file.filename : (req.body.image_url || null);
+    const {
+      title,
+      category,
+      description,
+      date,
+      author,
+      venue,
+      fees,
+      contact,
+      required_docs,
+      user_id,
+    } = req.body;
 
+    // store full image path
+    const image = req.file
+      ? `uploads/events/${req.file.filename}`
+      : req.body.image_url || null;
     const sql = `INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const [result] = await db.execute(sql, [
-      title, category, description, date, author, venue, fees, contact, imageName, JSON.stringify(required_docs), user_id
+      title,
+      category,
+      description,
+      date,
+      author,
+      venue,
+      fees,
+      contact,
+      image, // store full path
+      JSON.stringify(required_docs),
+      user_id,
     ]);
 
-    res.json({ status: "success", event: { id: result.insertId, ...req.body, image: imageName } });
+    res.json({
+      status: "success",
+      event: {
+        id: result.insertId,
+        ...req.body,
+        image,
+      },
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Add Event Error:", err);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
 
-// Update Event
 exports.updateEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const { title, category, description, date, author, venue, fees, contact, required_docs } = req.body;
-    const imageName = req.file ? req.file.filename : (req.body.image_url || null);
+    const {
+      title,
+      category,
+      description,
+      date,
+      author,
+      venue,
+      fees,
+      contact,
+      required_docs,
+    } = req.body;
+
+    const image = req.file
+      ? `uploads/events/${req.file.filename}`
+      : req.body.image_url || null;
 
     const sql = `UPDATE events 
-      SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=?
+      SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 
       WHERE id=?`;
 
     await db.execute(sql, [
-      title, category, description, date, author, venue, fees, contact, imageName, JSON.stringify(required_docs), eventId
+      title,
+      category,
+      description,
+      date,
+      author,
+      venue,
+      fees,
+      contact,
+      image,
+      JSON.stringify(required_docs),
+      eventId,
     ]);
 
     res.json({ status: "success", message: "Event updated successfully!" });
   } catch (err) {
-    console.error(err);
+    console.error("Update Event Error:", err);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
@@ -47,9 +100,14 @@ exports.updateEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [eventId]);
+    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [
+      eventId,
+    ]);
 
-    if (result.affectedRows === 0) return res.status(404).json({ status: "error", message: "Event not found" });
+    if (result.affectedRows === 0)
+      return res
+        .status(404)
+        .json({ status: "error", message: "Event not found" });
 
     res.json({ status: "success", message: "Event deleted successfully!" });
   } catch (err) {
@@ -62,7 +120,9 @@ exports.deleteEvent = async (req, res) => {
 exports.getUserEvents = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [userId]);
+    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [
+      userId,
+    ]);
     res.json({ status: "success", events: rows });
   } catch (err) {
     console.error(err);

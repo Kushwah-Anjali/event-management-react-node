@@ -59,17 +59,23 @@ const UserEvents = () => {
   }, [user]);
 
   // --- Add Event ---
-  const handleAddEvent = async (newEvent) => {
+  const handleAddEvent = async (formData) => {
     if (!user?.id)
       return Swal.fire("Error", "User not found. Please log in.", "error");
+
     try {
+      // Append the logged-in user's id
+      formData.append("user_id", user.id);
+
       const res = await fetch("http://localhost:5000/api/userevents/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...newEvent, user_id: user.id }),
+        body: formData, // send FormData directly
       });
+
       const data = await res.json();
+
       if (data.status === "success") {
+        // Append new event to state
         setState((prev) => ({ ...prev, events: [...prev.events, data.event] }));
         Swal.fire("Success", "Event added successfully!", "success");
       } else Swal.fire("Error", data.message || "Failed to add event", "error");
@@ -99,7 +105,7 @@ const UserEvents = () => {
     return filteredEvents.slice(startIdx, startIdx + rowsPerPage);
   }, [filteredEvents, currentPage, rowsPerPage]);
 
-  // --- Production Table Columns Config ---
+  // --- Table Columns ---
   const columns = useMemo(
     () => [
       { key: "sno", label: "S.No" },
@@ -127,8 +133,7 @@ const UserEvents = () => {
             {user?.name || "Loading..."}
           </h2>
           <p className="text-muted mb-0">
-            <FontAwesomeIcon icon={faEnvelope} className="me-1" />{" "}
-            {user?.email || ""}
+            <FontAwesomeIcon icon={faEnvelope} className="me-1" /> {user?.email || ""}
           </p>
         </div>
         <div className="d-flex gap-2 flex-wrap">
@@ -181,11 +186,7 @@ const UserEvents = () => {
               placeholder="Search events..."
               value={search}
               onChange={(e) =>
-                setState((prev) => ({
-                  ...prev,
-                  search: e.target.value,
-                  currentPage: 1,
-                }))
+                setState((prev) => ({ ...prev, search: e.target.value, currentPage: 1 }))
               }
             />
           </div>
@@ -221,28 +222,13 @@ const UserEvents = () => {
                   <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
                   <td>{event.title}</td>
                   <td>{event.category || "-"}</td>
-                  <td className="text-truncate" style={{ maxWidth: "150px" }}>
-                    {event.description || "-"}
-                  </td>
-                  <td>
-                    {event.date ? new Date(event.date).toLocaleDateString() : "-"}
-                  </td>
+                  <td className="text-truncate" style={{ maxWidth: "150px" }}>{event.description || "-"}</td>
+                  <td>{event.date ? new Date(event.date).toLocaleDateString() : "-"}</td>
                   <td>{event.author || "-"}</td>
                   <td>{event.venue || "-"}</td>
                   <td>{event.fees ? `₹${event.fees}` : "-"}</td>
                   <td>{event.contact || "-"}</td>
-                  <td>
-                    {event.image ? (
-                      <img
-                        src={event.image}
-                        alt="Event"
-                        className="rounded"
-                        width="50"
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
+                  <td>{event.image ? <img src={event.image} alt="Event" className="rounded" width="50" /> : "-"}</td>
                   <td>{event.required_docs?.join(", ") || "-"}</td>
                 </tr>
               ))
@@ -257,18 +243,14 @@ const UserEvents = () => {
           <button
             className="btn btn-outline-secondary btn-sm"
             disabled={currentPage === 1}
-            onClick={() =>
-              setState((prev) => ({ ...prev, currentPage: currentPage - 1 }))
-            }
+            onClick={() => setState((prev) => ({ ...prev, currentPage: currentPage - 1 }))}
           >
             Previous
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
             <button
               key={num}
-              className={`btn btn-sm ${
-                currentPage === num ? "btn-primary" : "btn-outline-secondary"
-              }`}
+              className={`btn btn-sm ${currentPage === num ? "btn-primary" : "btn-outline-secondary"}`}
               onClick={() => setState((prev) => ({ ...prev, currentPage: num }))}
             >
               {num}
@@ -277,9 +259,7 @@ const UserEvents = () => {
           <button
             className="btn btn-outline-secondary btn-sm"
             disabled={currentPage === totalPages}
-            onClick={() =>
-              setState((prev) => ({ ...prev, currentPage: currentPage + 1 }))
-            }
+            onClick={() => setState((prev) => ({ ...prev, currentPage: currentPage + 1 }))}
           >
             Next
           </button>

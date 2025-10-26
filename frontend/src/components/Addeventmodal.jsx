@@ -24,28 +24,41 @@ const steps = ["Basic Info", "Details", "Image", "Documents"];
 
 export default function AddEventModal({ isOpen, onClose, onSubmit }) {
   const totalSteps = steps.length;
+
   const [step, setStep] = useState(0);
   const [data, setData] = useState({
-    title: "", category: null, description: "", date: "",
-    author: "", venue: "", fees: "", contact: "",
-    image: null, required_docs: [],
+    title: "",
+    category: null,
+    description: "",
+    date: "",
+    author: "",
+    venue: "",
+    fees: "",
+    contact: "",
+    image: null,
+    required_docs: [],
   });
   const [errors, setErrors] = useState({});
 
-  // Lock body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => { document.body.style.overflow = "auto"; };
   }, [isOpen]);
 
-  // Reset modal state when opened
   useEffect(() => {
     if (isOpen) {
       setStep(0);
       setData({
-        title: "", category: null, description: "", date: "",
-        author: "", venue: "", fees: "", contact: "",
-        image: null, required_docs: [],
+        title: "",
+        category: null,
+        description: "",
+        date: "",
+        author: "",
+        venue: "",
+        fees: "",
+        contact: "",
+        image: null,
+        required_docs: [],
       });
       setErrors({});
     }
@@ -106,11 +119,10 @@ export default function AddEventModal({ isOpen, onClose, onSubmit }) {
     setData(d => ({ ...d, [name]: updatedValue }));
   };
 
-const handleCategoryChange = opt => {
-  setData(d => ({ ...d, category: opt })); // store full object
-  setErrors(prev => ({ ...prev, category: "" }));
-};
-
+  const handleCategoryChange = opt => {
+    setData(d => ({ ...d, category: opt }));
+    setErrors(prev => ({ ...prev, category: "" }));
+  };
 
   const validateStep = s => {
     if (s === 0) return data.title && data.category && data.date && !errors.title && !errors.date;
@@ -121,21 +133,29 @@ const handleCategoryChange = opt => {
 
   const handleNext = () => { if (validateStep(step)) setStep(s => s + 1); };
   const handlePrev = () => setStep(s => s - 1);
+
   const handleSubmit = e => {
     e.preventDefault();
     if (!validateStep(step)) {
       Swal.fire({ icon: "warning", title: "Validation Error", text: "Please fix the highlighted fields.", confirmButtonColor: "#0d6efd" });
       return;
-    } 
-  const payload = {
-  ...data,
-  category: data.category?.label || "" // store human-readable label
-};
+    }
 
-  onSubmit(payload);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("category", data.category?.label || "");
+    formData.append("description", data.description);
+    formData.append("date", data.date);
+    formData.append("author", data.author);
+    formData.append("venue", data.venue);
+    formData.append("fees", data.fees);
+    formData.append("contact", data.contact);
+    formData.append("image", data.image); // Image file
+    formData.append("required_docs", JSON.stringify(data.required_docs));
 
+    onSubmit(formData);
   };
-  
+
   if (!isOpen) return null;
 
   const renderCheckIcon = field => !errors[field] && data[field] ? <FontAwesomeIcon icon={faCheckCircle} className="text-success ms-2" /> : null;
@@ -173,25 +193,23 @@ const handleCategoryChange = opt => {
             ))}
           </div>
 
-          {/* Body (scrollable) */}
+          {/* Body */}
           <div className="modal-body px-4 flex-grow-1" style={{ overflowY: "auto" }}>
-            {/* Step 0 */}
             {step === 0 && <>
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faHeading} className="me-2 text-primary" /> Event Title *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="title" value={data.title} onChange={handleChange} className={`form-control ${errors.title ? "is-invalid" : ""}`} placeholder="Event Title" />
                 {renderCheckIcon("title")}
               </div>
-              {errors.title && <div className="invalid-feedback">{errors.title}</div>}
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faTags} className="me-2 text-primary" /> Category *</label>
-             <Select
-  options={EventCategory}
-  value={EventCategory.find(c => c.value === data.category)} // find the full object from the string
-  onChange={handleCategoryChange}
-  placeholder="Select category"
-  className="mb-3"
-/>
+              <Select
+                options={EventCategory}
+                value={EventCategory.find(c => c.value === data.category?.value)}
+                onChange={handleCategoryChange}
+                placeholder="Select category"
+                className="mb-3"
+              />
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faAlignLeft} className="me-2 text-primary" /> Description</label>
               <textarea name="description" value={data.description} onChange={handleChange} className="form-control mb-3" rows="3" />
@@ -201,41 +219,34 @@ const handleCategoryChange = opt => {
                 <input type="date" name="date" value={data.date} onChange={handleChange} className={`form-control ${errors.date ? "is-invalid" : ""}`} />
                 {renderCheckIcon("date")}
               </div>
-              {errors.date && <div className="invalid-feedback">{errors.date}</div>}
             </>}
 
-            {/* Step 1 */}
             {step === 1 && <>
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faUser} className="me-2 text-primary" /> Organizer *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="author" value={data.author} onChange={handleChange} className={`form-control ${errors.author ? "is-invalid" : ""}`} placeholder="Organizer" />
                 {renderCheckIcon("author")}
               </div>
-              {errors.author && <div className="invalid-feedback">{errors.author}</div>}
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faLocationDot} className="me-2 text-primary" /> Venue *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="venue" value={data.venue} onChange={handleChange} className={`form-control ${errors.venue ? "is-invalid" : ""}`} />
                 {renderCheckIcon("venue")}
               </div>
-              {errors.venue && <div className="invalid-feedback">{errors.venue}</div>}
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faMoneyBillWave} className="me-2 text-primary" /> Fees *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="fees" value={data.fees} onChange={handleChange} className={`form-control ${errors.fees ? "is-invalid" : ""}`} placeholder="Enter amount" />
                 {renderCheckIcon("fees")}
               </div>
-              {errors.fees && <div className="invalid-feedback">{errors.fees}</div>}
 
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faPhone} className="me-2 text-primary" /> Contact *</label>
               <div className="d-flex align-items-center mb-3">
                 <input name="contact" value={data.contact} onChange={handleChange} className={`form-control ${errors.contact ? "is-invalid" : ""}`} placeholder="10-digit mobile" />
                 {renderCheckIcon("contact")}
               </div>
-              {errors.contact && <div className="invalid-feedback">{errors.contact}</div>}
             </>}
 
-            {/* Step 2 */}
             {step === 2 && <>
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faImage} className="me-2 text-primary" /> Upload Image *</label>
               <input type="file" name="image" onChange={handleChange} className="form-control mb-2" />
@@ -243,13 +254,12 @@ const handleCategoryChange = opt => {
               {data.image && <img src={URL.createObjectURL(data.image)} alt="Preview" className="img-thumbnail mt-2" style={{ width: "120px" }} />}
             </>}
 
-            {/* Step 3 */}
             {step === 3 && <>
               <label className="form-label fw-semibold"><FontAwesomeIcon icon={faFileLines} className="me-2 text-primary" /> Required Documents</label>
               <div className="d-flex flex-wrap gap-3 mt-2">
                 {["Aadhar Card", "Resume", "Marksheet", "Photo"].map(d => (
                   <div key={d} className="form-check">
-                    <input type="checkbox"  name="required_docs"    value={d} checked={data.required_docs.includes(d)} onChange={handleChange} className="form-check-input" id={d} />
+                    <input type="checkbox" name="required_docs" value={d} checked={data.required_docs.includes(d)} onChange={handleChange} className="form-check-input" id={d} />
                     <label className="form-check-label" htmlFor={d}>{d}</label>
                   </div>
                 ))}
@@ -257,7 +267,6 @@ const handleCategoryChange = opt => {
             </>}
           </div>
 
-          {/* Footer */}
           <div className="modal-footer px-4 pb-4 flex-wrap gap-2">
             {step > 0 && <button type="button" className="btn btn-outline-secondary rounded-pill px-4" onClick={handlePrev}><FontAwesomeIcon icon={faArrowLeft} /> Previous</button>}
             {step < totalSteps - 1 && <button type="button" className="btn btn-primary rounded-pill px-4" onClick={handleNext} disabled={!validateStep(step)}>Next <FontAwesomeIcon icon={faArrowRight} /></button>}
