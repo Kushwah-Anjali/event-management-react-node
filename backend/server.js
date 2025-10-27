@@ -5,7 +5,7 @@ const cors = require("cors");
 // Load environment variables from the .env file so we can use secret info safely
 require("dotenv").config();
 // Serve static folders
-app.use("/uploads/events", express.static("uploads/events"));
+app.use("/uploads/events", express.static(path.join(__dirname, "uploads/events")));
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/gallery", express.static("uploads/gallery"));

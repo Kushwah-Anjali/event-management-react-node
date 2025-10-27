@@ -1,6 +1,11 @@
 const db = require("../config/db");
 
 // Add Event
+const buildFileUrl = (req, filePath) => {
+  if (!filePath) return null;
+  return `${req.protocol}://${req.get("host")}/${filePath}`; // e.g. http://localhost:5000/uploads/events/123.png
+};
+
 exports.addEvent = async (req, res) => {
   try {
     const {
@@ -16,10 +21,19 @@ exports.addEvent = async (req, res) => {
       user_id,
     } = req.body;
 
-    // store full image path
-    const image = req.file
-      ? `uploads/events/${req.file.filename}`
-      : req.body.image_url || null;
+
+      let docsArray = [];
+    if (required_docs) {
+      if (Array.isArray(required_docs)) docsArray = required_docs;
+      else {
+        // could be JSON string or comma-separated string
+        try { docsArray = JSON.parse(required_docs); }
+        catch { docsArray = required_docs.split(",").map(s => s.trim()).filter(Boolean); }
+      }
+    }
+
+    const imagePath = req.file ? `uploads/events/${req.file.filename}` : (req.body.image_url || null);
+
     const sql = `INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -33,9 +47,8 @@ exports.addEvent = async (req, res) => {
       venue,
       fees,
       contact,
-      image, // store full path
-      JSON.stringify(required_docs),
-      user_id,
+      imagePath, // store full path
+         JSON.stringify(docsArray), user_id,
     ]);
 
     res.json({
@@ -108,15 +121,46 @@ exports.deleteEvent = async (req, res) => {
 exports.getUserEvents = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [
-      userId,
-    ]);
-    res.json({ status: "success", events: rows });
+    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [userId]);
+
+    const normalized = rows.map((r) => {
+      let docs = [];
+
+      if (r.required_documents) {
+        if (Array.isArray(r.required_documents)) {
+          // already an array
+          docs = r.required_documents;
+        } else if (typeof r.required_documents === "string") {
+          try {
+            // try JSON parsing first
+            const parsed = JSON.parse(r.required_documents);
+            docs = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            // fallback: comma-separated string
+            docs = r.required_documents
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
+        }
+      }
+
+      const imageUrl = r.image
+        ? `${req.protocol}://${req.get("host")}/${r.image}`
+        : null;
+
+      return { ...r, required_documents: docs, image: imageUrl };
+    });
+
+    res.json({ status: "success", events: normalized });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error("GetUserEvents Error:", err);
+    res
+      .status(500)
+      .json({ status: "error", message: "Server error while fetching events" });
   }
 };
+
 
 // Get all events + history
 exports.getHistory = async (req, res) => {
