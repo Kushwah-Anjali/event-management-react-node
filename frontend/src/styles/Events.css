@@ -1,12 +1,14 @@
 /* ==================== Events Section ==================== */
 .events-section {
   position: relative;
-  background: url("../assets/images/Eventbg.jpg") no-repeat center center;
+  background: url("../assets/images/Eventbg.jpg") no-repeat center center fixed;
   background-size: cover;
+  background-attachment: fixed; /* 🚀 keeps image stable */
   overflow: hidden;
   z-index: 1;
   padding: 80px 20px;
 }
+
 
 /* Gradient Overlay */
 .events-section::after {

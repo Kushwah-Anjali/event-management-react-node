@@ -1,4 +1,6 @@
 const db = require("../config/db");
+const path = require("path");
+const fs = require("fs");
 
 // Add Event
 const buildFileUrl = (req, filePath) => {
@@ -21,18 +23,25 @@ exports.addEvent = async (req, res) => {
       user_id,
     } = req.body;
 
-
-      let docsArray = [];
+    let docsArray = [];
     if (required_docs) {
       if (Array.isArray(required_docs)) docsArray = required_docs;
       else {
         // could be JSON string or comma-separated string
-        try { docsArray = JSON.parse(required_docs); }
-        catch { docsArray = required_docs.split(",").map(s => s.trim()).filter(Boolean); }
+        try {
+          docsArray = JSON.parse(required_docs);
+        } catch {
+          docsArray = required_docs
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        }
       }
     }
 
-    const imagePath = req.file ? `uploads/events/${req.file.filename}` : (req.body.image_url || null);
+    const imagePath = req.file
+      ? `uploads/events/${req.file.filename}`
+      : req.body.image_url || null;
 
     const sql = `INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
@@ -48,15 +57,26 @@ exports.addEvent = async (req, res) => {
       fees,
       contact,
       imagePath, // store full path
-         JSON.stringify(docsArray), user_id,
+      JSON.stringify(docsArray),
+      user_id,
     ]);
 
     res.json({
       status: "success",
       event: {
         id: result.insertId,
-        ...req.body,
-        image,},
+        title,
+        category,
+        description,
+        date,
+        author,
+        venue,
+        fees,
+        contact,
+        required_documents: docsArray,
+        image: imagePath ? buildFileUrl(req, imagePath) : null,
+        users: user_id,
+      },
     });
   } catch (err) {
     console.error("Add Event Error:", err);
@@ -67,9 +87,21 @@ exports.addEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const { title, category, description, date, author, venue, fees, contact, required_docs } = req.body;
+    const {
+      title,
+      category,
+      description,
+      date,
+      author,
+      venue,
+      fees,
+      contact,
+      required_docs,
+    } = req.body;
 
-    const image = req.file ? `uploads/events/${req.file.filename}` : (req.body.image_url || null);
+    const image = req.file
+      ? `uploads/events/${req.file.filename}`
+      : req.body.image_url || null;
 
     const sql = `UPDATE events 
       SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 
@@ -97,31 +129,62 @@ exports.updateEvent = async (req, res) => {
 };
 
 
-// Delete Event
 exports.deleteEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
-    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [
-      eventId,
-    ]);
 
-    if (result.affectedRows === 0)
-      return res
-        .status(404)
-        .json({ status: "error", message: "Event not found" });
+    // Step 1️⃣ : Fetch event to get its image name
+    const [rows] = await db.execute("SELECT image FROM events WHERE id = ?", [eventId]);
+    const event = rows[0];
 
-    res.json({ status: "success", message: "Event deleted successfully!" });
+    if (!event) {
+      return res.status(404).json({ status: "error", message: "Event not found" });
+    }
+
+    // Step 2️⃣ : Delete the event record from DB
+    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [eventId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ status: "error", message: "Event not deleted" });
+    }
+
+    // Step 3️⃣ : Delete the image from disk
+    if (event.image) {
+      const imageFileName = path.basename(event.image); // e.g. 1761662100722.png
+      const imagePath = path.join("D:/Gallery-Event-Management/events", imageFileName); // ✅ exact folder
+
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.warn("⚠️ Image not deleted (may not exist):", imagePath);
+        } else {
+          console.log("🧹 Image deleted successfully:", imagePath);
+        }
+      });
+    }
+
+    // Step 4️⃣ : Respond success
+    res.json({
+      status: "success",
+      message: "Event and associated image deleted successfully!",
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error("❌ Delete Event Error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error while deleting event",
+    });
   }
 };
+
+
 
 // Get user events
 exports.getUserEvents = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [userId]);
+    const [rows] = await db.execute("SELECT * FROM events WHERE users = ?", [
+      userId,
+    ]);
 
     const normalized = rows.map((r) => {
       let docs = [];
@@ -160,7 +223,6 @@ exports.getUserEvents = async (req, res) => {
       .json({ status: "error", message: "Server error while fetching events" });
   }
 };
-
 
 // Get all events + history
 exports.getHistory = async (req, res) => {

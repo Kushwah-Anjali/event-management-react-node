@@ -8,7 +8,10 @@ import {
   faMagnifyingGlass,
   faPlus,
   faRightFromBracket,
+  faTrash,
+  faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
+
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
 const API_BASE = process.env.REACT_APP_API_URL
@@ -25,6 +28,7 @@ const UserEvents = () => {
     currentPage: 1,
     isModalOpen: false,
     loading: false,
+    editEvent: null,
   });
 
   const {
@@ -88,8 +92,29 @@ const UserEvents = () => {
       const data = await res.json();
 
       if (data.status === "success") {
-        // Backend already returns parsed docs & full image URL
-        setState((prev) => ({ ...prev, events: [...prev.events, data.event] }));
+        const newEvent = data.event;
+
+        // Normalize required_documents (convert string → array)
+        if (typeof newEvent.required_documents === "string") {
+          try {
+            newEvent.required_documents = JSON.parse(
+              newEvent.required_documents
+            );
+          } catch {
+            newEvent.required_documents = [newEvent.required_documents];
+          }
+        }
+
+        // Normalize image path
+        if (newEvent.image && !newEvent.image.startsWith("http")) {
+          newEvent.image = `${API_BASE}/${newEvent.image}`;
+        }
+
+        setState((prev) => ({
+          ...prev,
+          events: [...prev.events, newEvent],
+        }));
+
         Swal.fire("Success", "Event added successfully!", "success");
       } else Swal.fire("Error", data.message || "Failed to add event", "error");
     } catch {
@@ -97,6 +122,82 @@ const UserEvents = () => {
     } finally {
       setState((prev) => ({ ...prev, isModalOpen: false }));
     }
+  };
+  const handleUpdateEvent = async (formData) => {
+    if (!state.editEvent) return;
+    const eventId = state.editEvent.id;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/userevents/update/${eventId}`,
+        
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.status === "success") {
+        Swal.fire("Updated!", "Event updated successfully!", "success");
+
+        // Update the local state to reflect new changes instantly
+        setState((prev) => ({
+          ...prev,
+          events: prev.events.map((e) =>
+            e.id === eventId ? { ...e, ...data.updatedEvent } : e
+          ),
+          isModalOpen: false,
+          editEvent: null,
+        }));
+      } else {
+        Swal.fire("Error", data.message || "Failed to update event", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Backend connection failed", "error");
+    }
+  };
+
+  // --- Delete Event ---
+  const handleDeleteEvent = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete the event.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/userevents/delete/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (data.status === "success") {
+        setState((prev) => ({
+          ...prev,
+          events: prev.events.filter((e) => e.id !== id),
+        }));
+        Swal.fire("Deleted!", "Event deleted successfully.", "success");
+      } else {
+        Swal.fire("Error", data.message || "Failed to delete event", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Server not reachable", "error");
+    }
+  };
+  const handleEditEvent = (event) => {
+    setState((prev) => ({
+      ...prev,
+      isModalOpen: true,
+      editEvent: event, // store the current event to edit
+    }));
   };
 
   const handleLogout = () => {
@@ -133,6 +234,7 @@ const UserEvents = () => {
       { key: "contact", label: "Contact" },
       { key: "image", label: "Image" },
       { key: "required_docs", label: "Documents" },
+      { key: "actions", label: "Actions" },
     ],
     []
   );
@@ -274,29 +376,53 @@ const UserEvents = () => {
                     )}
                   </td>
 
-                <td>
-  {(() => {
-    const docs = event.required_documents;
+                  <td>
+                    {(() => {
+                      const docs = event.required_documents;
 
-    if (!docs) return "-";
+                      if (!docs) return "-";
 
-    // If it's a string, try parsing it or splitting it
-    if (typeof docs === "string") {
-      try {
-        const parsed = JSON.parse(docs);
-        return Array.isArray(parsed) ? parsed.join(", ") : docs;
-      } catch {
-        return docs.includes(",") ? docs : docs.split(" ").join(", ");
-      }
-    }
+                      // If it's a string, try parsing it or splitting it
+                      if (typeof docs === "string") {
+                        try {
+                          const parsed = JSON.parse(docs);
+                          return Array.isArray(parsed)
+                            ? parsed.join(", ")
+                            : docs;
+                        } catch {
+                          return docs.includes(",")
+                            ? docs
+                            : docs.split(" ").join(", ");
+                        }
+                      }
 
-    // If it's already an array
-    if (Array.isArray(docs)) return docs.join(", ");
+                      // If it's already an array
+                      if (Array.isArray(docs)) return docs.join(", ");
 
-    return "-";
-  })()}
-</td>
+                      return "-";
+                    })()}
+                  </td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline-warning"
+                        title="Edit"
+                        onClick={() => handleEditEvent(event)}
+                      >
+                      <FontAwesomeIcon icon={faPenToSquare} />
 
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        title="Delete"
+                        onClick={() => handleDeleteEvent(event.id)}
+                      >
+                     <FontAwesomeIcon icon={faTrash} />
+
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
@@ -345,8 +471,16 @@ const UserEvents = () => {
       {isModalOpen && (
         <Addeventmodal
           isOpen={isModalOpen}
-          onClose={() => setState((prev) => ({ ...prev, isModalOpen: false }))}
-          onSubmit={handleAddEvent}
+          onClose={() =>
+            setState((prev) => ({
+              ...prev,
+              isModalOpen: false,
+              editEvent: null,
+            }))
+          }
+          onSubmit={state.editEvent ? handleUpdateEvent : handleAddEvent} // 👈 smart switch
+          existingData={state.editEvent}
+          isEditing={!!state.editEvent} // 👈 pre-fill modal fields
         />
       )}
     </div>

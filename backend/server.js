@@ -5,7 +5,14 @@ const cors = require("cors");
 // Load environment variables from the .env file so we can use secret info safely
 require("dotenv").config();
 // Serve static folders
-app.use("/uploads/events", express.static(path.join(__dirname, "uploads/events")));
+const path = require("path");
+
+app.use(
+  "/events",
+  express.static(path.join(__dirname, "../../Gallery-Event-Management/events"))
+);
+
+
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/gallery", express.static("uploads/gallery"));
@@ -13,13 +20,13 @@ app.use("/uploads/gallery", express.static("uploads/gallery"));
 const authRoutes = require("./routes/auth");
 const eventRoutes = require("./routes/events");
 const usersRoutes = require("./routes/users");
-const userEventRoutes = require("./routes/userevents"); 
+const userEventRoutes = require("./routes/userevents");
 const contactRoutes = require("./routes/contact");
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
