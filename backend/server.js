@@ -8,8 +8,8 @@ require("dotenv").config();
 const path = require("path");
 
 app.use(
-  "/events",
-  express.static(path.join(__dirname, "../../Gallery-Event-Management/events"))
+  '/events',
+  express.static('D:/Gallery-Event-Management/events') // full absolute path
 );
 
 

@@ -39,9 +39,12 @@ exports.addEvent = async (req, res) => {
       }
     }
 
-    const imagePath = req.file
-      ? `uploads/events/${req.file.filename}`
-      : req.body.image_url || null;
+    console.log("Uploaded file info:", req.file);
+    console.log("Received body data:", req.body);
+
+    
+    const imagePath = req.file ? `${req.file.filename}`:null;
+
 
     const sql = `INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
@@ -74,7 +77,7 @@ exports.addEvent = async (req, res) => {
         fees,
         contact,
         required_documents: docsArray,
-        image: imagePath ? buildFileUrl(req, imagePath) : null,
+        image: imagePath ? imagePath : null,
         users: user_id,
       },
     });
@@ -99,9 +102,10 @@ exports.updateEvent = async (req, res) => {
       required_docs,
     } = req.body;
 
-    const image = req.file
-      ? `uploads/events/${req.file.filename}`
-      : req.body.image_url || null;
+   
+    const imagePath = req.file
+  ? `${req.file.filename}` // only store the file name
+  : req.body.image_url || null;
 
     const sql = `UPDATE events 
       SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 

@@ -14,9 +14,7 @@ import {
 
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
-const API_BASE = process.env.REACT_APP_API_URL
-  ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
-  : "http://localhost:5000";
+
 
 const UserEvents = () => {
   const navigate = useNavigate();

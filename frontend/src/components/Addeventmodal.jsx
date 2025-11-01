@@ -537,14 +537,15 @@ export default function AddEventModal({
               </button>
             )}
             {step === totalSteps - 1 && (
-             <button
-  type="submit"
-  className={`btn ${isEditing ? "btn-warning" : "btn-success"} rounded-pill px-4`}
->
-  <FontAwesomeIcon icon={isEditing ? faCheckCircle : faPlusCircle} />{" "}
-  {isEditing ? "Update Event" : "Add Event"}
-</button>
-
+              <button
+                type="submit"
+                className={`btn ${
+                  isEditing ? "btn-warning" : "btn-success"
+                } rounded-pill px-4`}
+              >
+                <FontAwesomeIcon icon={faPlusCircle} />{" "}
+                {isEditing ? "Update Event" : "Add Event"}
+              </button>
             )}
           </div>
         </form>

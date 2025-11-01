@@ -2,13 +2,16 @@ import React from "react";
 import "../styles/Events.css";
 
 export default function EventsCard({ event }) {
+ console.log(`Full image URL: http://localhost:5000/events/${event.image}`);
+
+
   return (
     <div className="card card-event flex-fill h-100 animate-card">
       {/* Event Image */}
       <div className="event-img-wrapper">
         {event.image ? (
           <img
-            src={`http://localhost:5000/${event.image}`} // ✅ only one uploads/events path
+            src={`http://localhost:5000/events/${event.image}`} // ✅ only one uploads/events path
             alt={event.title || "Event image"}
             className="event-img"
           />
@@ -16,7 +19,7 @@ export default function EventsCard({ event }) {
           <div className="no-img-text">Image Coming Soon</div>
         )}
       </div>
-      console.log("Event image:", event.image);
+     
       {/* Event Details */}
       <div className="event-details">
         <div className="event-header">
