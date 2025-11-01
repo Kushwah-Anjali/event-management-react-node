@@ -261,9 +261,13 @@ export default function AddEventModal({
           {/* Header */}
           <div className="modal-header flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2">
-              <FontAwesomeIcon icon={faPlusCircle} className="text-primary" />{" "}
-              Add Event
-            </h5>
+  <FontAwesomeIcon
+    icon={isEditing ? faCheckCircle : faPlusCircle}
+    className={isEditing ? "text-warning" : "text-primary"}
+  />{" "}
+  {isEditing ? "Update Event" : "Add Event"}
+</h5>
+
             <button
               type="button"
               className="btn-close position-absolute top-0 end-0 m-3"
@@ -533,15 +537,14 @@ export default function AddEventModal({
               </button>
             )}
             {step === totalSteps - 1 && (
-              <button
-                type="submit"
-                className={`btn ${
-                  isEditing ? "btn-warning" : "btn-success"
-                } rounded-pill px-4`}
-              >
-                <FontAwesomeIcon icon={faPlusCircle} />{" "}
-                {isEditing ? "Update Event" : "Add Event"}
-              </button>
+             <button
+  type="submit"
+  className={`btn ${isEditing ? "btn-warning" : "btn-success"} rounded-pill px-4`}
+>
+  <FontAwesomeIcon icon={isEditing ? faCheckCircle : faPlusCircle} />{" "}
+  {isEditing ? "Update Event" : "Add Event"}
+</button>
+
             )}
           </div>
         </form>
