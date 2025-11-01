@@ -14,7 +14,9 @@ import {
 
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
-
+const API_BASE = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
+  : "http://localhost:5000";
 
 const UserEvents = () => {
   const navigate = useNavigate();
@@ -48,31 +50,59 @@ const UserEvents = () => {
   }, [navigate]);
 
   // --- Fetch Events ---
-  useEffect(() => {
-    if (!user?.id) return;
+  // useEffect(() => {
+  //   if (!user?.id) return;
 
-    const fetchEvents = async () => {
-      setState((prev) => ({ ...prev, loading: true }));
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/userevents/user/${user.id}`
-        );
-        const data = await res.json();
-        if (data.status === "success") {
-          // Backend already returns parsed docs & full image URL
-          setState((prev) => ({ ...prev, events: data.events }));
-        } else {
-          Swal.fire("Error", data.message || "Failed to load events", "error");
-        }
-      } catch {
-        Swal.fire("Error", "Server not reachable", "error");
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    };
+  //   const fetchEvents = async () => {
+  //     setState((prev) => ({ ...prev, loading: true }));
+  //     try {
+  //       const res = await fetch(
+  //         `http://localhost:5000/api/userevents/user/${user.id}`
+  //       );
+  //       const data = await res.json();
+  //       if (data.status === "success") {
+  //         // Backend already returns parsed docs & full image URL
+  //         setState((prev) => ({ ...prev, events: data.events }));
+  //       } else {
+  //         Swal.fire("Error", data.message || "Failed to load events", "error");
+  //       }
+  //     } catch {
+  //       Swal.fire("Error", "Server not reachable", "error");
+  //     } finally {
+  //       setState((prev) => ({ ...prev, loading: false }));
+  //     }
+  //   };
 
-    fetchEvents();
-  }, [user]);
+  //   fetchEvents();
+  // }, [user]);
+
+
+  // --- Fetch Events (Reusable Function) ---
+const fetchEvents = async () => {
+  if (!user?.id) return;
+
+  setState((prev) => ({ ...prev, loading: true }));
+  try {
+    const res = await fetch(`http://localhost:5000/api/userevents/user/${user.id}`);
+    const data = await res.json();
+
+    if (data.status === "success") {
+      setState((prev) => ({ ...prev, events: data.events }));
+    } else {
+      Swal.fire("Error", data.message || "Failed to load events", "error");
+    }
+  } catch {
+    Swal.fire("Error", "Server not reachable", "error");
+  } finally {
+    setState((prev) => ({ ...prev, loading: false }));
+  }
+};
+
+// --- Run once user is loaded ---
+useEffect(() => {
+  if (user?.id) fetchEvents();
+}, [user]);
+
 
   // --- Add Event ---
   const handleAddEvent = async (formData) => {
@@ -105,7 +135,7 @@ const UserEvents = () => {
 
         // Normalize image path
         if (newEvent.image && !newEvent.image.startsWith("http")) {
-          newEvent.image = `${API_BASE}/${newEvent.image}`;
+          newEvent.image = newEvent.image;
         }
 
         setState((prev) => ({
@@ -139,6 +169,7 @@ const UserEvents = () => {
 
       if (data.status === "success") {
         Swal.fire("Updated!", "Event updated successfully!", "success");
+        fetchEvents();
 
         // Update the local state to reflect new changes instantly
         setState((prev) => ({
@@ -361,9 +392,7 @@ const UserEvents = () => {
                     {event.image ? (
                       <img
                         src={
-                          event.image.startsWith("http")
-                            ? event.image
-                            : `${API_BASE}/${event.image}`
+                          event.image
                         }
                         alt="Event"
                         className="rounded"

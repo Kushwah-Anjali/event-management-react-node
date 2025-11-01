@@ -19,6 +19,12 @@ import {
   faFileLines,
 } from "@fortawesome/free-solid-svg-icons";
 import { EventCategory } from "./EventCategory";
+const getFullImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http")) return imagePath;
+  return `http://localhost:5000/events/${imagePath}`;
+};
+
 
 const steps = ["Basic Info", "Details", "Image", "Documents"];
 
@@ -45,6 +51,7 @@ export default function AddEventModal({
     required_docs: [],
   });
   const [errors, setErrors] = useState({});
+  const [preview, setPreview] = useState(null);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -56,27 +63,34 @@ export default function AddEventModal({
   useEffect(() => {
     if (isOpen) {
       setStep(0);
+
       if (isEditing && existingData) {
-        // 🧠 Pre-fill form fields for edit mode
+        const matchedCategory = EventCategory.find(
+          (c) =>
+            c.value.toLowerCase() === existingData.category?.toLowerCase() ||
+            c.label.toLowerCase() === existingData.category?.toLowerCase()
+        );
+
         setData({
           title: existingData.title || "",
-          category: existingData.category
-            ? { label: existingData.category, value: existingData.category }
-            : null,
+          category: matchedCategory || null, // ✅ Correct category format for react-select
           description: existingData.description || "",
           date: existingData.date ? existingData.date.split("T")[0] : "",
           author: existingData.author || "",
           venue: existingData.venue || "",
           fees: existingData.fees || "",
           contact: existingData.contact || "",
-          image: null, // we’ll not prefill file input; it can’t auto-load
-         required_docs: Array.isArray(existingData.required_documents)
-  ? existingData.required_documents
-  : [],
-
+         image: existingData.image || null,  // no auto-load for file input
+          required_docs: Array.isArray(existingData.required_documents)
+            ? existingData.required_documents
+            : [],
         });
+        if (existingData.image) {
+           setPreview(getFullImageUrl(existingData.image)); 
+        } else {
+          setPreview(null);
+        }
       } else {
-        // 🧩 Reset form for new event
         setData({
           title: "",
           category: null,
@@ -90,6 +104,7 @@ export default function AddEventModal({
           required_docs: [],
         });
       }
+
       setErrors({});
     }
   }, [isOpen, existingData, isEditing]);
@@ -140,8 +155,13 @@ export default function AddEventModal({
           else if (file.size > 2 * 1024 * 1024)
             setErrors((prev) => ({ ...prev, image: "Max size 2MB" }));
           else setErrors((prev) => ({ ...prev, image: "" }));
+          setPreview(URL.createObjectURL(file));
           updatedValue = file;
-        }
+        } else {
+    // ✅ no new file selected — retain old image + preview
+    updatedValue = data.image || "";
+    if (data.image) setPreview(getFullImageUrl(data.image));
+  }
         break;
       case "required_docs":
         setData((d) => {
@@ -193,7 +213,8 @@ export default function AddEventModal({
         !errors.fees &&
         !errors.contact
       );
-    if (s === 2) return data.image && !errors.image;
+  if (s === 2) return (data.image || preview) && !errors.image;
+
     return true;
   };
 
@@ -223,7 +244,15 @@ export default function AddEventModal({
     formData.append("venue", data.venue);
     formData.append("fees", data.fees);
     formData.append("contact", data.contact);
-    formData.append("image", data.image);
+ if (data.image instanceof File) {
+  // New image selected
+  formData.append("image", data.image);
+} else if (isEditing && data.image) {
+  // Keep the old image path if no new file
+  formData.append("existingImage", data.image);
+}
+
+
     // Backend expects an array of docs
     data.required_docs.forEach((doc) =>
       formData.append("required_docs[]", doc)
@@ -261,12 +290,12 @@ export default function AddEventModal({
           {/* Header */}
           <div className="modal-header flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2">
-  <FontAwesomeIcon
-    icon={isEditing ? faCheckCircle : faPlusCircle}
-    className={isEditing ? "text-warning" : "text-primary"}
-  />{" "}
-  {isEditing ? "Update Event" : "Add Event"}
-</h5>
+              <FontAwesomeIcon
+                icon={isEditing ? faCheckCircle : faPlusCircle}
+                className={isEditing ? "text-warning" : "text-primary"}
+              />{" "}
+              {isEditing ? "Update Event" : "Add Event"}
+            </h5>
 
             <button
               type="button"
@@ -328,9 +357,7 @@ export default function AddEventModal({
                 </label>
                 <Select
                   options={EventCategory}
-                  value={EventCategory.find(
-                    (c) => c.value === data.category?.value
-                  )}
+                  value={data.category} // ✅ now this will always be the right object
                   onChange={handleCategoryChange}
                   placeholder="Select category"
                   className="mb-3"
@@ -474,13 +501,20 @@ export default function AddEventModal({
                 {errors.image && (
                   <div className="text-danger small mt-1">{errors.image}</div>
                 )}
-                {data.image && (
-                  <img
-                    src={URL.createObjectURL(data.image)}
-                    alt="Preview"
-                    className="img-thumbnail mt-2"
-                    style={{ width: "120px" }}
-                  />
+                {preview && (
+                  <div className="mt-2">
+                    <img
+                      src={preview}
+                      alt="Event preview"
+                      className="img-thumbnail"
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </div>
                 )}
               </>
             )}

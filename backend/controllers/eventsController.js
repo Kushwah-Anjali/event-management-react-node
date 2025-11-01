@@ -3,10 +3,10 @@ const path = require("path");
 const fs = require("fs");
 
 // Add Event
-const buildFileUrl = (req, filePath) => {
-  if (!filePath) return null;
-  return `${req.protocol}://${req.get("host")}/${filePath}`; // e.g. http://localhost:5000/uploads/events/123.png
-};
+// const buildFileUrl = (req, filePath) => {
+//   if (!filePath) return null;
+//   return `${req.protocol}://${req.get("host")}/${filePath}`; // e.g. http://localhost:5000/uploads/events/123.png
+// };
 
 exports.addEvent = async (req, res) => {
   try {
@@ -38,13 +38,7 @@ exports.addEvent = async (req, res) => {
         }
       }
     }
-
-    console.log("Uploaded file info:", req.file);
-    console.log("Received body data:", req.body);
-
-    
-    const imagePath = req.file ? `${req.file.filename}`:null;
-
+    const imagePath = req.file ? req.file.filename : null;
 
     const sql = `INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
@@ -100,14 +94,24 @@ exports.updateEvent = async (req, res) => {
       fees,
       contact,
       required_docs,
+      existingImage,
     } = req.body;
 
-   
-    const imagePath = req.file
-  ? `${req.file.filename}` // only store the file name
-  : req.body.image_url || null;
+    let imagePath;
 
-    const sql = `UPDATE events 
+    if (req.file) {
+      // ✅ New image uploaded
+      imagePath = req.file.filename;
+    } else if (existingImage) {
+      // ✅ Keep old image path (remove any full URL)
+      imagePath = existingImage.replace(/^.*\/events\//, "");
+    } else {
+      // ✅ No image at all
+      imagePath = null;
+    }
+
+    const sql = `
+      UPDATE events 
       SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 
       WHERE id=?`;
 
@@ -120,7 +124,7 @@ exports.updateEvent = async (req, res) => {
       venue,
       fees,
       contact,
-      image,
+      imagePath,
       JSON.stringify(required_docs),
       eventId,
     ]);
@@ -132,29 +136,39 @@ exports.updateEvent = async (req, res) => {
   }
 };
 
-
 exports.deleteEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
 
     // Step 1️⃣ : Fetch event to get its image name
-    const [rows] = await db.execute("SELECT image FROM events WHERE id = ?", [eventId]);
+    const [rows] = await db.execute("SELECT image FROM events WHERE id = ?", [
+      eventId,
+    ]);
     const event = rows[0];
 
     if (!event) {
-      return res.status(404).json({ status: "error", message: "Event not found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Event not found" });
     }
 
     // Step 2️⃣ : Delete the event record from DB
-    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [eventId]);
+    const [result] = await db.execute("DELETE FROM events WHERE id = ?", [
+      eventId,
+    ]);
     if (result.affectedRows === 0) {
-      return res.status(404).json({ status: "error", message: "Event not deleted" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Event not deleted" });
     }
 
     // Step 3️⃣ : Delete the image from disk
     if (event.image) {
       const imageFileName = path.basename(event.image); // e.g. 1761662100722.png
-      const imagePath = path.join("D:/Gallery-Event-Management/events", imageFileName); // ✅ exact folder
+      const imagePath = path.join(
+        "D:/Gallery-Event-Management/events",
+        imageFileName
+      ); // ✅ exact folder
 
       fs.unlink(imagePath, (err) => {
         if (err) {
@@ -170,7 +184,6 @@ exports.deleteEvent = async (req, res) => {
       status: "success",
       message: "Event and associated image deleted successfully!",
     });
-
   } catch (err) {
     console.error("❌ Delete Event Error:", err);
     res.status(500).json({
@@ -179,8 +192,6 @@ exports.deleteEvent = async (req, res) => {
     });
   }
 };
-
-
 
 // Get user events
 exports.getUserEvents = async (req, res) => {
@@ -213,7 +224,7 @@ exports.getUserEvents = async (req, res) => {
       }
 
       const imageUrl = r.image
-        ? `${req.protocol}://${req.get("host")}/${r.image}`
+        ? `${req.protocol}://${req.get("host")}/events/${r.image}`
         : null;
 
       return { ...r, required_documents: docs, image: imageUrl };
