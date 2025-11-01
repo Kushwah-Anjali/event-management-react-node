@@ -49,35 +49,7 @@ const UserEvents = () => {
     else navigate("/login");
   }, [navigate]);
 
-  // --- Fetch Events ---
-  // useEffect(() => {
-  //   if (!user?.id) return;
-
-  //   const fetchEvents = async () => {
-  //     setState((prev) => ({ ...prev, loading: true }));
-  //     try {
-  //       const res = await fetch(
-  //         `http://localhost:5000/api/userevents/user/${user.id}`
-  //       );
-  //       const data = await res.json();
-  //       if (data.status === "success") {
-  //         // Backend already returns parsed docs & full image URL
-  //         setState((prev) => ({ ...prev, events: data.events }));
-  //       } else {
-  //         Swal.fire("Error", data.message || "Failed to load events", "error");
-  //       }
-  //     } catch {
-  //       Swal.fire("Error", "Server not reachable", "error");
-  //     } finally {
-  //       setState((prev) => ({ ...prev, loading: false }));
-  //     }
-  //   };
-
-  //   fetchEvents();
-  // }, [user]);
-
-
-  // --- Fetch Events (Reusable Function) ---
+    // --- Fetch Events (Reusable Function) ---
 const fetchEvents = async () => {
   if (!user?.id) return;
 

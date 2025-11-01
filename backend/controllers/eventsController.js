@@ -2,11 +2,6 @@ const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
 
-// Add Event
-// const buildFileUrl = (req, filePath) => {
-//   if (!filePath) return null;
-//   return `${req.protocol}://${req.get("host")}/${filePath}`; // e.g. http://localhost:5000/uploads/events/123.png
-// };
 
 exports.addEvent = async (req, res) => {
   try {
@@ -23,11 +18,11 @@ exports.addEvent = async (req, res) => {
       user_id,
     } = req.body;
 
+    // Handle required_docs
     let docsArray = [];
     if (required_docs) {
       if (Array.isArray(required_docs)) docsArray = required_docs;
       else {
-        // could be JSON string or comma-separated string
         try {
           docsArray = JSON.parse(required_docs);
         } catch {
@@ -38,11 +33,25 @@ exports.addEvent = async (req, res) => {
         }
       }
     }
-    const imagePath = req.file ? req.file.filename : null;
 
-    const sql = `INSERT INTO events 
+// Handle image
+let imagePath;
+if (req.file) {
+  imagePath = req.file.filename;
+} else if (req.body.existingImage) {
+  // keep the old image if provided
+  imagePath = req.body.existingImage.replace(/^.*\/events\//, "");
+} else {
+  imagePath = null;
+}
+
+
+    // Insert query
+    const sql = `
+      INSERT INTO events 
       (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
     const [result] = await db.execute(sql, [
       title,
@@ -53,11 +62,17 @@ exports.addEvent = async (req, res) => {
       venue,
       fees,
       contact,
-      imagePath, // store full path
+      imagePath,
       JSON.stringify(docsArray),
       user_id,
     ]);
 
+    // ✅ Build full image URL for frontend
+    const imageUrl = imagePath
+      ? `${req.protocol}://${req.get("host")}/events/${imagePath}`
+      : null;
+
+    // Send response
     res.json({
       status: "success",
       event: {
@@ -71,13 +86,15 @@ exports.addEvent = async (req, res) => {
         fees,
         contact,
         required_documents: docsArray,
-        image: imagePath ? imagePath : null,
+        image: imageUrl, // ✅ now full URL sent
         users: user_id,
       },
     });
   } catch (err) {
     console.error("Add Event Error:", err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    res
+      .status(500)
+      .json({ status: "error", message: "Server error while adding event" });
   }
 };
 
