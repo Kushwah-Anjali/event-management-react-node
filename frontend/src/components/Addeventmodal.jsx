@@ -147,17 +147,28 @@ export default function AddEventModal({
         }));
         break;
       case "image":
-        if (files[0]) {
-          const file = files[0];
-          const validTypes = ["image/jpeg", "image/png"];
-          if (!validTypes.includes(file.type))
-            setErrors((prev) => ({ ...prev, image: "Only JPG/PNG allowed" }));
-          else if (file.size > 2 * 1024 * 1024)
-            setErrors((prev) => ({ ...prev, image: "Max size 2MB" }));
-          else setErrors((prev) => ({ ...prev, image: "" }));
-          setPreview(URL.createObjectURL(file));
-          updatedValue = file;
-        } else {
+      if (files[0]) {
+  const file = files[0];
+  
+  // optional: you can still limit file size
+  if (file.size > 5 * 1024 * 1024) {
+    setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
+  } else {
+    setErrors((prev) => ({ ...prev, image: "" }));
+  }
+
+  // Automatically preview only if it's an image type
+  if (file.type.startsWith("image/")) {
+    setPreview(URL.createObjectURL(file));
+  } else {
+    setPreview(null);
+  }
+
+  updatedValue = file;
+} 
+
+        
+        else {
     // ✅ no new file selected — retain old image + preview
     updatedValue = data.image || "";
     if (data.image) setPreview(getFullImageUrl(data.image));
