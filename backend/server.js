@@ -8,11 +8,9 @@ require("dotenv").config();
 const path = require("path");
 
 app.use(
-  '/events',
-  express.static('D:/Gallery-Event-Management/events') // full absolute path
+  "/events",
+  express.static("D:/Gallery-Event-Management/events") // full absolute path
 );
-
-
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/gallery", express.static("uploads/gallery"));
@@ -22,7 +20,7 @@ const eventRoutes = require("./routes/events");
 const usersRoutes = require("./routes/users");
 const userEventRoutes = require("./routes/userevents");
 const contactRoutes = require("./routes/contact");
-
+const registerRoutes = require("./routes/registerRoutes");
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -33,5 +31,6 @@ app.use("/api/events", eventRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/userevents", userEventRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/register", registerRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

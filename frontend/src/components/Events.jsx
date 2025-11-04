@@ -32,7 +32,7 @@ export default function Events() {
 
   // ✅ useMemo 1: Format dates only when 'events' change
   const formattedEvents = useMemo(() => {
-    console.log("Formatting dates..."); // just to visualize when it runs
+  
     return events.map((e) => ({
       ...e,
       dateRaw: e.date,
@@ -42,7 +42,7 @@ export default function Events() {
 
   // ✅ useMemo 2: Categorize events efficiently
   const { upcoming, today, past } = useMemo(() => {
-    console.log("Filtering events..."); // see when it re-runs
+  
     const upcoming = formattedEvents.filter((e) => e.dateRaw > todayStr);
     const today = formattedEvents.filter((e) => e.dateRaw === todayStr);
     const past = formattedEvents.filter((e) => e.dateRaw < todayStr);
