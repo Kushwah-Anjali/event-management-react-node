@@ -48,7 +48,7 @@
 
 /* Filter Buttons */
 .events-filter-section .btn {
-  background: linear-gradient(90deg, #ff0099, #8e2de2);
+  background: #ff0099;
   color: #fff;
   border: none;
   border-radius: 25px;
@@ -65,79 +65,73 @@
   opacity: 0.95;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
+/* Image hover zoom and smooth card lift */
+.event-card {
+  border-radius: 15px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.event-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Full height image and zoom effect */
+.event-img {
+  height: 320px;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+.event-card:hover .event-img {
+  transform: scale(1.08);
+  filter: brightness(0.75);
+}
+
+/* Subtle text shadow for title */
+.text-shadow {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
 /* Hover overlay */
 .event-hover {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
-.position-relative:hover .event-hover {
+.event-card:hover .event-hover {
   opacity: 1;
 }
 
-/* Circle Register Button */
+/* Date Badge */
+.event-date-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-size: 1rem;
+  text-align: center;
+  z-index: 4;
+    font-weight: 700;
+}
+
+/* Gradient Circle Button */
 .btn-gradient-circle {
-  background: linear-gradient(135deg, #8e2de2, #ff0099);
-  color: #fff;
-  border: none;
-  width: 50px;
-  height: 50px;
+  background:white;
+  color: blue;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.35s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(142, 45, 226, 0.25);
+  transition: all 0.3s ease;
+
 }
 .btn-gradient-circle:hover {
   background: linear-gradient(135deg, #ff0099, #8e2de2);
   box-shadow: 0 10px 25px rgba(142, 45, 226, 0.4);
-}
-.btn-gradient-circle:hover .register-text {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Hidden text appears on hover */
-.register-text {
-  position: absolute;
-  bottom: -20px;
-  opacity: 0;
-  transform: translateY(10px);
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  color: white;
-}
-/* Date Circle Badge */
-.event-date-badge {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  color: #fff;
-  text-align: center;
-  box-shadow: 0 0 5px rgba(255, 0, 153, 0.6), 0 0 20px rgba(142, 45, 226, 0.6);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 5;
-}
-
-.event-date-badge span {
-  display: block;
-  line-height: 1.2;
-}
-.event-date-badge .day {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-.event-date-badge .month {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  color: #ffd6ff;
 }
