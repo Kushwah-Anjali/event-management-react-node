@@ -53,10 +53,10 @@ export default function RegisterModal({ show, handleClose, eventId, onSubmit }) 
         setLoading(false);
       }
     }
-
+  handleClose();
     // ✅ Redirect for both cases
     window.location.href = `/event/${eventId}?email=${email}`;
-    handleClose();
+  
   }
 };
 
