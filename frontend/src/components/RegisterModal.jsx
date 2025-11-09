@@ -1,65 +1,72 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
-export default function RegisterModal({ show, handleClose, eventId, onSubmit }) {
+export default function RegisterModal({ show, handleClose, eventId }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // ✅ we use this instead of window.location.href
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!isEmailChecked) {
-    // Step 1: Check email
-    try {
-      setLoading(true);
-      const res = await fetch("http://localhost:5000/api/register/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, event_id: eventId }),
-      });
-      const data = await res.json();
-
-      if (data.status === "found") {
-        setAlreadyRegistered(true);
-        setName(data.data[0].name);
-      }
-      setIsEmailChecked(true);
-    } catch (error) {
-      console.error("Error checking email:", error);
-    } finally {
-      setLoading(false);
-    }
-  } else {
-    // Step 2: Register user
-    if (!alreadyRegistered) {
+    if (!isEmailChecked) {
+      // ✅ Step 1: Check if email exists
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5000/api/register/new", {
+        const res = await fetch("http://localhost:5000/api/register/check-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ event_id: eventId, name, email }),
+          body: JSON.stringify({ email, event_id: eventId }),
         });
         const data = await res.json();
 
-        if (data.status === "success") {
-          alert("Registration successful!");
+        if (data.status === "found") {
+          setAlreadyRegistered(true);
+          setName(data.data[0].name);
         }
+        setIsEmailChecked(true);
       } catch (error) {
-        console.error("Error registering user:", error);
+        console.error("Error checking email:", error);
       } finally {
         setLoading(false);
       }
-    }
-  handleClose();
-    // ✅ Redirect for both cases
-    window.location.href = `/event/${eventId}?email=${email}`;
-  
-  }
-};
+    } else {
+      // ✅ Step 2: Register new user if not already
+      let userName = name;
 
+      if (!alreadyRegistered) {
+        try {
+          setLoading(true);
+          const res = await fetch("http://localhost:5000/api/register/new", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ event_id: eventId, name, email }),
+          });
+          const data = await res.json();
+
+          if (data.status === "success") {
+            alert("Registration successful!");
+            userName = data.data.name; // take name from backend
+          }
+        } catch (error) {
+          console.error("Error registering user:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      handleClose();
+
+      // ✅ Step 3: Redirect to details page with data
+      navigate(`/register-details`, {
+        state: { name: userName, email, eventId },
+      });
+    }
+  };
 
   return (
     <Modal show={show} onHide={handleClose} centered>

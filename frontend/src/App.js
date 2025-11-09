@@ -6,6 +6,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
 import UserEvents from "./pages/UserEvents";
+import RegisterDetails from "./pages/RegisterDetails";
 import './App.css';
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/users" element={<Users />} />
         <Route path="/userevents" element={<UserEvents />} />
-        
+          <Route path="/register-details" element={<RegisterDetails />} />
+
       </Routes>
       <Footer />
     </Router>

@@ -19,7 +19,11 @@ exports.checkEmail = (req, res) => {
     }
 
     if (results.length > 0) {
-      res.json({ status: "found", data: results });
+  res.json({
+  status: "found",
+  message: "User already registered for this event.",
+  data: results
+});
     } else {
       res.json({ status: "not_found" });
     }
@@ -62,6 +66,7 @@ exports.register = (req, res) => {
         data: {
           name: user.name,
           email: user.email,
+           event_id: user.event_id,
           registered_at: user.created_at,
           documents: JSON.parse(user.documents || "[]"),
         },
