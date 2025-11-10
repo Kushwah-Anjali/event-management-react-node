@@ -1,76 +1,81 @@
 const db = require("../config/db");
 
 // ✅ Check if email already registered for event
-exports.checkEmail = (req, res) => {
-  const { email, event_id } = req.body;
 
-  if (!email || !event_id) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "Missing email or event ID." });
+exports.checkEmail = async (req, res) => {
+  try {
+    const { email, event_id } = req.body;
+
+    if (!email || !event_id)
+      return res.status(400).json({ status: "error", message: "Missing email or event ID." });
+
+    const [rows] = await db.query(
+      "SELECT * FROM registrations WHERE email = ? AND event_id = ?",
+      [email, event_id]
+    );
+
+    if (rows.length > 0)
+      return res.json({
+        status: "found",
+        message: "User already registered for this event.",
+        data: rows,
+      });
+
+    return res.json({
+      status: "not_found",
+      message: "User not registered for this event.",
+      data: [],
+    });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
   }
-
-  const query = "SELECT * FROM registrations WHERE email = ? AND event_id = ?";
-  db.query(query, [email, event_id], (err, results) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ status: "error", message: err.message });
-    }
-
-    if (results.length > 0) {
-  res.json({
-  status: "found",
-  message: "User already registered for this event.",
-  data: results
-});
-    } else {
-      res.json({ status: "not_found" });
-    }
-  });
 };
 
 // ✅ Register a new user
-exports.register = (req, res) => {
-  const { name, email, event_id } = req.body;
+// ✅ Register a new user (with try-catch)
+exports.register = async (req, res) => {
+  try {
+    const { name, email, event_id } = req.body;
 
-  if (!name || !email || !event_id) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "Missing required fields!" });
-  }
-
-  const documents = JSON.stringify([]);
-
-  const insertQuery =
-    "INSERT INTO registrations (event_id, name, email, documents) VALUES (?, ?, ?, ?)";
-  db.query(insertQuery, [event_id, name, email, documents], (err, result) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ status: "error", message: err.message });
+    // ✅ Validate input
+    if (!name || !email || !event_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields!",
+      });
     }
 
-    const insertedId = result.insertId;
+    const documents = JSON.stringify([]);
 
-    db.query("SELECT * FROM registrations WHERE id = ?", [insertedId], (err2, data) => {
-      if (err2) {
-        return res
-          .status(500)
-          .json({ status: "error", message: err2.message });
-      }
+    // ✅ Insert new registration
+    const [result] = await db.query(
+      "INSERT INTO registrations (event_id, name, email, documents) VALUES (?, ?, ?, ?)",
+      [event_id, name, email, documents]
+    );
 
-      const user = data[0];
-      res.json({
-        status: "success",
-        data: {
-          name: user.name,
-          email: user.email,
-           event_id: user.event_id,
-          registered_at: user.created_at,
-          documents: JSON.parse(user.documents || "[]"),
-        },
-      });
+    // ✅ Fetch newly inserted user
+    const [data] = await db.query(
+      "SELECT * FROM registrations WHERE id = ?",
+      [result.insertId]
+    );
+
+    const user = data[0];
+    res.json({
+      status: "success",
+      data: {
+        name: user.name,
+        email: user.email,
+        event_id: user.event_id,
+        registered_at: user.created_at,
+        documents: JSON.parse(user.documents || "[]"),
+      },
     });
-  });
+
+  } catch (err) {
+    console.error("❌ Registration Error:", err.message);
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
 };
