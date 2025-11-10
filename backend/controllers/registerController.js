@@ -107,6 +107,9 @@ exports.getEventById = async (req, res) => {
         date: event.date,
         venue: event.venue,
         image: imageUrl,
+        fees:event.fees,
+        contact:event.contact,
+               author:event.author,
         required_documents: event.required_documents
           ? JSON.parse(event.required_documents)
           : [],

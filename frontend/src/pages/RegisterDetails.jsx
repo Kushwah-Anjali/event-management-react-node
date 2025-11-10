@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 function RegisterDetails() {
   const location = useLocation();
-  const { name, email, eventId } = location.state || {};
+  const { name, email, eventId, registered_at } = location.state || {};
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,10 +59,15 @@ function RegisterDetails() {
                   <hr />
 
                   <p className="mb-2">
+                    <i className="bi bi-envelope text-primary me-2"></i>
                     <strong>Email:</strong> {email}
                   </p>
-                  <p className="text-muted mb-0">
-                    Thank you for registering! Below are the event details.
+                  <p className="mb-0">
+                    <i className="bi bi-calendar-check text-success me-2"></i>
+                    <strong>Registered On:</strong>{" "}
+                    {registered_at
+                      ? new Date(registered_at).toLocaleDateString()
+                      : "Not available"}
                   </p>
                 </div>
               </div>
@@ -90,16 +95,31 @@ function RegisterDetails() {
                     />
                   )}
                   <div className="card-body p-4">
-                    <h3 className="fw-bold text-primary mb-3">{event.title}</h3>
+                    <h3 className="fw-bold text-primary mb-3">
+                      <i className="bi bi-star-fill me-2 text-warning"></i>
+                      {event.title}
+                    </h3>
 
-                    <div className="d-flex flex-wrap mb-3">
-                      <div className="me-4 mb-2">
+                    <div className="row mb-3">
+                      <div className="col-md-6 mb-2">
                         <i className="bi bi-calendar-event text-primary me-2"></i>
                         <strong>Date:</strong> {event.date || "Not specified"}
                       </div>
-                      <div className="mb-2">
+                      <div className="col-md-6 mb-2">
                         <i className="bi bi-geo-alt text-danger me-2"></i>
                         <strong>Venue:</strong> {event.venue || "Not available"}
+                      </div>
+                      <div className="col-md-6 mb-2">
+                        <i className="bi bi-person-circle text-info me-2"></i>
+                        <strong>Author:</strong> {event.author || "Not available"}
+                      </div>
+                      <div className="col-md-6 mb-2">
+                        <i className="bi bi-cash-coin text-success me-2"></i>
+                        <strong>Fees:</strong> {event.fees || "Free"}
+                      </div>
+                      <div className="col-md-6 mb-2">
+                        <i className="bi bi-telephone text-secondary me-2"></i>
+                        <strong>Contact:</strong> {event.contact || "Not available"}
                       </div>
                     </div>
 
@@ -111,6 +131,7 @@ function RegisterDetails() {
                       event.required_documents.length > 0 && (
                         <div className="mt-3">
                           <h6 className="fw-bold text-dark mb-2">
+                            <i className="bi bi-folder2-open text-primary me-2"></i>
                             Required Documents
                           </h6>
                           <ul className="list-group list-group-flush">

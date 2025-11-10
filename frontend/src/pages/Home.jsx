@@ -6,10 +6,9 @@ import Feedback from "../components/Feedback";
 
 const Home = () => {
   return (
-    <> z
+    <> 
       {/* Hero Section */}
       <Hero />
-
       {/* Welcome Section */}
       <Welcome />
       <Events />

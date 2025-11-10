@@ -30,7 +30,7 @@ const handleSubmit = async (e) => {
         const userName = data.data[0].name;
         handleClose();
         return navigate("/register-details", {
-          state: { name: userName, email, eventId },
+          state: { name: userName, email, eventId},
         });
       }
 
