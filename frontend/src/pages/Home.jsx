@@ -6,7 +6,7 @@ import Feedback from "../components/Feedback";
 
 const Home = () => {
   return (
-    <> 
+    <> z
       {/* Hero Section */}
       <Hero />
 
