@@ -1,21 +1,35 @@
+// multer.js
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// ⚙️ Use absolute path to outside folder
-const uploadDir = "D:/Gallery-Event-Management/events"; // 👈 replace with your real path
+// Base directory for all uploads
+const baseDir = "D:/Gallery-Event-Management";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-      console.log("✅ Created folder:", uploadDir);
+    let folder = "events"; // default folder
+
+    // 🧩 Detect route type to decide destination
+    if (req.baseUrl.includes("register")) {
+      folder = "documents";
     }
-    console.log("📂 Upload path:", uploadDir);
-    cb(null, uploadDir);
+
+    const uploadPath = path.join(baseDir, folder);
+
+    // Create folder if it doesn’t exist
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+      console.log("✅ Created folder:", uploadPath);
+    }
+
+    console.log(`📂 Upload path selected: ${uploadPath}`);
+    cb(null, uploadPath);
   },
+
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
   },
 });
 

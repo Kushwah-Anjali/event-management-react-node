@@ -120,3 +120,80 @@ exports.getEventById = async (req, res) => {
     res.status(500).json({ status: "error", message: err.message });
   }
 };
+// ✅ Upload documents for an event registration
+
+// ✅ Get uploaded documents for a user & event
+
+
+exports.getUserDocuments = async (req, res) => {
+  try {
+    const { email, event_id } = req.query;
+    const [rows] = await db.query(
+      "SELECT documents FROM registrations WHERE email = ? AND event_id = ?",
+      [email, event_id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ status: "error", message: "No registration found" });
+
+    res.json({
+      status: "success",
+      uploadedDocs: JSON.parse(rows[0].documents || "[]"),
+    });
+  } catch (err) {
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+
+exports.uploadDocuments = async (req, res) => {
+  try {
+    const { event_id, email } = req.body;
+
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ status: "error", message: "No files uploaded!" });
+    }
+
+    // ✅ Get filenames
+    const uploadedFiles = req.files.map((file) => file.filename);
+
+    // ✅ Optional: Update database (save uploaded file names to the user's registration)
+    await db.query(
+      "UPDATE registrations SET documents = ? WHERE email = ? AND event_id = ?",
+      [JSON.stringify(uploadedFiles), email, event_id]
+    );
+
+    res.json({
+      status: "success",
+      message: "Documents uploaded successfully!",
+      files: uploadedFiles,
+    });
+  } catch (err) {
+    console.error("❌ Document Upload Error:", err.message);
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};
+exports.getRequiredDocs = async (req, res) => {
+  try {
+    const { event_id } = req.params;
+    console.log(event_id);
+    const [rows] = await db.query(
+      "SELECT required_documents FROM events WHERE id = ?",
+      [event_id]
+    );
+
+    if (rows.length === 0)
+      return res.status(404).json({ status: "error", message: "Event not found" });
+
+    console.log("🧾 Raw DB value:", rows[0].required_documents);
+
+    const docs =
+      typeof rows[0].required_documents === "string"
+        ? JSON.parse(rows[0].required_documents)
+        : rows[0].required_documents || [];
+
+    res.json({ status: "success", required_docs: docs });
+  } catch (err) {
+    console.error("❌ Error in getRequiredDocs:", err.message);
+    res.status(500).json({ status: "error", message: err.message });
+  }
+};

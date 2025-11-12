@@ -70,7 +70,7 @@ const handleSubmit = async (e) => {
         setTimeout(() => {
           handleClose();
           navigate("/register-details", {
-            state: { name: userName, email, eventId },
+            state: { name: userName, email, event_id:eventId },
           });
         }, 2000);
       }
