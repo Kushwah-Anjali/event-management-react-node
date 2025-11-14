@@ -7,7 +7,9 @@ exports.checkEmail = async (req, res) => {
     const { email, event_id } = req.body;
 
     if (!email || !event_id)
-      return res.status(400).json({ status: "error", message: "Missing email or event ID." });
+      return res
+        .status(400)
+        .json({ status: "error", message: "Missing email or event ID." });
 
     const [rows] = await db.query(
       "SELECT * FROM registrations WHERE email = ? AND event_id = ?",
@@ -45,7 +47,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const documents = JSON.stringify([]);
+    const documents = JSON.stringify({});
 
     // ✅ Insert new registration
     const [result] = await db.query(
@@ -54,10 +56,9 @@ exports.register = async (req, res) => {
     );
 
     // ✅ Fetch newly inserted user
-    const [data] = await db.query(
-      "SELECT * FROM registrations WHERE id = ?",
-      [result.insertId]
-    );
+    const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
+      result.insertId,
+    ]);
 
     const user = data[0];
     res.json({
@@ -70,7 +71,6 @@ exports.register = async (req, res) => {
         documents: JSON.parse(user.documents || "[]"),
       },
     });
-
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
     res.status(500).json({
@@ -85,10 +85,14 @@ exports.getEventById = async (req, res) => {
     const { eventId } = req.params;
 
     // Query event from the database
-    const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [eventId]);
+    const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
+      eventId,
+    ]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ status: "error", message: "Event not found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Event not found" });
     }
 
     const event = rows[0];
@@ -107,9 +111,9 @@ exports.getEventById = async (req, res) => {
         date: event.date,
         venue: event.venue,
         image: imageUrl,
-        fees:event.fees,
-        contact:event.contact,
-               author:event.author,
+        fees: event.fees,
+        contact: event.contact,
+        author: event.author,
         required_documents: event.required_documents
           ? JSON.parse(event.required_documents)
           : [],
@@ -124,7 +128,6 @@ exports.getEventById = async (req, res) => {
 
 // ✅ Get uploaded documents for a user & event
 
-
 exports.getUserDocuments = async (req, res) => {
   try {
     const { email, event_id } = req.query;
@@ -133,7 +136,9 @@ exports.getUserDocuments = async (req, res) => {
       [email, event_id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ status: "error", message: "No registration found" });
+      return res
+        .status(404)
+        .json({ status: "error", message: "No registration found" });
 
     res.json({
       status: "success",
@@ -148,50 +153,100 @@ exports.uploadDocuments = async (req, res) => {
   try {
     const { event_id, email } = req.body;
 
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ status: "error", message: "No files uploaded!" });
+    if (!event_id || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing event_id or email",
+      });
     }
 
-    // ✅ Get filenames
-    const uploadedFiles = req.files.map((file) => file.filename);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No documents uploaded",
+      });
+    }
 
-    // ✅ Optional: Update database (save uploaded file names to the user's registration)
-    await db.query(
-      "UPDATE registrations SET documents = ? WHERE email = ? AND event_id = ?",
-      [JSON.stringify(uploadedFiles), email, event_id]
+    const uploadedDocs = {};
+
+    // 🔥 Store EXACT fieldname as key
+    req.files.forEach((file) => {
+      uploadedDocs[file.fieldname] = file.filename;
+    });
+
+    // 🔥 Load old documents
+    const [existing] = await db.query(
+      "SELECT documents FROM registrations WHERE email = ? AND event_id = ?",
+      [email, event_id]
     );
 
-    res.json({
-      status: "success",
-      message: "Documents uploaded successfully!",
-      files: uploadedFiles,
+    let finalDocs = uploadedDocs;
+
+    if (existing.length > 0) {
+      const oldDocs = existing[0].documents
+        ? JSON.parse(existing[0].documents)
+        : {};
+
+      // 🔥 Merge by exact same keys
+      finalDocs = { ...oldDocs, ...uploadedDocs };
+
+      await db.query(
+        "UPDATE registrations SET documents = ? WHERE email = ? AND event_id = ?",
+        [JSON.stringify(finalDocs), email, event_id]
+      );
+    } else {
+      await db.query(
+        "INSERT INTO registrations (email, event_id, documents) VALUES (?, ?, ?)",
+        [email, event_id, JSON.stringify(finalDocs)]
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Documents uploaded successfully",
+      data: finalDocs,
     });
   } catch (err) {
-    console.error("❌ Document Upload Error:", err.message);
-    res.status(500).json({ status: "error", message: err.message });
+    console.error("❌ Document Upload Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message,
+    });
   }
 };
+
+
 exports.getRequiredDocs = async (req, res) => {
   try {
     const { event_id } = req.params;
-    console.log(event_id);
+
     const [rows] = await db.query(
       "SELECT required_documents FROM events WHERE id = ?",
       [event_id]
     );
 
-    if (rows.length === 0)
-      return res.status(404).json({ status: "error", message: "Event not found" });
+    if (rows.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Event not found",
+      });
+    }
 
-    console.log("🧾 Raw DB value:", rows[0].required_documents);
-
-    const docs =
+    const rawDocs =
       typeof rows[0].required_documents === "string"
         ? JSON.parse(rows[0].required_documents)
         : rows[0].required_documents || [];
 
-    res.json({ status: "success", required_docs: docs });
+    // 🔥 Normalize → final key format for entire system
+    const normalizedDocs = rawDocs.map((doc) =>
+      doc.toLowerCase().trim().replace(/\s+/g, "_")
+    );
+
+    res.json({
+      status: "success",
+      required_docs: normalizedDocs,
+    });
   } catch (err) {
     console.error("❌ Error in getRequiredDocs:", err.message);
     res.status(500).json({ status: "error", message: err.message });

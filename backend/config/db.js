@@ -10,5 +10,7 @@ const db = mysql
     database: process.env.DB_NAME || "event_management",
   })
   .promise(); // <-- this line is key 🔥
-
+db.connect()
+  .then(() => console.log("✅ MySQL Connected Successfully!"))
+  .catch((err) => console.error("❌ MySQL Connection Failed:", err.message));
 module.exports = db;

@@ -29,6 +29,7 @@ function RegisterDetails() {
     };
 
     if (eventId) fetchEventDetails();
+    console.log("Event ID:", eventId);
   }, [eventId]);
 
   return (
@@ -151,6 +152,8 @@ function RegisterDetails() {
     event={event}
     email={email}
     event_id={eventId}
+      registered_at={registered_at}
+
   />
 </div>
 

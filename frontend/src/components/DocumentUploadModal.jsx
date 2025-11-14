@@ -1,41 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
+import Swal from "sweetalert2";
 
 const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [requiredDocs, setRequiredDocs] = useState([]);
-  const [uploadedDocs, setUploadedDocs] = useState([]);
+  const [uploadedDocs, setUploadedDocs] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Fetch required + uploaded documents when modal opens
+  // Fetch required + uploaded documents
   useEffect(() => {
-    if (!show || !event_id || !email) return;
+    if (!show) return;
 
     const fetchDocs = async () => {
       try {
         setLoading(true);
 
-        // 1️⃣ Get required docs for this event
-       const reqRes = await fetch(
-  `http://localhost:5000/api/register/required-docs/${event_id}`
-);
-
-        
+        // Fetch required docs
+        const reqRes = await fetch(
+          `http://localhost:5000/api/register/required-docs/${event_id}`
+        );
         const reqData = await reqRes.json();
+
         if (reqData.status === "success") {
-          setRequiredDocs(reqData.required_docs || []);
+          setRequiredDocs(reqData.required_docs);
+        } else {
+          Swal.fire("Error", "Failed to load required documents.", "error");
         }
 
-        // 2️⃣ Get already uploaded docs for this user
+        // Fetch already uploaded docs
         const upRes = await fetch(
           `http://localhost:5000/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
         );
         const upData = await upRes.json();
-        if (upData.status === "success") {
-          setUploadedDocs(upData.uploadedDocs || []);
-        }
-      } catch (err) {
-        console.error("❌ Error loading documents:", err);
+
+        setUploadedDocs(upData.uploadedDocs || {});
+      } catch (error) {
+        Swal.fire("Error", "Unable to fetch documents.", "error");
       } finally {
         setLoading(false);
       }
@@ -44,7 +45,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
     fetchDocs();
   }, [show, event_id, email]);
 
-  // 🔹 Handle file selection
+  // File selection
   const handleFileChange = (e, docName) => {
     setSelectedFiles((prev) => ({
       ...prev,
@@ -52,16 +53,17 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
     }));
   };
 
-  // 🔹 Upload selected documents
+  // Upload files
   const handleUpload = async () => {
     try {
       setLoading(true);
+
       const formData = new FormData();
       formData.append("event_id", event_id);
       formData.append("email", email);
 
-      Object.entries(selectedFiles).forEach(([docName, file]) => {
-        if (file) formData.append("files", file);
+      Object.entries(selectedFiles).forEach(([docKey, file]) => {
+        formData.append(docKey, file);
       });
 
       const res = await fetch(
@@ -73,15 +75,18 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       );
 
       const data = await res.json();
-      if (data.status === "success") {
-        alert("✅ Documents uploaded successfully!");
-        setUploadedDocs((prev) => [...prev, ...data.files]);
+
+      if (data.success) {
+        Swal.fire("Success", "Documents uploaded successfully!", "success");
+
+        setUploadedDocs((prev) => ({ ...prev, ...data.data }));
         setSelectedFiles({});
+        handleClose();
       } else {
-        alert("❌ " + data.message);
+        Swal.fire("Upload Failed", data.message || "Something went wrong.", "error");
       }
-    } catch (err) {
-      console.error("❌ Upload failed:", err);
+    } catch (error) {
+      Swal.fire("Error", "Upload failed. Try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -95,33 +100,49 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
 
       <Modal.Body>
         {loading ? (
-          <div className="text-center">
-            <Spinner animation="border" variant="primary" />
+          <div className="text-center py-4">
+            <Spinner animation="border" />
+            <p className="mt-2">Loading documents…</p>
           </div>
         ) : requiredDocs.length === 0 ? (
-          <p>No documents required for this event.</p>
+          <p className="text-center text-muted">
+            No documents required for this event.
+          </p>
         ) : (
-          requiredDocs.map((doc) => (
-            <div key={doc} className="mb-3">
-              <label className="form-label fw-semibold">{doc}</label>
-              {uploadedDocs.includes(doc) ? (
-                <div className="text-success">✅ Already Uploaded</div>
-              ) : (
-                <input
-                  type="file"
-                  className="form-control"
-                  onChange={(e) => handleFileChange(e, doc)}
-                />
+          requiredDocs.map((doc, index) => (
+            <div key={index} className="p-3 mb-3 border rounded bg-light shadow-sm">
+              <div className="d-flex justify-content-between mb-2">
+                <strong>{doc}</strong>
+                {uploadedDocs[doc] && (
+                  <span className="badge bg-success">Uploaded</span>
+                )}
+              </div>
+
+              {uploadedDocs[doc] && (
+                <p className="text-success small mb-2">
+                  <strong>File:</strong> {uploadedDocs[doc]}
+                </p>
               )}
+
+              <label className="form-label mb-1">
+                {uploadedDocs[doc] ? "Re-upload file" : "Upload file"}
+              </label>
+
+              <input
+                type="file"
+                className="form-control"
+                onChange={(e) => handleFileChange(e, doc)}
+              />
             </div>
           ))
         )}
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="secondary" onClick={handleClose} disabled={loading}>
           Close
         </Button>
+
         <Button
           variant="primary"
           onClick={handleUpload}

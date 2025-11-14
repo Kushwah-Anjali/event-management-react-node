@@ -29,9 +29,12 @@ const handleSubmit = async (e) => {
         // ✅ Directly redirect if already registered
         const userName = data.data[0].name;
         handleClose();
-        return navigate("/register-details", {
-          state: { name: userName, email, eventId},
-        });
+        return navigate("/register-details", {  state: { 
+    name: userName, 
+    email, 
+    eventId,
+    registered_at: data.data[0].registered_at   // ⬅ ADD THIS
+  },});
       }
 
       // ✅ If not found, move to next step (ask for name)
@@ -70,7 +73,7 @@ const handleSubmit = async (e) => {
         setTimeout(() => {
           handleClose();
           navigate("/register-details", {
-            state: { name: userName, email, event_id:eventId },
+            state: { name: userName, email, eventId,registered_at: data.data.registered_at   },
           });
         }, 2000);
       }
