@@ -9,25 +9,21 @@ export default function EventsCard({ event }) {
   const handleRegisterClick = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-const formattedDate = (() => {
-  if (!event.date) return "?? Nov";
+  const formattedDate = (() => {
+    if (!event.date) return "?? Nov";
 
-  // Split by space
-  const parts = event.date.split(" ");
+    const parts = event.date.split(" ");
 
-  // If it's in "Nov 25" format -> reverse it
-  if (isNaN(parts[0])) {
-    return `${parts[1]} ${parts[0]}`;
-  }
+    if (isNaN(parts[0])) {
+      return `${parts[1]} ${parts[0]}`;
+    }
 
-  // Otherwise, assume it's already "25 Nov"
-  return `${parts[0]} ${parts[1]}`;
-})();
-
+    return `${parts[0]} ${parts[1]}`;
+  })();
 
   return (
     <>
-      <div className="card border-0  shadow-sm overflow-hidden position-relative event-card">
+      <div className="card border-0 shadow-sm overflow-hidden position-relative event-card">
         {/* === Image Section === */}
         <div className="position-relative overflow-hidden">
           {event.image ? (
@@ -45,7 +41,7 @@ const formattedDate = (() => {
             </div>
           )}
 
-          {/* === Title + Register Button Overlay === */}
+          {/* === Title + Register Button === */}
           <div className="position-absolute bottom-0 start-0 w-100 px-3 pb-3 d-flex justify-content-between align-items-center text-white z-3">
             <h5 className="fw-bold mb-0 text-shadow">
               {event.title || "Event Title"}
@@ -59,7 +55,7 @@ const formattedDate = (() => {
             </button>
           </div>
 
-          {/* === Date Badge (Inline Style) === */}
+          {/* === Date Badge === */}
           <div className="event-date-badge d-flex justify-content-center align-items-center">
             <span className="fw-semibold">{formattedDate}</span>
           </div>
@@ -70,8 +66,9 @@ const formattedDate = (() => {
           </div>
         </div>
 
-        {/* === Modal === */}
+        {/* === Modal (with KEY FIX) === */}
         <RegisterModal
+          key={showModal}
           show={showModal}
           handleClose={handleCloseModal}
           eventId={event.id}

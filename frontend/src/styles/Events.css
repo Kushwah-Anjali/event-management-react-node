@@ -135,3 +135,13 @@
   background: linear-gradient(135deg, #ff0099, #8e2de2);
   box-shadow: 0 10px 25px rgba(142, 45, 226, 0.4);
 }
+/* Prevent horizontal scroll always */
+body {
+  overflow-x: hidden !important;
+}
+
+/* Bootstrap modal scroll fix */
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
