@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Users from "./pages/Users";
 import UserEvents from "./pages/UserEvents";
 import RegisterDetails from "./pages/RegisterDetails";
+import EventHistory from "./pages/EventHistory";
 import './App.css';
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/userevents" element={<UserEvents />} />
           <Route path="/register-details" element={<RegisterDetails />} />
-
+    <Route path="/event-history " element ={<EventHistory/>}/>
       </Routes>
       <Footer />
     </Router>

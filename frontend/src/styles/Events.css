@@ -65,17 +65,18 @@
   opacity: 0.95;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
-/* Image hover zoom and smooth card lift */
+/* Card Styles */
 .event-card {
   border-radius: 15px;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
 }
 .event-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Full height image and zoom effect */
+/* Image */
 .event-img {
   height: 320px;
   object-fit: cover;
@@ -86,12 +87,18 @@
   filter: brightness(0.75);
 }
 
-/* Subtle text shadow for title */
+/* Placeholder for missing images */
+.event-placeholder {
+  height: 320px;
+  font-size: 1rem;
+}
+
+/* Text Shadow for readability */
 .text-shadow {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
 }
 
-/* Hover overlay */
+/* Hover Overlay */
 .event-hover {
   background: rgba(0, 0, 0, 0.55);
   opacity: 0;
@@ -109,19 +116,21 @@
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 700;
   font-size: 1rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 4;
-    font-weight: 700;
 }
 
 /* Gradient Circle Button */
 .btn-gradient-circle {
-  background:white;
-  color: blue;
+  background: white;
+  color: #0d6efd;
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -129,19 +138,30 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-
 }
 .btn-gradient-circle:hover {
   background: linear-gradient(135deg, #ff0099, #8e2de2);
+  color: white;
   box-shadow: 0 10px 25px rgba(142, 45, 226, 0.4);
 }
-/* Prevent horizontal scroll always */
-body {
-  overflow-x: hidden !important;
+
+/* Past Event Dim Effect */
+.past-event .event-img {
+  filter: grayscale(60%) brightness(0.7);
 }
 
-/* Bootstrap modal scroll fix */
-body.modal-open {
-  overflow: hidden !important;
-  padding-right: 0 !important;
+/* Responsive Fixes */
+@media (max-width: 576px) {
+  .event-img, .event-placeholder {
+    height: 220px;
+  }
+  .event-date-badge {
+    width: 60px;
+    height: 60px;
+    font-size: 0.9rem;
+  }
+  .btn-gradient-circle {
+    width: 40px;
+    height: 40px;
+  }
 }
