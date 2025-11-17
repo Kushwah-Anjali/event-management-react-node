@@ -20,7 +20,7 @@ function App() {
         <Route path="/users" element={<Users />} />
         <Route path="/userevents" element={<UserEvents />} />
           <Route path="/register-details" element={<RegisterDetails />} />
-    <Route path="/event-history " element ={<EventHistory/>}/>
+    <Route path="/event-history" element ={<EventHistory />}/>
       </Routes>
       <Footer />
     </Router>

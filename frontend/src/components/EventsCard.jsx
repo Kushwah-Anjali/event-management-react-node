@@ -9,12 +9,12 @@ export default function EventsCard({ event }) {
   const navigate = useNavigate();
 
   const handleRegisterClick = () => setShowModal(true);
-  const handleHistoryClick = () => navigate("/event-history", { state: { event } });
+  const handleHistoryClick = () => navigate("/event-history", {  state: { eventId: event.id } });
   const handleCloseModal = () => setShowModal(false);
 
   // Format date
   const formattedDate = (() => {
-    if (!event.date) return "?? Nov";
+    if (!event.date) return "Date TBD";
     const parts = event.date.split(" ");
     return isNaN(parts[0]) ? `${parts[1]} ${parts[0]}` : `${parts[0]} ${parts[1]}`;
   })();

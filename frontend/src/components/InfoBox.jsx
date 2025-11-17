@@ -1,0 +1,14 @@
+
+import React from "react";
+
+export default function InfoBox({ title, value, icon }) {
+  return (
+    <div className="col-sm-6 col-md-4 mb-3">
+      <div className="card shadow-sm h-100 p-3 d-flex align-items-center">
+        {icon && <i className={`${icon} fs-2 mb-2 text-muted`}></i>}
+        <div className="text-muted small">{title}</div>
+        <div className="fw-bold fs-5">{value ?? "N/A"}</div>
+      </div>
+    </div>
+  );
+}

@@ -276,3 +276,97 @@ exports.getHistory = async (req, res) => {
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
+exports.getEventWithHistory = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const sql = `
+      SELECT 
+        e.id, e.title, e.category, e.description, e.date, e.author,
+        e.venue, e.image, e.fees, e.contact,
+        h.summary,
+        h.highlights,
+        h.attendees_count AS attendees,
+        h.guests,
+        h.budget_spent AS budget,
+        h.long_summary AS long_summary,
+        h.lessons_learned AS lessons,
+        h.media_links,
+        h.created_at
+      FROM events e
+      LEFT JOIN history h ON e.id = h.event_id
+      WHERE e.id = ?
+      LIMIT 1
+    `;
+
+    const [rows] = await db.query(sql, [eventId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Event not found",
+      });
+    }
+
+    const event = rows[0];
+
+    // Convert event image path → URL
+    const imageUrl = event.image
+      ? `${req.protocol}://${req.get("host")}/events/${event.image}`
+      : null;
+
+    // Parse media_links JSON
+    let photos = [];
+    let videos = [];
+
+    if (event.media_links) {
+      try {
+        const media = JSON.parse(event.media_links);
+
+        photos = (media.photos || []).map(
+          (file) =>
+            `${req.protocol}://${req.get("host")}/history/photos/${file}`
+        );
+
+        videos = (media.videos || []).map(
+          (file) =>
+            `${req.protocol}://${req.get("host")}/history/videos/${file}`
+        );
+      } catch (err) {
+        console.error("⚠️ media_links parsing failed", err);
+      }
+    }
+
+    res.json({
+      status: "success",
+      event: {
+        id: event.id,
+        title: event.title,
+        category: event.category,
+        description: event.description,
+        date: event.date,
+        author: event.author,
+        venue: event.venue,
+        image: imageUrl,
+        fees: event.fees,
+        contact: event.contact,
+
+        // History fields
+        summary: event.summary,
+        highlights: event.highlights,
+        attendees: event.attendees,
+        guests: event.guests,
+        budget: event.budget,
+        long_summary: event.long_summary,
+        lessons: event.lessons,
+
+        photos,
+        videos,
+        created_at: event.created_at,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Error fetching event + history:", err);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+};
