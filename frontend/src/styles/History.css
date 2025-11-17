@@ -1,0 +1,24 @@
+/* Namespaced only to event-history-page */
+.event-history-page .eh-hero {
+  height: 260px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+}
+
+/* Fade only inside this page */
+.event-history-page .fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.35s ease-out;
+}
+
+.event-history-page .fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Document hover */
+.event-history-page .eh-doc:hover {
+  background-color: #f1f3f5;
+}

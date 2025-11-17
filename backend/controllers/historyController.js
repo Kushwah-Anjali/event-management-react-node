@@ -136,18 +136,23 @@ exports.addHistory = async (req, res) => {
 
 exports.getHistory = async (req, res) => {
   try {
-    const sql = "SELECT * FROM history WHERE event_id = ?";
-    const rows = await db.query(sql, [req.params.eventId]);
+    const sql = "SELECT * FROM history WHERE event_id = ? ORDER BY id DESC LIMIT 1";
+    const [rows] = await db.query(sql, [req.params.eventId]);
 
     if (!rows.length) {
-      return res.json({ history: null });
+      return res.json({ exists: false, history: null });
     }
 
     const history = rows[0];
-    history.media_links = JSON.parse(history.media_links || "[]");
 
-    return res.json({ history });
+    // Parse media
+    history.media = JSON.parse(history.media_links || "[]");
+    delete history.media_links;
+
+    return res.json({ exists: true, history });
   } catch (err) {
+    console.error("🔥 getHistory Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
