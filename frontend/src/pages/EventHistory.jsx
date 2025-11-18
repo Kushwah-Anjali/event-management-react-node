@@ -67,8 +67,7 @@ export default function EventHistory() {
         if (evt.highlights) sections.push({ title: "Highlights", type: "text", content: evt.highlights });
         if (evt.lessons) sections.push({ title: "Lessons Learned", type: "text", content: evt.lessons });
 
-        // Documents
-        const documents = Array.isArray(evt.required_documents) ? evt.required_documents : [];
+
 
         // Event Media Fix
         let media = [];
@@ -84,7 +83,7 @@ export default function EventHistory() {
           media = [];
         }
 
-        evt = { ...evt, sections, documents, media };
+        evt = { ...evt, sections,media };
 
         // 2️⃣ Fetch History
         const historyRes = await fetch(`http://localhost:5000/api/history/${eventId}`);
@@ -207,29 +206,6 @@ return (
       <InfoBox title="Venue" value={event.venue ?? "N/A"} icon="bi bi-geo-alt-fill" />
       <InfoBox title="Contact" value={event.contact ?? "N/A"} icon="bi bi-telephone-fill" />
     </div>
-
-    {/* Documents */}
-    {event.documents?.length > 0 && (
-      <div className="card p-3 mb-4 shadow-sm fade-in">
-        <h5 className="fw-bold mb-3">Documents</h5>
-        <div className="row g-3">
-          {event.documents.map((doc, i) => (
-            <div className="col-md-4" key={i}>
-              <a href={doc.url ?? doc} target="_blank" rel="noreferrer">
-                <div className="d-flex align-items-center p-3 bg-light rounded eh-doc">
-                  <i className="bi bi-file-earmark-text fs-3 me-3"></i>
-                  <div>
-                    <div className="fw-bold">{doc.name ?? `Document ${i + 1}`}</div>
-                    <div className="text-muted small">{doc.type ?? ""}</div>
-                  </div>
-                </div>
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
     {/* Dynamic Sections */}
     {event.sections?.map((s, idx) => (
       <div key={idx} className="card p-3 mb-4 shadow-sm fade-in">
