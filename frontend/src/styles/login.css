@@ -1,4 +1,4 @@
-/* Background image with overlay & subtle blur */
+/* Background */
 .login-wrapper {
   background: linear-gradient(rgba(13,13,61,0.5), rgba(30,30,102,0.5)),
               url("../assets/images/login_bg.jpg") center/cover no-repeat;
@@ -10,39 +10,38 @@
   animation: bgZoom 20s ease-in-out infinite alternate;
 }
 
-/* Zoom animation */
 @keyframes bgZoom {
   0% { background-size: 100% 100%; }
   100% { background-size: 105% 105%; }
 }
 
-/* Glass card effect with hover */
+/* Glass card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,0.85);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: 0.2s ease;
 }
 .glass-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 28px rgba(0,0,0,0.2);
 }
 
-/* Gradient text */
+/* Gradient heading text */
 .text-gradient {
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Button gradient & hover (Bootstrap + minor tweaks) */
+/* Buttons */
 .btn-gradient {
   background: linear-gradient(90deg, #6366f1, #8b5cf6);
   color: #fff;
   font-weight: 600;
   border: none;
-  border-radius: 0.625rem; /* 10px */
-  transition: all 0.2s ease-in-out;
+  border-radius: 10px;
+  transition: 0.2s ease-in-out;
   position: relative;
   overflow: hidden;
 }
@@ -52,7 +51,6 @@
   box-shadow: 0 8px 20px rgba(99,102,241,0.4);
 }
 
-/* Shine effect using pseudo-element */
 .shine-btn::after {
   content: "";
   position: absolute;
@@ -62,15 +60,8 @@
   height: 200%;
   background: rgba(255,255,255,0.25);
   transform: rotate(25deg) translateX(-100%);
-  transition: all 0.7s ease;
+  transition: 0.7s ease;
 }
 .shine-btn:hover::after {
   transform: rotate(25deg) translateX(200%);
-}
-
-/* Input focus glow using Bootstrap + minor tweak */
-.input-group:focus-within {
-  border-color: #6366f1;
-  box-shadow: 0 0 8px rgba(99,102,241,0.4);
-  border-radius: 0.75rem;
 }

@@ -10,7 +10,8 @@ import {
   Spinner,
 } from "react-bootstrap";
 
-import "../styles/Contact.css"; // minimal styles
+import "../styles/Contact.css";
+
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
@@ -28,8 +29,8 @@ const Contact = () => {
     setProgress(10);
 
     try {
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => (prev < 90 ? prev + 10 : prev));
+      const interval = setInterval(() => {
+        setProgress((p) => (p < 90 ? p + 10 : p));
       }, 200);
 
       const res = await fetch("http://localhost:5000/api/contact", {
@@ -39,13 +40,13 @@ const Contact = () => {
       });
 
       const data = await res.json();
-      clearInterval(progressInterval);
+      clearInterval(interval);
       setProgress(100);
 
       if (data.success) {
         setShowModal(true);
         setForm({ name: "", email: "", message: "" });
-    } else {
+      } else {
         setAlert({
           show: true,
           message: "❌ " + data.error,
@@ -59,25 +60,20 @@ const Contact = () => {
         variant: "warning",
       });
     } finally {
-      setTimeout(() => setProgress(0), 1000);
+      setTimeout(() => setProgress(0), 800);
       setLoading(false);
     }
   };
 
-  // Auto-hide alert
   useEffect(() => {
     if (alert.show) {
-      const timer = setTimeout(() => setAlert({ show: false }), 4000);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => setAlert({ show: false }), 4000);
+      return () => clearTimeout(t);
     }
   }, [alert.show]);
 
   return (
-    <section 
-      id="contact"
-      className=" contact-section py-5"
-    >
-      {/* Top-right alert */}
+    <section className="contact-section py-5">
       {alert.show && (
         <div className="position-fixed top-3 end-3 p-3" style={{ zIndex: 1050 }}>
           <div
@@ -95,26 +91,22 @@ const Contact = () => {
             <i
               className={`fas ${
                 alert.variant === "success"
-                  ? "fa-check-circle me-2"
+                  ? "fa-check-circle"
                   : alert.variant === "danger"
-                  ? "fa-times-circle me-2"
-                  : "fa-exclamation-triangle me-2"
-              }`}
+                  ? "fa-times-circle"
+                  : "fa-exclamation-triangle"
+              } me-2`}
             ></i>
             <span>{alert.message}</span>
             <button
-              type="button"
               className="btn-close btn-close-white ms-auto"
-              aria-label="Close"
               onClick={() => setAlert({ show: false })}
-              style={{ opacity: 0.8 }}
             ></button>
           </div>
         </div>
       )}
 
       <Container>
-        {/* Header */}
         <div className="text-center mb-5">
           <h2 className="fw-bold text-light mb-2">
             <i className="fas fa-envelope-open-text me-2"></i> Let’s Connect
@@ -125,10 +117,10 @@ const Contact = () => {
           <hr className="w-25 mx-auto border-light opacity-75" />
         </div>
 
-        {/* Unified Contact Section */}
-        <div className="shadow-lg rounded-4 overflow-hidden">
+        {/* FIXED max width wrapper */}
+        <div className="shadow-lg rounded-4 overflow-hidden mx-auto contact-card-wrapper">
           <Row className="g-0">
-            {/* Left: Info + Map */}
+            {/* Left */}
             <Col md={5} className="p-4 text-white d-flex flex-column justify-content-between con-left">
               <div>
                 <h4 className="fw-bold mb-3">
@@ -142,25 +134,24 @@ const Contact = () => {
                   <h6 className="fw-bold mb-1">
                     <i className="fas fa-map-marker-alt me-2"></i> Address
                   </h6>
-                  <p className="mb-0 opacity-75">123 Event Street, Mumbai, India</p>
+                  <p className="opacity-75 mb-0">123 Event Street, Mumbai</p>
                 </div>
 
                 <div className="mb-3">
                   <h6 className="fw-bold mb-1">
                     <i className="fas fa-phone-alt me-2"></i> Phone
                   </h6>
-                  <p className="mb-0 opacity-75">+91 98765 43210</p>
+                  <p className="opacity-75 mb-0">+91 98765 43210</p>
                 </div>
 
                 <div className="mb-3">
                   <h6 className="fw-bold mb-1">
                     <i className="fas fa-envelope me-2"></i> Email
                   </h6>
-                  <p className="mb-0 opacity-75">support@eventmanager.com</p>
+                  <p className="opacity-75 mb-0">support@eventmanager.com</p>
                 </div>
               </div>
 
-              {/* Map */}
               <div className="mt-4 rounded overflow-hidden shadow-sm">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d241317.11610093658!2d72.7410997924083!3d19.082197839262697!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7b63fef0f2b9b%3A0x3bcf3f9f6e7b45bb!2sMumbai!5e0!3m2!1sen!2sin!4v1691311234567"
@@ -169,109 +160,87 @@ const Contact = () => {
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
-                  title="map"
                   className="rounded-3"
+                  title="map"
                 ></iframe>
               </div>
             </Col>
 
-            {/* Right: Form */}
+            {/* Right */}
             <Col md={7} className="p-4 bg-white d-flex flex-column justify-content-center">
-              <h4 className="fw-bold text-gradient mb-4 text-center">
-                <i className="fas fa-paper-plane me-2 text-gradient"></i> Send a Message
+              <h4 className="fw-bold text-center text-gradient mb-4">
+                <i className="fas fa-paper-plane me-2"></i> Send a Message
               </h4>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="form-floating mb-3">
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    placeholder="Full Name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    className="rounded-3"
-                  />
-                  <Form.Label>
-                    <i className="fas fa-user me-2 "></i> Full Name
-                  </Form.Label>
-                </Form.Group>
+<Form onSubmit={handleSubmit} className="form-standardized">
 
-                <Form.Group className="form-floating mb-3">
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    className="rounded-3"
-                  />
-                  <Form.Label>
-                    <i className="fas fa-envelope me-2 "></i> Email
-                  </Form.Label>
-                </Form.Group>
+  {/* Name */}
+  <div className="form-input-group">
+    <i className="fas fa-user form-icon"></i>
+    <input
+      type="text"
+      name="name"
+      placeholder="Full Name"
+      value={form.name}
+      onChange={handleChange}
+      required
+    />
+  </div>
 
-                <Form.Group className="form-floating mb-4">
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    name="message"
-                    placeholder="Message"
-                    value={form.message}
-                    onChange={handleChange}
-                    required
-                    className="rounded-3"
-                    style={{ height: "120px" }}
-                  />
-                  <Form.Label>
-                    <i className="fas fa-comment-dots me-2 "></i> Message
-                  </Form.Label>
-                </Form.Group>
+  {/* Email */}
+  <div className="form-input-group">
+    <i className="fas fa-envelope form-icon"></i>
+    <input
+      type="email"
+      name="email"
+      placeholder="Email"
+      value={form.email}
+      onChange={handleChange}
+      required
+    />
+  </div>
 
-                {loading && (
-                  <ProgressBar
-                    now={progress}
-                    animated
-                    striped
-                    variant="primary"
-                    className="mb-3"
-                  />
-                )}
+  {/* Message */}
+  <div className="form-input-group">
+    <i className="fas fa-comment-dots form-icon"></i>
+    <textarea
+      name="message"
+      placeholder="Your message"
+      value={form.message}
+      onChange={handleChange}
+      required
+    ></textarea>
+  </div>
 
-                <div className="d-grid">
-                  <Button
-                    type="submit"
-                    variant="primary"
+  {loading && (
+    <ProgressBar
+      now={progress}
+      animated
+      striped
+      variant="primary"
+      className="mb-3"
+    />
+  )}
 
-                    size="lg"
-                    disabled={loading}
-                    className="fw-semibold rounded-3 py-2 shadow-sm msg-send-btn"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          className="me-2"
-                        />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-paper-plane me-2"></i> Send Message
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </Form>
+  <button
+    type="submit"
+    className="btn btn-gradient w-100 py-2 shine-btn"
+    disabled={loading}
+  >
+    {loading ? (
+      <div className="spinner-border spinner-border-sm text-light"></div>
+    ) : (
+      <>
+        <i className="fas fa-paper-plane me-2"></i> Send Message
+      </>
+    )}
+  </button>
+</Form>
+
             </Col>
           </Row>
         </div>
       </Container>
 
-      {/* Success Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered backdrop="static">
         <Modal.Body
           className="text-center p-5 rounded-4"
@@ -281,21 +250,16 @@ const Contact = () => {
           }}
         >
           <div className="mb-4">
-            <i
-              className="fas fa-check-circle fa-4x text-white"
-              style={{ textShadow: "0 0 10px rgba(255,255,255,0.6)" }}
-            ></i>
+            <i className="fas fa-check-circle fa-4x text-white"></i>
           </div>
 
           <h4 className="fw-bold mb-2">Message Sent Successfully!</h4>
-          <p className="opacity-75 mb-4">
-            Thank you for reaching out. Our team will get in touch soon 🚀
-          </p>
+          <p className="opacity-75 mb-4">Thank you! Our team will reach out soon 🚀</p>
 
           <Button
             variant="light"
-            onClick={() => setShowModal(false)}
             className="fw-semibold px-4 rounded-3 shadow-sm"
+            onClick={() => setShowModal(false)}
           >
             <i className="fas fa-times me-2"></i> Close
           </Button>

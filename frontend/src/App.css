@@ -44,6 +44,7 @@
   display: block;
 }
 
+
 /* Fade-in animation */
 @keyframes fadeInModal {
   from { opacity: 0; transform: translateY(-10px); }
@@ -56,4 +57,46 @@ html, body {
 body.modal-open {
   overflow: hidden !important;
   padding-right: 0 !important;
+}
+.form-standardized {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-input-group {
+  position: relative;
+}
+
+.form-input-group input,
+.form-input-group textarea {
+  width: 100%;
+  padding: 12px 14px 12px 45px;
+  border-radius: 12px;
+  border: 1.6px solid #ddd;
+  background: #f8f8ff;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.form-input-group input:focus,
+.form-input-group textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 8px rgba(99,102,241,0.25);
+  outline: none;
+}
+
+.form-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  font-size: 1rem;
+
+}
+
+/* Textarea tweaks */
+.form-input-group textarea {
+  min-height: 120px;
+  resize: vertical;
 }
