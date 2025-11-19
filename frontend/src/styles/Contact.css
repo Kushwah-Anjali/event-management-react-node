@@ -9,7 +9,12 @@
   backdrop-filter: blur(3px);
   animation: bgZoom 20s ease-in-out infinite alternate;
 }
-
+.con-left{
+ background: linear-gradient(135deg, #007bff, #6f42c1);
+}
+.msg-send-btn{
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
 @keyframes bgZoom {
   0% {
     background-size: 100%;

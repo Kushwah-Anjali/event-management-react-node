@@ -116,20 +116,20 @@ const Contact = () => {
       <Container>
         {/* Header */}
         <div className="text-center mb-5">
-          <h2 className="fw-bold text-primary mb-2">
+          <h2 className="fw-bold text-light mb-2">
             <i className="fas fa-envelope-open-text me-2"></i> Let’s Connect
           </h2>
-          <p className="text-secondary fs-5">
+          <p className="text-light fs-5">
             Have an idea or event? Let’s make it happen together.
           </p>
-          <hr className="w-25 mx-auto border-primary opacity-75" />
+          <hr className="w-25 mx-auto border-light opacity-75" />
         </div>
 
         {/* Unified Contact Section */}
         <div className="shadow-lg rounded-4 overflow-hidden">
           <Row className="g-0">
             {/* Left: Info + Map */}
-            <Col md={5} className="p-4 bg-primary text-white d-flex flex-column justify-content-between">
+            <Col md={5} className="p-4 text-white d-flex flex-column justify-content-between con-left">
               <div>
                 <h4 className="fw-bold mb-3">
                   <i className="fas fa-headset me-2"></i> Contact Info
@@ -176,9 +176,9 @@ const Contact = () => {
             </Col>
 
             {/* Right: Form */}
-            <Col md={7} className="p-5 bg-white d-flex flex-column justify-content-center">
-              <h4 className="fw-bold text-dark mb-4 text-center">
-                <i className="fas fa-paper-plane me-2 text-primary"></i> Send a Message
+            <Col md={7} className="p-4 bg-white d-flex flex-column justify-content-center">
+              <h4 className="fw-bold text-gradient mb-4 text-center">
+                <i className="fas fa-paper-plane me-2 text-gradient"></i> Send a Message
               </h4>
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="form-floating mb-3">
@@ -192,7 +192,7 @@ const Contact = () => {
                     className="rounded-3"
                   />
                   <Form.Label>
-                    <i className="fas fa-user me-2 text-primary"></i> Full Name
+                    <i className="fas fa-user me-2 "></i> Full Name
                   </Form.Label>
                 </Form.Group>
 
@@ -207,7 +207,7 @@ const Contact = () => {
                     className="rounded-3"
                   />
                   <Form.Label>
-                    <i className="fas fa-envelope me-2 text-primary"></i> Email
+                    <i className="fas fa-envelope me-2 "></i> Email
                   </Form.Label>
                 </Form.Group>
 
@@ -224,7 +224,7 @@ const Contact = () => {
                     style={{ height: "120px" }}
                   />
                   <Form.Label>
-                    <i className="fas fa-comment-dots me-2 text-primary"></i> Message
+                    <i className="fas fa-comment-dots me-2 "></i> Message
                   </Form.Label>
                 </Form.Group>
 
@@ -242,9 +242,10 @@ const Contact = () => {
                   <Button
                     type="submit"
                     variant="primary"
+
                     size="lg"
                     disabled={loading}
-                    className="fw-semibold rounded-3 py-2 shadow-sm"
+                    className="fw-semibold rounded-3 py-2 shadow-sm msg-send-btn"
                   >
                     {loading ? (
                       <>
