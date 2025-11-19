@@ -299,24 +299,25 @@ export default function AddEventModal({
           onSubmit={handleSubmit}
         >
           {/* Header */}
-          <div className="modal-header flex-column align-items-start border-0 px-4 pt-4 pb-2">
-            <h5 className="fw-bold d-flex align-items-center gap-2">
+          <div className="modal-header bg-primary flex-column align-items-start border-0 px-4 pt-4 pb-2">
+            <h5 className="fw-bold d-flex align-items-center gap-2 text-white">
               <FontAwesomeIcon
                 icon={isEditing ? faCheckCircle : faPlusCircle}
-                className={isEditing ? "text-warning" : "text-primary"}
+                className={isEditing ? "text-warning" : "text-white"}
               />{" "}
               {isEditing ? "Update Event" : "Add Event"}
             </h5>
 
             <button
               type="button"
-              className="btn-close position-absolute top-0 end-0 m-3"
+              
+              className="btn-close btn-close-white position-absolute top-0 end-0 m-3 "
               onClick={onClose}
             ></button>
           </div>
 
           {/* Progress Dots */}
-          <div className="px-4 mb-3 d-flex justify-content-center">
+          <div className="px-4 mb-3 d-flex justify-content-center pt-3">
             {steps.map((_, i) => (
               <div
                 key={i}

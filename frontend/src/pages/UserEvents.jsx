@@ -272,13 +272,7 @@ useEffect(() => {
 
       {/* Toolbar */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-        <h4 className="fw-semibold">
-          <FontAwesomeIcon
-            icon={faCalendarDays}
-            className="me-2 text-primary"
-          />
-          Your Events
-        </h4>
+       
         <div className="d-flex gap-2 flex-wrap">
           <select
             className="form-select w-auto"

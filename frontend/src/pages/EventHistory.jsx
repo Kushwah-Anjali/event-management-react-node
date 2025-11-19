@@ -90,7 +90,9 @@ export default function EventHistory() {
         const historyPayload = await historyRes.json();
 
         if (historyPayload.exists) {
-          const h = historyPayload.history;
+     const h = Array.isArray(historyPayload.history)
+       ? historyPayload.history[0]
+    : historyPayload.history; 
 
           // Sections
           if (h.summary) evt.sections.push({ title: "History Summary", type: "text", content: h.summary });
