@@ -1,22 +1,19 @@
 /* Highlight heading */
 .highlight-heading {
-  background-color: #318cc4;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
   padding: 0.5rem 1rem;
   border-radius: 0.4rem;
-
 }
 
 /* Custom dark button (keeps your theme) */
 .btn-custom-dark {
-  background-color: #181717;
-  color: #fff;
   border-radius: 0.4rem;
   transition: 0.2s ease;
 }
 .btn-custom-dark:hover {
   
   border: #000 1px solid;
-  color: #000;
+
   transform: translateY(-2px);
 }
 
@@ -59,4 +56,11 @@
     font-size: 0.8rem;
     padding: 0.3rem 0.6rem;
   }
+}
+.users-page-bg {
+  background-color: #0d0d4d;
+  min-height: 100vh;
+  width: 100%;
+  padding-top: 40px;
+
 }

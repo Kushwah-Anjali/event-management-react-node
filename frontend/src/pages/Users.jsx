@@ -4,8 +4,12 @@ import '../styles/Users.css'; // minimal overrides
 
 export default function Users() {
   return (
-    <div className="container my-5">
+      <div className="users-page-bg">
+         <div className="container my-5">
       <UserTable />
     </div>
+      </div>
+
+    
   );
 }

@@ -105,7 +105,7 @@ export default function UserTable() {
   return (
   <div className="card p-3 shadow-sm rounded-4">
   {/* Heading */}
-  <h2 className=" mb-3 highlight-heading">User Management</h2>
+  <h2 className=" mb-3 highlight-heading text-light">User Management</h2>
 
   {/* Search + Add button in one row */}
   <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -127,7 +127,7 @@ export default function UserTable() {
 
     {/* Add button */}
     <button
-      className="btn btn-custom-dark d-flex align-items-center flex-shrink-0"
+      className="btn btn-custom-dark d-flex align-items-center flex-shrink-0 text-light bg-black"
       onClick={openAdd}
     >
       <FaPlus className="me-2" /> Add User

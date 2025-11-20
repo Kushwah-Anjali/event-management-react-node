@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../styles/UserEvents.css";
 import {
   faUser,
   faEnvelope,
@@ -241,34 +242,69 @@ useEffect(() => {
   );
 
   return (
+      <div className="users-event-page">
     <div className="container py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-          <h2 className="fw-bold mb-1">
-            <FontAwesomeIcon icon={faUser} className="me-2 text-primary" />
-            {user?.name || "Loading..."}
-          </h2>
-          <p className="text-muted mb-0">
-            <FontAwesomeIcon icon={faEnvelope} className="me-1" />{" "}
-            {user?.email || ""}
-          </p>
-        </div>
-        <div className="d-flex gap-2 flex-wrap">
-          <button
-            className="btn btn-primary d-flex align-items-center gap-1"
-            onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
-          >
-            <FontAwesomeIcon icon={faPlus} /> Add Event
-          </button>
-          <button
-            className="btn btn-outline-danger d-flex align-items-center gap-1"
-            onClick={handleLogout}
-          >
-            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
-          </button>
-        </div>
+    {/* Dashboard White Card */}
+
+  <div
+    className="p-4 rounded-4 shadow-sm bg-white mb-4"
+    style={{ maxWidth: "100%" }}
+  >
+    {/* Heading */}
+    <h3 className="text-light d-flex align-items-center flex-wrap dash-head">
+      <i className="bi bi-person-circle me-2"></i>
+      My Events Dashboard
+    </h3>
+
+    {/* Info Grid */}
+    <div className="row g-3 mb-4">
+      <div className="col-md-4 col-12">
+        <div className="fw-semibold">Name:</div>
+        <div className="text-muted">{user?.name}</div>
       </div>
+
+      <div className="col-md-4 col-12">
+        <div className="fw-semibold">Email:</div>
+        <div className="text-muted">{user?.email}</div>
+      </div>
+
+      <div className="col-md-4 col-12">
+        <div className="fw-semibold">Total Events:</div>
+        <div className="text-muted">{events.length}</div>
+      </div>
+    </div>
+
+    {/* Action Buttons */}
+    <div className="d-flex flex-wrap gap-3">
+      {/* Add Event Button (Eight-sided) */}
+      <button
+        style={{
+          borderRadius: "8px",
+          padding: "5px 18px",
+         
+        }}
+        className="btn btn-dark d-flex align-items-center gap-2"
+        onClick={() => setState(prev => ({ ...prev, isModalOpen: true }))}
+      >
+        <i className="bi bi-plus-circle"></i> Add Event
+      </button>
+
+      {/* Logout Button */}
+      <button
+        style={{
+          borderRadius: "12px",
+          padding: "10px 20px",
+          fontWeight: "600",
+        }}
+        className="btn btn-outline-danger d-flex align-items-center gap-2"
+        onClick={handleLogout}
+      >
+        <i className="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </div>
+  </div>
+
+
 
       {/* Toolbar */}
       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
@@ -476,6 +512,7 @@ useEffect(() => {
           isEditing={!!state.editEvent} // 👈 pre-fill modal fields
         />
       )}
+    </div>
     </div>
   );
 };
