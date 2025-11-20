@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../styles/UserEvents.css";
 import {
-  faUser,
+  faUserCircle,
   faEnvelope,
   faCalendarDays,
   faMagnifyingGlass,
-  faPlus,
+  faPlusCircle,
   faRightFromBracket,
   faTrash,
   faPenToSquare,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 
 import Addeventmodal from "../components/Addeventmodal";
@@ -246,218 +247,229 @@ useEffect(() => {
     <div className="container py-4">
     {/* Dashboard White Card */}
 
-  <div
-    className="p-4 rounded-4 shadow-sm bg-white mb-4"
-    style={{ maxWidth: "100%" }}
-  >
-    {/* Heading */}
-    <h3 className="text-light d-flex align-items-center flex-wrap dash-head">
-      <i className="bi bi-person-circle me-2"></i>
-      My Events Dashboard
-    </h3>
+<div className="card shadow-sm border-0 rounded-4 mb-4">
+  <div className="card-body p-4">
+
+    {/* Card Header */}
+    <div className="d-flex align-items-center justify-content-between mb-4">
+      <h4 className="dash-head text-white d-flex align-items-center gap-2 mb-0">
+        <FontAwesomeIcon icon={faUserCircle} />
+        My Events Dashboard
+      </h4>
+    </div>
 
     {/* Info Grid */}
-    <div className="row g-3 mb-4">
-      <div className="col-md-4 col-12">
-        <div className="fw-semibold">Name:</div>
+    <div className="row g-4 mb-4">
+
+      {/* Name */}
+      <div className="col-lg-4 col-md-6 col-12">
+        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
+          <FontAwesomeIcon icon={faUser} />
+          <span>Name</span>
+        </div>
         <div className="text-muted">{user?.name}</div>
       </div>
 
-      <div className="col-md-4 col-12">
-        <div className="fw-semibold">Email:</div>
+      {/* Email */}
+      <div className="col-lg-4 col-md-6 col-12">
+        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
+          <FontAwesomeIcon icon={faEnvelope} />
+          <span>Email</span>
+        </div>
         <div className="text-muted">{user?.email}</div>
       </div>
 
-      <div className="col-md-4 col-12">
-        <div className="fw-semibold">Total Events:</div>
+      {/* Total Events */}
+      <div className="col-lg-4 col-md-6 col-12">
+        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
+          <FontAwesomeIcon icon={faCalendarDays} />
+          <span>Total Events</span>
+        </div>
         <div className="text-muted">{events.length}</div>
       </div>
+
     </div>
 
     {/* Action Buttons */}
     <div className="d-flex flex-wrap gap-3">
-      {/* Add Event Button (Eight-sided) */}
+
+      {/* Add Event */}
       <button
-        style={{
-          borderRadius: "8px",
-          padding: "5px 18px",
-         
-        }}
-        className="btn btn-dark d-flex align-items-center gap-2"
-        onClick={() => setState(prev => ({ ...prev, isModalOpen: true }))}
+        className="btn btn-dark d-flex align-items-center gap-2 px-4 py-2 rounded-3"
+        onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
       >
-        <i className="bi bi-plus-circle"></i> Add Event
+        <FontAwesomeIcon icon={faPlusCircle} />
+        Add Event
       </button>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <button
-        style={{
-          borderRadius: "12px",
-          padding: "10px 20px",
-          fontWeight: "600",
-        }}
-        className="btn btn-outline-danger d-flex align-items-center gap-2"
+        className="btn btn-outline-danger d-flex align-items-center gap-2 px-4 py-2 rounded-3 fw-semibold"
         onClick={handleLogout}
       >
-        <i className="bi bi-box-arrow-right"></i> Logout
+        <FontAwesomeIcon icon={faRightFromBracket} />
+        Logout
       </button>
+
     </div>
+
   </div>
+</div>
 
 
 
-      {/* Toolbar */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-       
-        <div className="d-flex gap-2 flex-wrap">
-          <select
-            className="form-select w-auto"
-            value={rowsPerPage}
+
+
+
+   <div className="card shadow-sm border-0 rounded-3">
+  <div className="card-body">
+
+    {/* Toolbar */}
+    <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+
+      {/* Left Controls */}
+      <div className="d-flex gap-3 flex-wrap">
+        <select
+          className="form-select w-auto"
+          value={rowsPerPage}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              rowsPerPage: Number(e.target.value),
+              currentPage: 1,
+            }))
+          }
+        >
+          <option value={5}>5 rows</option>
+          <option value={10}>10 rows</option>
+          <option value={20}>20 rows</option>
+        </select>
+
+        <div className="input-group">
+          <span className="input-group-text bg-white">
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search events..."
+            value={search}
             onChange={(e) =>
               setState((prev) => ({
                 ...prev,
-                rowsPerPage: Number(e.target.value),
+                search: e.target.value,
                 currentPage: 1,
               }))
             }
-          >
-            <option value={5}>5 rows</option>
-            <option value={10}>10 rows</option>
-            <option value={20}>20 rows</option>
-          </select>
-          <div className="input-group">
-            <span className="input-group-text bg-white">
-              <FontAwesomeIcon icon={faMagnifyingGlass} />
-            </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search events..."
-              value={search}
-              onChange={(e) =>
-                setState((prev) => ({
-                  ...prev,
-                  search: e.target.value,
-                  currentPage: 1,
-                }))
-              }
-            />
-          </div>
+          />
         </div>
       </div>
 
-      {/* Events Table */}
-      <div className="table-responsive shadow-sm rounded">
-        <table className="table table-striped table-hover align-middle">
-          <thead className="table-dark">
+    </div>
+
+    {/* Table */}
+    <div className="table-responsive rounded">
+      <table className="table table-striped table-hover align-middle mb-0">
+        <thead className="table-primary">
+          <tr>
+            {columns.map((col) => (
+              <th key={col.key} className="fw-semibold">{col.label}</th>
+            ))}
+          </tr>
+        </thead>
+
+        <tbody>
+          {loading ? (
             <tr>
-              {columns.map((col) => (
-                <th key={col.key}>{col.label}</th>
-              ))}
+              <td colSpan={columns.length} className="text-center py-4">
+                Loading events...
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={columns.length} className="text-center py-4">
-                  Loading events...
+          ) : currentEvents.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-center py-4 text-muted">
+                No events found
+              </td>
+            </tr>
+          ) : (
+            currentEvents.map((event, idx) => (
+              <tr key={event.id}>
+                <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                <td>{event.title}</td>
+                <td>{event.category || "-"}</td>
+                <td className="text-truncate" style={{ maxWidth: "150px" }}>
+                  {event.description || "-"}
                 </td>
-              </tr>
-            ) : currentEvents.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center py-4 text-muted"
-                >
-                  No events found
+                <td>
+                  {event.date ? new Date(event.date).toLocaleDateString() : "-"}
                 </td>
-              </tr>
-            ) : (
-              currentEvents.map((event, idx) => (
-                <tr key={event.id}>
-                  <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
-                  <td>{event.title}</td>
-                  <td>{event.category || "-"}</td>
-                  <td className="text-truncate" style={{ maxWidth: "150px" }}>
-                    {event.description || "-"}
-                  </td>
-                  <td>
-                    {event.date
-                      ? new Date(event.date).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>{event.author || "-"}</td>
-                  <td>{event.venue || "-"}</td>
-                  <td>{event.fees ? `₹${event.fees}` : "-"}</td>
-                  <td>{event.contact || "-"}</td>
-                  <td>
-                    {event.image ? (
-                      <img
-                        src={
-                          event.image
-                        }
-                        alt="Event"
-                        className="rounded"
-                        width="50"
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
+                <td>{event.author || "-"}</td>
+                <td>{event.venue || "-"}</td>
+                <td>{event.fees ? `₹${event.fees}` : "-"}</td>
+                <td>{event.contact || "-"}</td>
+                <td>
+                  {event.image ? (
+                    <img
+                      src={event.image}
+                      alt="Event"
+                      className="rounded"
+                      width="50"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </td>
 
-                  <td>
-                    {(() => {
-                      const docs = event.required_documents;
-
-                      if (!docs) return "-";
-
-                      // If it's a string, try parsing it or splitting it
-                      if (typeof docs === "string") {
-                        try {
-                          const parsed = JSON.parse(docs);
-                          return Array.isArray(parsed)
-                            ? parsed.join(", ")
-                            : docs;
-                        } catch {
-                          return docs.includes(",")
-                            ? docs
-                            : docs.split(" ").join(", ");
-                        }
+                <td>
+                  {(() => {
+                    const docs = event.required_documents;
+                    if (!docs) return "-";
+                    if (typeof docs === "string") {
+                      try {
+                        const parsed = JSON.parse(docs);
+                        return Array.isArray(parsed)
+                          ? parsed.join(", ")
+                          : docs;
+                      } catch {
+                        return docs.includes(",")
+                          ? docs
+                          : docs.split(" ").join(", ");
                       }
+                    }
+                    if (Array.isArray(docs)) return docs.join(", ");
+                    return "-";
+                  })()}
+                </td>
 
-                      // If it's already an array
-                      if (Array.isArray(docs)) return docs.join(", ");
-
-                      return "-";
-                    })()}
-                  </td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      <button
-                        className="btn btn-sm btn-outline-warning"
-                        title="Edit"
-                        onClick={() => handleEditEvent(event)}
-                      >
+                <td>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-sm btn-outline-warning"
+                      title="Edit"
+                      onClick={() => handleEditEvent(event)}
+                    >
                       <FontAwesomeIcon icon={faPenToSquare} />
+                    </button>
 
-                      </button>
+                    <button
+                      className="btn btn-sm btn-outline-danger"
+                      title="Delete"
+                      onClick={() => handleDeleteEvent(event.id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
 
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        title="Delete"
-                        onClick={() => handleDeleteEvent(event.id)}
-                      >
-                     <FontAwesomeIcon icon={faTrash} />
+  </div>
+</div>
 
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
