@@ -1,12 +1,4 @@
-.actions button {
-  margin-left: 10px;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
+
 .users-event-page{
  background-color: #0d0d4d;
   min-height: 100vh;

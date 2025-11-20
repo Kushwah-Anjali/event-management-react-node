@@ -28,11 +28,6 @@
   overflow-x: auto;
 }
 
-/* Small action buttons */
-.action-btn {
-  padding: 0.25rem 0.4rem;
-  font-size: 0.8rem;
-}
 
 /* Responsive layout adjustments */
 @media (max-width: 576px) {

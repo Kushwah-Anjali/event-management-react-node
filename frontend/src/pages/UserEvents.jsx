@@ -2,16 +2,16 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../styles/UserEvents.css";
+import InfoBox from "../components/InfoBox";
 import {
   faUserCircle,
-  faEnvelope,
-  faCalendarDays,
+
   faMagnifyingGlass,
   faPlusCircle,
   faRightFromBracket,
   faTrash,
   faPenToSquare,
-  faUser,
+
 } from "@fortawesome/free-solid-svg-icons";
 
 import Addeventmodal from "../components/Addeventmodal";
@@ -271,33 +271,26 @@ useEffect(() => {
     </div>
 
     {/* Info Grid */}
-    <div className="row g-4">
+<div className="row g-4">
+  <InfoBox 
+    title="Name" 
+    value={user?.name} 
+    icon="bi bi-people-fill" 
+  />
 
-      <div className="col-lg-4 col-md-6 col-12">
-        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
-          <FontAwesomeIcon icon={faUser} />
-          <span>Name</span>
-        </div>
-        <div className="text-muted">{user?.name}</div>
-      </div>
+  <InfoBox 
+    title="Email" 
+    value={user?.email} 
+    icon="bi bi-envelope-fill" 
+  />
 
-      <div className="col-lg-4 col-md-6 col-12">
-        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
-          <FontAwesomeIcon icon={faEnvelope} />
-          <span>Email</span>
-        </div>
-        <div className="text-muted">{user?.email}</div>
-      </div>
+  <InfoBox 
+    title="Total Events" 
+    value={events.length} 
+    icon="bi bi-calendar-event-fill" 
+  />
+</div>
 
-      <div className="col-lg-4 col-md-6 col-12">
-        <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
-          <FontAwesomeIcon icon={faCalendarDays} />
-          <span>Total Events</span>
-        </div>
-        <div className="text-muted">{events.length}</div>
-      </div>
-
-    </div>
 
   </div>
 </div>
@@ -316,7 +309,7 @@ useEffect(() => {
 <div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
 
   {/* LEFT SIDE: Rows + Search */}
-  <div className="d-flex align-items-center gap-3 flex-grow-1 flex-wrap">
+  <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
 
     {/* Rows Dropdown */}
  
@@ -375,7 +368,7 @@ useEffect(() => {
 
     {/* Table */}
     <div className="table-responsive rounded">
-      <table className="table table-striped table-hover align-middle mb-0">
+      <table className="table  table-hover align-middle mb-0">
         <thead className="table-primary">
           <tr>
             {columns.map((col) => (
