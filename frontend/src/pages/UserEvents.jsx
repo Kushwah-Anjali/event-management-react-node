@@ -250,18 +250,29 @@ useEffect(() => {
 <div className="card shadow-sm border-0 rounded-4 mb-4">
   <div className="card-body p-4">
 
-    {/* Card Header */}
-    <div className="d-flex align-items-center justify-content-between mb-4">
-      <h4 className="dash-head text-white d-flex align-items-center gap-2 mb-0">
+    {/* Full-width header row */}
+    <div className="d-flex justify-content-between align-items-center dash-head mb-4">
+
+      {/* Title */}
+      <h4 className="text-white d-flex align-items-center gap-2 mb-0">
         <FontAwesomeIcon icon={faUserCircle} />
         My Events Dashboard
       </h4>
+
+      {/* Logout Button */}
+      <button
+        className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
+        onClick={handleLogout}
+        style={{ width: "42px", height: "42px" }}
+      >
+        <FontAwesomeIcon icon={faRightFromBracket} />
+      </button>
+
     </div>
 
     {/* Info Grid */}
-    <div className="row g-4 mb-4">
+    <div className="row g-4">
 
-      {/* Name */}
       <div className="col-lg-4 col-md-6 col-12">
         <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
           <FontAwesomeIcon icon={faUser} />
@@ -270,7 +281,6 @@ useEffect(() => {
         <div className="text-muted">{user?.name}</div>
       </div>
 
-      {/* Email */}
       <div className="col-lg-4 col-md-6 col-12">
         <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
           <FontAwesomeIcon icon={faEnvelope} />
@@ -279,7 +289,6 @@ useEffect(() => {
         <div className="text-muted">{user?.email}</div>
       </div>
 
-      {/* Total Events */}
       <div className="col-lg-4 col-md-6 col-12">
         <div className="fw-semibold d-flex align-items-center gap-2 mb-1">
           <FontAwesomeIcon icon={faCalendarDays} />
@@ -287,29 +296,6 @@ useEffect(() => {
         </div>
         <div className="text-muted">{events.length}</div>
       </div>
-
-    </div>
-
-    {/* Action Buttons */}
-    <div className="d-flex flex-wrap gap-3">
-
-      {/* Add Event */}
-      <button
-        className="btn btn-dark d-flex align-items-center gap-2 px-4 py-2 rounded-3"
-        onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
-      >
-        <FontAwesomeIcon icon={faPlusCircle} />
-        Add Event
-      </button>
-
-      {/* Logout */}
-      <button
-        className="btn btn-outline-danger d-flex align-items-center gap-2 px-4 py-2 rounded-3 fw-semibold"
-        onClick={handleLogout}
-      >
-        <FontAwesomeIcon icon={faRightFromBracket} />
-        Logout
-      </button>
 
     </div>
 
@@ -321,51 +307,71 @@ useEffect(() => {
 
 
 
+
+
    <div className="card shadow-sm border-0 rounded-3">
   <div className="card-body">
 
-    {/* Toolbar */}
-    <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+ {/* Toolbar */}
+<div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
 
-      {/* Left Controls */}
-      <div className="d-flex gap-3 flex-wrap">
-        <select
-          className="form-select w-auto"
-          value={rowsPerPage}
-          onChange={(e) =>
-            setState((prev) => ({
-              ...prev,
-              rowsPerPage: Number(e.target.value),
-              currentPage: 1,
-            }))
-          }
-        >
-          <option value={5}>5 rows</option>
-          <option value={10}>10 rows</option>
-          <option value={20}>20 rows</option>
-        </select>
+  {/* LEFT SIDE: Rows + Search */}
+  <div className="d-flex align-items-center gap-3 flex-grow-1 flex-wrap">
 
-        <div className="input-group">
-          <span className="input-group-text bg-white">
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search events..."
-            value={search}
-            onChange={(e) =>
-              setState((prev) => ({
-                ...prev,
-                search: e.target.value,
-                currentPage: 1,
-              }))
-            }
-          />
-        </div>
-      </div>
+    {/* Rows Dropdown */}
+ 
 
+    {/* Search */}
+    <div className="input-group" style={{ maxWidth: "300px" }}>
+      <span className="input-group-text bg-white">
+        <FontAwesomeIcon icon={faMagnifyingGlass} />
+      </span>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) =>
+          setState((prev) => ({
+            ...prev,
+            search: e.target.value,
+            currentPage: 1,
+          }))
+        }
+      />
     </div>
+   <select
+      className="form-select"
+      style={{ width: "120px" }}
+      value={rowsPerPage}
+      onChange={(e) =>
+        setState((prev) => ({
+          ...prev,
+          rowsPerPage: Number(e.target.value),
+          currentPage: 1,
+        }))
+      }
+    >
+      <option value={5}>5 rows</option>
+      <option value={10}>10 rows</option>
+      <option value={20}>20 rows</option>
+    </select>
+  </div>
+
+  {/* RIGHT SIDE: Add Event */}
+  <button
+    className="btn btn-dark d-flex align-items-center gap-2 px-3 py-2 rounded-2"
+    onClick={() =>
+      setState((prev) => ({ ...prev, isModalOpen: true }))
+    }
+  >
+    <FontAwesomeIcon icon={faPlusCircle} />
+    Add Event
+  </button>
+
+</div>
+
+
 
     {/* Table */}
     <div className="table-responsive rounded">
@@ -444,7 +450,7 @@ useEffect(() => {
                 <td>
                   <div className="d-flex gap-2">
                     <button
-                      className="btn btn-sm btn-outline-warning"
+                      className="btn btn-sm btn-outline-success"
                       title="Edit"
                       onClick={() => handleEditEvent(event)}
                     >
