@@ -1,18 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../styles/UserEvents.css";
 import InfoBox from "../components/InfoBox";
+import Logout from "../components/Logout";
 import {
-  faUserCircle,
-
-  faMagnifyingGlass,
-  faPlusCircle,
-  faRightFromBracket,
-  faTrash,
-  faPenToSquare,
-
-} from "@fortawesome/free-solid-svg-icons";
+  FaUserCircle,
+  FaEdit,
+  FaTrash,
+  FaSearch,
+  FaPlus,
+} from "react-icons/fa";
 
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
@@ -203,11 +200,6 @@ useEffect(() => {
     }));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   // --- Filter & Pagination ---
   const filteredEvents = useMemo(
@@ -248,25 +240,18 @@ useEffect(() => {
     {/* Dashboard White Card */}
 
 <div className="card shadow-sm border-0 rounded-4 mb-4">
-  <div className="card-body p-4">
+  <div className="card-body">
 
     {/* Full-width header row */}
     <div className="d-flex justify-content-between align-items-center dash-head mb-4">
 
       {/* Title */}
-      <h4 className="text-white d-flex align-items-center gap-2 mb-0">
-        <FontAwesomeIcon icon={faUserCircle} />
+      <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+    <FaUserCircle />
         My Events Dashboard
-      </h4>
+      </h3>
+<Logout/>
 
-      {/* Logout Button */}
-      <button
-        className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
-        onClick={handleLogout}
-        style={{ width: "42px", height: "42px" }}
-      >
-        <FontAwesomeIcon icon={faRightFromBracket} />
-      </button>
 
     </div>
 
@@ -310,14 +295,10 @@ useEffect(() => {
 
   {/* LEFT SIDE: Rows + Search */}
   <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
-
-    {/* Rows Dropdown */}
- 
-
     {/* Search */}
     <div className="input-group" style={{ maxWidth: "300px" }}>
       <span className="input-group-text bg-white">
-        <FontAwesomeIcon icon={faMagnifyingGlass} />
+         <FaSearch />
       </span>
       <input
         type="text"
@@ -335,7 +316,7 @@ useEffect(() => {
     </div>
    <select
       className="form-select"
-      style={{ width: "120px" }}
+      style={{ width: "6rem" }}
       value={rowsPerPage}
       onChange={(e) =>
         setState((prev) => ({
@@ -353,12 +334,12 @@ useEffect(() => {
 
   {/* RIGHT SIDE: Add Event */}
   <button
-    className="btn btn-dark d-flex align-items-center gap-2 px-3 py-2 rounded-2"
+    className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
     onClick={() =>
       setState((prev) => ({ ...prev, isModalOpen: true }))
     }
   >
-    <FontAwesomeIcon icon={faPlusCircle} />
+    <FaPlus />
     Add Event
   </button>
 
@@ -447,7 +428,7 @@ useEffect(() => {
                       title="Edit"
                       onClick={() => handleEditEvent(event)}
                     >
-                      <FontAwesomeIcon icon={faPenToSquare} />
+                  <FaEdit />
                     </button>
 
                     <button
@@ -455,7 +436,8 @@ useEffect(() => {
                       title="Delete"
                       onClick={() => handleDeleteEvent(event.id)}
                     >
-                      <FontAwesomeIcon icon={faTrash} />
+                     <FaTrash />
+
                     </button>
                   </div>
                 </td>

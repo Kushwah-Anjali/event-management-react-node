@@ -7,7 +7,8 @@ import {
 } from "../services/userService";
 import Swal from "sweetalert2";
 import UserModal from "./UserModal";
-import { FaEdit, FaTrash, FaSearch, FaPlus } from "react-icons/fa";
+import Logout from "../components/Logout";
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaUsersCog } from "react-icons/fa";
 
 const ADMIN_KEY = process.env.REACT_APP_ADMIN_KEY || "mySecretKey123";
 
@@ -20,7 +21,7 @@ export default function UserTable() {
   const [sortBy, setSortBy] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
+  const [usersPerPage, setUsersPerPage] = useState(5);
 
   useEffect(() => {
     loadUsers();
@@ -133,32 +134,54 @@ export default function UserTable() {
   return (
     <div className="card p-3 shadow-sm rounded-4">
       {/* Heading */}
-      <h2 className=" mb-3 highlight-heading text-light">User Management</h2>
 
-      {/* Search + Add button in one row */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-        {/* Search bar */}
-        <div className="search-container">
-          <div className="input-group">
-            <span className="input-group-text bg-light border-end-0">
-              <FaSearch />
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      <div className="d-flex justify-content-between align-items-center mb-4 highlight-heading">
+        <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+          <FaUsersCog />
+          User Management
+        </h3>
+
+        <Logout />
+      </div>
+<div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+  <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
+        {/* Search Bar */} 
+        <div className="input-group" style={{ maxWidth: "300px" }}>
+          <span className="input-group-text bg-white">
+            <FaSearch />
+          </span>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
-        {/* Add button */}
+        {/* Rows Per Page */}
+     
+          <select
+            className="form-select "
+            style={{ width: "120px" }}
+            value={usersPerPage}
+            onChange={(e) => {
+              setUsersPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+           <option value={5}>5 rows</option>
+      <option value={10}>10 rows</option>
+      <option value={20}>20 rows</option>
+          </select>
+      
+</div>
+        {/* Add Button */}
         <button
-          className="btn btn-custom-dark d-flex align-items-center flex-shrink-0 text-light bg-black"
+          className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
           onClick={openAdd}
         >
-          <FaPlus className="me-2" /> Add User
+          <FaPlus/>Add User
         </button>
       </div>
 
@@ -186,7 +209,7 @@ export default function UserTable() {
               >
                 Date {renderSortArrow("created_at")}
               </th>
-              <th >Actions</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -203,7 +226,7 @@ export default function UserTable() {
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                  <td className="text-center">
+                  <td>
                     <div className="d-flex gap-2">
                       <button
                         className="btn btn-sm btn-outline-success "
