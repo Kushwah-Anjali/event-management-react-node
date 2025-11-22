@@ -46,6 +46,7 @@ export default function UserTable() {
     setEditUser(null);
     setShowModal(true);
   };
+
   const openEdit = (user) => {
     setEditUser(user);
     setShowModal(true);
@@ -80,12 +81,14 @@ export default function UserTable() {
       const res = isUpdate
         ? await updateUser(formData, ADMIN_KEY)
         : await addUser(formData, ADMIN_KEY);
+
       Swal.fire({
         title: res.data.status === "success" ? "✅ Success" : "❌ Error",
         text: res.data.message,
         icon: res.data.status === "success" ? "success" : "error",
         backdrop: false,
       });
+
       loadUsers();
     } catch {
       Swal.fire("❌ Error", "Something went wrong!", "error");
@@ -93,8 +96,9 @@ export default function UserTable() {
   };
 
   const handleSort = (column) => {
-    if (sortBy === column) setSortDir(sortDir === "asc" ? "desc" : "asc");
-    else {
+    if (sortBy === column) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
       setSortBy(column);
       setSortDir("asc");
     }
@@ -110,8 +114,9 @@ export default function UserTable() {
       if (sortBy === "created_at") {
         return (new Date(A) - new Date(B)) * dir;
       }
-      if (typeof A === "string")
+      if (typeof A === "string") {
         return A.localeCompare(B, undefined, { sensitivity: "base" }) * dir;
+      }
       return (Number(A) - Number(B)) * dir;
     });
   };
@@ -132,132 +137,145 @@ export default function UserTable() {
     sortBy !== col ? "⇅" : sortDir === "asc" ? "▲" : "▼";
 
   return (
-    <div className="card p-3 shadow-sm rounded-4">
-      {/* Heading */}
-
-      <div className="d-flex justify-content-between align-items-center mb-4 highlight-heading">
-        <h3 className="text-white d-flex align-items-center gap-2 mb-0">
-          <FaUsersCog />
-          User Management
-        </h3>
-
-        <Logout />
-      </div>
-<div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
-  <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
-        {/* Search Bar */} 
-        <div className="input-group" style={{ maxWidth: "300px" }}>
-          <span className="input-group-text bg-white">
-            <FaSearch />
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+    <>
+    <div className="users-page-bg ">  
+        <div className="card p-3 shadow-sm rounded-4">
+        {/* Heading */}
+        <div className="d-flex justify-content-between align-items-center mb-4 highlight-heading">
+          <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+            <FaUsersCog />
+            User Management
+          </h3>
+          <Logout />
         </div>
 
-        {/* Rows Per Page */}
-     
-          <select
-            className="form-select "
-            style={{ width: "120px" }}
-            value={usersPerPage}
-            onChange={(e) => {
-              setUsersPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-          >
-           <option value={5}>5 rows</option>
-      <option value={10}>10 rows</option>
-      <option value={20}>20 rows</option>
-          </select>
-      
-</div>
-        {/* Add Button */}
-        <button
-          className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
-          onClick={openAdd}
-        >
-          <FaPlus/>Add User
-        </button>
-      </div>
+        {/* Controls */}
+        <div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+          <div className="d-flex align-items-center gap-2 flex-grow-1 flex-wrap">
+            {/* Search */}
+            <div className="input-group" style={{ maxWidth: "300px" }}>
+              <span className="input-group-text bg-white">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-      {/* Table */}
-      <div className="table-responsive">
-        <table className="table table-hover table-bordered align-middle mb-0">
-          <thead className="table-primary">
-            <tr>
-              <th>#</th>
-              <th
-                onClick={() => handleSort("name")}
-                style={{ cursor: "pointer" }}
-              >
-                Name {renderSortArrow("name")}
-              </th>
-              <th
-                onClick={() => handleSort("email")}
-                style={{ cursor: "pointer" }}
-              >
-                Email {renderSortArrow("email")}
-              </th>
-              <th
-                onClick={() => handleSort("created_at")}
-                style={{ cursor: "pointer" }}
-              >
-                Date {renderSortArrow("created_at")}
-              </th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+            {/* Rows per page */}
+            <select
+              className="form-select"
+              style={{ width: "6rem" }}
+              value={usersPerPage}
+              onChange={(e) => {
+                setUsersPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={5}>5 rows</option>
+              <option value={10}>10 rows</option>
+              <option value={20}>20 rows</option>
+            </select>
+          </div>
+
+          {/* Add Button */}
+          <button
+            className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
+            onClick={openAdd}
+          >
+            <FaPlus />
+            Add User
+          </button>
+        </div>
+
+        {/* Table */}
+        <div className="table-responsive">
+          <table className="table table-hover table-bordered align-middle mb-0">
+            <thead className="table-primary">
               <tr>
-                <td colSpan="5" className="text-center py-4">
-                  <div className="spinner-border text-primary" />
-                </td>
+                <th>#</th>
+                <th
+                  onClick={() => handleSort("name")}
+                  style={{ cursor: "pointer" }}
+                >
+                  Name {renderSortArrow("name")}
+                </th>
+                <th
+                  onClick={() => handleSort("email")}
+                  style={{ cursor: "pointer" }}
+                >
+                  Email {renderSortArrow("email")}
+                </th>
+                <th
+                  onClick={() => handleSort("created_at")}
+                  style={{ cursor: "pointer" }}
+                >
+                  Date {renderSortArrow("created_at")}
+                </th>
+                <th>Actions</th>
               </tr>
-            ) : currentUsers.length > 0 ? (
-              currentUsers.map((user, idx) => (
-                <tr key={user.id}>
-                  <td>{indexOfFirst + idx + 1}</td>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      <button
-                        className="btn btn-sm btn-outline-success "
-                        onClick={() => openEdit(user)}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger "
-                        onClick={() => handleDelete(user.id)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>{" "}
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-4">
+                    <div className="spinner-border text-primary" />
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center py-4 text-muted">
-                  No users found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ) : currentUsers.length > 0 ? (
+                currentUsers.map((user, idx) => (
+                  <tr key={user.id}>
+                    <td>{indexOfFirst + idx + 1}</td>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-sm btn-outline-success"
+                          onClick={() => openEdit(user)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-4 text-muted">
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Modal */}
+        <UserModal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+          onSave={handleSave}
+          editUser={editUser}
+        />
       </div>
 
-      {/* Pagination */}
+      {/* Pagination OUTSIDE card */}
       {sortedUsers.length > usersPerPage && (
         <div className="d-flex justify-content-center align-items-center mt-3 gap-2 flex-wrap">
+          {/* Previous */}
           <button
             className="btn btn-outline-primary btn-sm"
             disabled={currentPage === 1}
@@ -265,9 +283,23 @@ export default function UserTable() {
           >
             Previous
           </button>
-          <span className="fw-semibold">
-            Page {currentPage} of {totalPages}
-          </span>
+
+          {/* Page Numbers */}
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index}
+              className={`btn btn-sm ${
+                currentPage === index + 1
+                  ? "btn-primary"
+                  : "btn-outline-primary"
+              }`}
+              onClick={() => setCurrentPage(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+
+          {/* Next */}
           <button
             className="btn btn-outline-primary btn-sm"
             disabled={currentPage === totalPages}
@@ -277,14 +309,8 @@ export default function UserTable() {
           </button>
         </div>
       )}
+  
+    </div></>
 
-      {/* Modal */}
-      <UserModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleSave}
-        editUser={editUser}
-      />
-    </div>
   );
 }

@@ -1,8 +1,6 @@
 
 .users-event-page{
  background-color: #0d0d4d;
-  min-height: 100vh;
-  width: 100%;
   padding-top: 40px;
 }
 .dash-head{
@@ -10,15 +8,4 @@
     padding: 0.5rem 1rem;
     border-radius: 0.4rem;
     width: 100%;
-}
-
-.btn-custom-dark {
-  border-radius: 0.4rem;
-  transition: 0.2s ease;
-}
-.btn-custom-dark:hover {
-  
-  border: #000 1px solid;
-
-  transform: translateY(-2px);
 }

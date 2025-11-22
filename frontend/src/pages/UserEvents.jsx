@@ -28,6 +28,8 @@ const UserEvents = () => {
     isModalOpen: false,
     loading: false,
     editEvent: null,
+    sortKey: "",
+    sortOrder: "asc",
   });
 
   const {
@@ -48,32 +50,33 @@ const UserEvents = () => {
     else navigate("/login");
   }, [navigate]);
 
-    // --- Fetch Events (Reusable Function) ---
-const fetchEvents = async () => {
-  if (!user?.id) return;
+  // --- Fetch Events (Reusable Function) ---
+  const fetchEvents = async () => {
+    if (!user?.id) return;
 
-  setState((prev) => ({ ...prev, loading: true }));
-  try {
-    const res = await fetch(`http://localhost:5000/api/userevents/user/${user.id}`);
-    const data = await res.json();
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/userevents/user/${user.id}`
+      );
+      const data = await res.json();
 
-    if (data.status === "success") {
-      setState((prev) => ({ ...prev, events: data.events }));
-    } else {
-      Swal.fire("Error", data.message || "Failed to load events", "error");
+      if (data.status === "success") {
+        setState((prev) => ({ ...prev, events: data.events }));
+      } else {
+        Swal.fire("Error", data.message || "Failed to load events", "error");
+      }
+    } catch {
+      Swal.fire("Error", "Server not reachable", "error");
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
     }
-  } catch {
-    Swal.fire("Error", "Server not reachable", "error");
-  } finally {
-    setState((prev) => ({ ...prev, loading: false }));
-  }
-};
+  };
 
-// --- Run once user is loaded ---
-useEffect(() => {
-  if (user?.id) fetchEvents();
-}, [user]);
-
+  // --- Run once user is loaded ---
+  useEffect(() => {
+    if (user?.id) fetchEvents();
+  }, [user]);
 
   // --- Add Event ---
   const handleAddEvent = async (formData) => {
@@ -129,7 +132,7 @@ useEffect(() => {
     try {
       const res = await fetch(
         `http://localhost:5000/api/userevents/update/${eventId}`,
-        
+
         {
           method: "PUT",
           body: formData,
@@ -173,9 +176,12 @@ useEffect(() => {
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/userevents/delete/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/userevents/delete/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       const data = await res.json();
 
@@ -200,15 +206,44 @@ useEffect(() => {
     }));
   };
 
+  const filteredEvents = useMemo(() => {
+    let items = events.filter((e) =>
+      e.title?.toLowerCase().includes(search.toLowerCase())
+    );
 
-  // --- Filter & Pagination ---
-  const filteredEvents = useMemo(
-    () =>
-      events.filter((e) =>
-        e.title?.toLowerCase().includes(search.toLowerCase())
-      ),
-    [events, search]
-  );
+    if (state.sortKey) {
+      items.sort((a, b) => {
+        const valA = a[state.sortKey] ?? "";
+        const valB = b[state.sortKey] ?? "";
+
+        if (typeof valA === "string") {
+          return state.sortOrder === "asc"
+            ? valA.localeCompare(valB)
+            : valB.localeCompare(valA);
+        }
+
+        return state.sortOrder === "asc" ? valA - valB : valB - valA;
+      });
+    }
+
+    return items;
+  }, [events, search, state.sortKey, state.sortOrder]);
+
+  const handleSort = (key) => {
+    setState((prev) => {
+      let newOrder = "asc";
+
+      if (prev.sortKey === key && prev.sortOrder === "asc") {
+        newOrder = "desc";
+      }
+
+      return {
+        ...prev,
+        sortKey: key,
+        sortOrder: newOrder,
+      };
+    });
+  };
 
   const totalPages = Math.ceil(filteredEvents.length / rowsPerPage) || 1;
   const currentEvents = useMemo(() => {
@@ -235,277 +270,294 @@ useEffect(() => {
   );
 
   return (
-      <div className="users-event-page">
-    <div className="container py-4">
-    {/* Dashboard White Card */}
+    <div className="users-event-page">
+      <div className="container py-4">
+        {/* Dashboard White Card */}
 
-<div className="card shadow-sm border-0 rounded-4 mb-4">
-  <div className="card-body">
+        <div className="card shadow-sm border-0 rounded-4 mb-4">
+          <div className="card-body">
+            {/* Full-width header row */}
+            <div className="d-flex justify-content-between align-items-center dash-head mb-4">
+              {/* Title */}
+              <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+                <FaUserCircle />
+                My Events Dashboard
+              </h3>
+              <Logout />
+            </div>
 
-    {/* Full-width header row */}
-    <div className="d-flex justify-content-between align-items-center dash-head mb-4">
+            {/* Info Grid */}
+            <div className="row g-4">
+              <InfoBox
+                title="Name"
+                value={user?.name}
+                icon="bi bi-people-fill"
+              />
 
-      {/* Title */}
-      <h3 className="text-white d-flex align-items-center gap-2 mb-0">
-    <FaUserCircle />
-        My Events Dashboard
-      </h3>
-<Logout/>
+              <InfoBox
+                title="Email"
+                value={user?.email}
+                icon="bi bi-envelope-fill"
+              />
 
+              <InfoBox
+                title="Total Events"
+                value={events.length}
+                icon="bi bi-calendar-event-fill"
+              />
+            </div>
+          </div>
+        </div>
 
-    </div>
-
-    {/* Info Grid */}
-<div className="row g-4">
-  <InfoBox 
-    title="Name" 
-    value={user?.name} 
-    icon="bi bi-people-fill" 
-  />
-
-  <InfoBox 
-    title="Email" 
-    value={user?.email} 
-    icon="bi bi-envelope-fill" 
-  />
-
-  <InfoBox 
-    title="Total Events" 
-    value={events.length} 
-    icon="bi bi-calendar-event-fill" 
-  />
-</div>
-
-
-  </div>
-</div>
-
-
-
-
-
-
-
-
-   <div className="card shadow-sm border-0 rounded-3">
-  <div className="card-body">
-
- {/* Toolbar */}
-<div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
-
-  {/* LEFT SIDE: Rows + Search */}
-  <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
-    {/* Search */}
-    <div className="input-group" style={{ maxWidth: "300px" }}>
-      <span className="input-group-text bg-white">
-         <FaSearch />
-      </span>
-      <input
-        type="text"
-        className="form-control"
-        placeholder="Search..."
-        value={search}
-        onChange={(e) =>
-          setState((prev) => ({
-            ...prev,
-            search: e.target.value,
-            currentPage: 1,
-          }))
-        }
-      />
-    </div>
-   <select
-      className="form-select"
-      style={{ width: "6rem" }}
-      value={rowsPerPage}
-      onChange={(e) =>
-        setState((prev) => ({
-          ...prev,
-          rowsPerPage: Number(e.target.value),
-          currentPage: 1,
-        }))
-      }
-    >
-      <option value={5}>5 rows</option>
-      <option value={10}>10 rows</option>
-      <option value={20}>20 rows</option>
-    </select>
-  </div>
-
-  {/* RIGHT SIDE: Add Event */}
-  <button
-    className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
-    onClick={() =>
-      setState((prev) => ({ ...prev, isModalOpen: true }))
-    }
-  >
-    <FaPlus />
-    Add Event
-  </button>
-
-</div>
-
-
-
-    {/* Table */}
-    <div className="table-responsive rounded">
-      <table className="table  table-hover align-middle mb-0">
-        <thead className="table-primary">
-          <tr>
-            {columns.map((col) => (
-              <th key={col.key} className="fw-semibold">{col.label}</th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan={columns.length} className="text-center py-4">
-                Loading events...
-              </td>
-            </tr>
-          ) : currentEvents.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} className="text-center py-4 text-muted">
-                No events found
-              </td>
-            </tr>
-          ) : (
-            currentEvents.map((event, idx) => (
-              <tr key={event.id}>
-                <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
-                <td>{event.title}</td>
-                <td>{event.category || "-"}</td>
-                <td className="text-truncate" style={{ maxWidth: "150px" }}>
-                  {event.description || "-"}
-                </td>
-                <td>
-                  {event.date ? new Date(event.date).toLocaleDateString() : "-"}
-                </td>
-                <td>{event.author || "-"}</td>
-                <td>{event.venue || "-"}</td>
-                <td>{event.fees ? `₹${event.fees}` : "-"}</td>
-                <td>{event.contact || "-"}</td>
-                <td>
-                  {event.image ? (
-                    <img
-                      src={event.image}
-                      alt="Event"
-                      className="rounded"
-                      width="50"
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </td>
-
-                <td>
-                  {(() => {
-                    const docs = event.required_documents;
-                    if (!docs) return "-";
-                    if (typeof docs === "string") {
-                      try {
-                        const parsed = JSON.parse(docs);
-                        return Array.isArray(parsed)
-                          ? parsed.join(", ")
-                          : docs;
-                      } catch {
-                        return docs.includes(",")
-                          ? docs
-                          : docs.split(" ").join(", ");
-                      }
+        <div className="card shadow-sm border-0 rounded-3">
+          <div className="card-body">
+            {/* Toolbar */}
+            <div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+              {/* LEFT SIDE: Rows + Search */}
+              <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
+                {/* Search */}
+                <div className="input-group" style={{ maxWidth: "300px" }}>
+                  <span className="input-group-text bg-white">
+                    <FaSearch />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search..."
+                    value={search}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        search: e.target.value,
+                        currentPage: 1,
+                      }))
                     }
-                    if (Array.isArray(docs)) return docs.join(", ");
-                    return "-";
-                  })()}
-                </td>
+                  />
+                </div>
+                <select
+                  className="form-select"
+                  style={{ width: "6rem" }}
+                  value={rowsPerPage}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      rowsPerPage: Number(e.target.value),
+                      currentPage: 1,
+                    }))
+                  }
+                >
+                  <option value={5}>5 rows</option>
+                  <option value={10}>10 rows</option>
+                  <option value={20}>20 rows</option>
+                </select>
+              </div>
 
-                <td>
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-sm btn-outline-success"
-                      title="Edit"
-                      onClick={() => handleEditEvent(event)}
-                    >
-                  <FaEdit />
-                    </button>
+              {/* RIGHT SIDE: Add Event */}
+              <button
+                className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
+                onClick={() =>
+                  setState((prev) => ({ ...prev, isModalOpen: true }))
+                }
+              >
+                <FaPlus />
+                Add Event
+              </button>
+            </div>
 
-                    <button
-                      className="btn btn-sm btn-outline-danger"
-                      title="Delete"
-                      onClick={() => handleDeleteEvent(event.id)}
-                    >
-                     <FaTrash />
+            {/* Table */}
+            <div className="table-responsive rounded">
+              <table className="table  table-hover align-middle mb-0">
+                <thead className="table-primary">
+                  <tr>
+                    {columns.map((col) => {
+                      const nonSortableKeys = [
+                        "image",
+                        "required_docs",
+                        "actions",
+                      ];
+                      const isSortable = !nonSortableKeys.includes(col.key);
 
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+                      return (
+                        <th
+                          key={col.key}
+                          className="fw-semibold"
+                          style={{
+                            cursor: isSortable ? "pointer" : "default",
+                            userSelect: "none",
+                          }}
+                          onClick={() => isSortable && handleSort(col.key)}
+                        >
+                          {col.label}
 
-  </div>
-</div>
+                          {/* Sorting Indicators */}
+                          {isSortable && (
+                            <span className="ms-1 ">
+                              {state.sortKey === col.key
+                                ? state.sortOrder === "asc"
+                                  ? "▲"
+                                  : "▼"
+                                : "⇅"}
+                            </span>
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
 
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={columns.length} className="text-center py-4">
+                        Loading events...
+                      </td>
+                    </tr>
+                  ) : currentEvents.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={columns.length}
+                        className="text-center py-4 text-muted"
+                      >
+                        No events found
+                      </td>
+                    </tr>
+                  ) : (
+                    currentEvents.map((event, idx) => (
+                      <tr key={event.id}>
+                        <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                        <td>{event.title}</td>
+                        <td>{event.category || "-"}</td>
+                        <td
+                          className="text-truncate"
+                          style={{ maxWidth: "150px" }}
+                        >
+                          {event.description || "-"}
+                        </td>
+                        <td>
+                          {event.date
+                            ? new Date(event.date).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td>{event.author || "-"}</td>
+                        <td>{event.venue || "-"}</td>
+                        <td>{event.fees ? `₹${event.fees}` : "-"}</td>
+                        <td>{event.contact || "-"}</td>
+                        <td>
+                          {event.image ? (
+                            <img
+                              src={event.image}
+                              alt="Event"
+                              className="rounded"
+                              width="50"
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </td>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            disabled={currentPage === 1}
-            onClick={() =>
-              setState((prev) => ({ ...prev, currentPage: currentPage - 1 }))
-            }
-          >
-            Previous
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                        <td>
+                          {(() => {
+                            const docs = event.required_documents;
+                            if (!docs) return "-";
+                            if (typeof docs === "string") {
+                              try {
+                                const parsed = JSON.parse(docs);
+                                return Array.isArray(parsed)
+                                  ? parsed.join(", ")
+                                  : docs;
+                              } catch {
+                                return docs.includes(",")
+                                  ? docs
+                                  : docs.split(" ").join(", ");
+                              }
+                            }
+                            if (Array.isArray(docs)) return docs.join(", ");
+                            return "-";
+                          })()}
+                        </td>
+
+                        <td>
+                          <div className="d-flex gap-2">
+                            <button
+                              className="btn btn-sm btn-outline-success"
+                              title="Edit"
+                              onClick={() => handleEditEvent(event)}
+                            >
+                              <FaEdit />
+                            </button>
+
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              title="Delete"
+                              onClick={() => handleDeleteEvent(event.id)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center align-items-center gap-2 mt-3 flex-wrap">
             <button
-              key={num}
-              className={`btn btn-sm ${
-                currentPage === num ? "btn-primary" : "btn-outline-secondary"
-              }`}
+              className="btn btn-outline-secondary btn-sm"
+              disabled={currentPage === 1}
               onClick={() =>
-                setState((prev) => ({ ...prev, currentPage: num }))
+                setState((prev) => ({ ...prev, currentPage: currentPage - 1 }))
               }
             >
-              {num}
+              Previous
             </button>
-          ))}
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            disabled={currentPage === totalPages}
-            onClick={() =>
-              setState((prev) => ({ ...prev, currentPage: currentPage + 1 }))
-            }
-          >
-            Next
-          </button>
-        </div>
-      )}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                className={`btn btn-sm ${
+                  currentPage === num ? "btn-primary" : "btn-outline-secondary"
+                }`}
+                onClick={() =>
+                  setState((prev) => ({ ...prev, currentPage: num }))
+                }
+              >
+                {num}
+              </button>
+            ))}
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              disabled={currentPage === totalPages}
+              onClick={() =>
+                setState((prev) => ({ ...prev, currentPage: currentPage + 1 }))
+              }
+            >
+              Next
+            </button>
+          </div>
+        )}
 
-      {/* Add Event Modal */}
-      {isModalOpen && (
-        <Addeventmodal
-          isOpen={isModalOpen}
-          onClose={() =>
-            setState((prev) => ({
-              ...prev,
-              isModalOpen: false,
-              editEvent: null,
-            }))
-          }
-          onSubmit={state.editEvent ? handleUpdateEvent : handleAddEvent} // 👈 smart switch
-          existingData={state.editEvent}
-          isEditing={!!state.editEvent} // 👈 pre-fill modal fields
-        />
-      )}
-    </div>
+        {/* Add Event Modal */}
+        {isModalOpen && (
+          <Addeventmodal
+            isOpen={isModalOpen}
+            onClose={() =>
+              setState((prev) => ({
+                ...prev,
+                isModalOpen: false,
+                editEvent: null,
+              }))
+            }
+            onSubmit={state.editEvent ? handleUpdateEvent : handleAddEvent} // 👈 smart switch
+            existingData={state.editEvent}
+            isEditing={!!state.editEvent} // 👈 pre-fill modal fields
+          />
+        )}
+      </div>
     </div>
   );
 };

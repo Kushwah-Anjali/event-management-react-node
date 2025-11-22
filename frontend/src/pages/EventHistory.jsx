@@ -4,6 +4,17 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import InfoBox from "../components/InfoBox";
 import HistoryModal from "../components/HistoryModal";
+import {
+  FaArrowLeft,
+  FaClock,
+  FaUsers,
+  FaIdBadge,
+  FaMoneyBill,
+  FaWallet,
+  FaMapMarkerAlt,
+  FaPhone,
+} from "react-icons/fa";
+
 import "../styles/History.css";
 
 export default function EventHistory() {
@@ -152,12 +163,13 @@ export default function EventHistory() {
     );
 
 return (
-  <div className="event-history-page container my-4">
+  <div className="history-wrapper py-4">  <div className="event-history-page container">
 
     {/* Back + Register */}
     <div className="d-flex justify-content-between align-items-center mb-4">
       <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
-        <i className="bi bi-arrow-left"></i> Back
+       <FaArrowLeft className="me-1" />
+ Back
       </button>
 
       {event.registerLink && (
@@ -194,19 +206,19 @@ return (
 
     {/* Add History Button */}
     <div className="text-end mb-4">
-      <button className="btn btn-success" onClick={() => setShowModal(true)}>
-        <i className="bi bi-clock-history me-1"></i> Add Event History
+      <button className="btn btn-custom-dark bg-black text-light" onClick={() => setShowModal(true)}>
+       <FaClock className="me-1" />Add Event History
       </button>
     </div>
 
     {/* Info Boxes */}
     <div className="row g-3 mb-4">
-      <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"} icon="bi bi-people-fill" />
-      <InfoBox title="Guests" value={event.guests ?? "0"} icon="bi bi-person-badge-fill" />
-      <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"} icon="bi bi-cash-stack" />
-      <InfoBox title="Fees" value={event.fees ?? "Free"} icon="bi bi-wallet2" />
-      <InfoBox title="Venue" value={event.venue ?? "N/A"} icon="bi bi-geo-alt-fill" />
-      <InfoBox title="Contact" value={event.contact ?? "N/A"} icon="bi bi-telephone-fill" />
+      <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"}   icon={<FaUsers />} />
+      <InfoBox title="Guests" value={event.guests ?? "0"} icon={<FaIdBadge />} />
+      <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"}   icon={<FaMoneyBill />} />
+      <InfoBox title="Fees" value={event.fees ?? "Free"}   icon={<FaWallet />} />
+      <InfoBox title="Venue" value={event.venue ?? "N/A"}    icon={<FaMapMarkerAlt />} />
+      <InfoBox title="Contact" value={event.contact ?? "N/A"}  icon={<FaPhone />} />
     </div>
     {/* Dynamic Sections */}
     {event.sections?.map((s, idx) => (
@@ -247,7 +259,7 @@ return (
       eventData={event}
       onSubmit={handleHistorySubmit}
     />
-  </div>
+  </div></div>
 );
 
 }
