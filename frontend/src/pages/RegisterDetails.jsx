@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import DocumentUploadModal from "../components/DocumentUploadModal";
-import { FaUpload ,FaCalendarAlt, FaMapMarkerAlt, FaUser, FaMoneyBill ,FaEnvelope } from "react-icons/fa";
+import {
+  FaUpload,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUser,
+  FaMoneyBill,
+  FaEnvelope,
+} from "react-icons/fa";
 import InfoBox from "../components/InfoBox";
 
 function RegisterDetails() {
@@ -32,18 +39,20 @@ function RegisterDetails() {
 
     if (eventId) fetchEventDetails();
   }, [eventId]);
-const formatEventDate = (dateString) => {
-  if (!dateString) return "Not specified";
 
-  const options = { day: "numeric", month: "short", year: "numeric" };
-  return new Date(dateString).toLocaleDateString("en-GB", options);
-};
+  const formatEventDate = (dateString) => {
+    if (!dateString) return "Not specified";
+
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-GB", options);
+  };
 
   return (
     <div className="register-bg" style={{ background: "#0d0d4d" }}>
       <div className="container py-5">
+        {/* WRAPPER CARD */}
         <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
-          {/* Header */}
+          {/* HEADER */}
           <div
             className="card-header text-white text-center py-4"
             style={{
@@ -52,27 +61,31 @@ const formatEventDate = (dateString) => {
           >
             <h2 className="fw-bold mb-1">Registration Summary</h2>
             <p className="text-light mb-0 small">
-              Your registration details & event overview
+              Review your registration and event details
             </p>
           </div>
 
+          {/* BODY */}
           <div className="card-body bg-light p-4">
-            {/* Registration Section */}
-            <div className="card border-0 shadow-sm mb-4 p-4">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="d-flex align-items-center">
+            {/* REGISTRATION CARD */}
+            <div className="card border-0 shadow-sm mb-4 p-4 rounded-4">
+              <div className="d-flex justify-content-between flex-wrap align-items-center mb-3">
+                {/* LEFT */}
+                <div className="d-flex align-items-center gap-3">
                   <div
-                    className="bg-success text-white rounded-circle d-flex justify-content-center align-items-center"
+                    className=" text-white rounded-circle d-flex justify-content-center align-items-center"
                     style={{
-                      width: "50px",
-                      height: "50px",
-                      fontSize: "1.5rem",
+                      width: "55px",
+                      height: "55px",
+                      fontSize: "1.6rem",
+                      background: "rgb(233 206 27 / 73%)",
                     }}
                   >
                     🎉
                   </div>
-                  <div className="ms-3">
-                    <h5 className="fw-bold mb-0 text-success">
+
+                  <div>
+                    <h5 className="fw-bold mb-0" style={{ color: "#194abf" }}>
                       Welcome, {name}!
                     </h5>
                     <small className="text-muted">
@@ -81,24 +94,20 @@ const formatEventDate = (dateString) => {
                   </div>
                 </div>
 
+                {/* RIGHT BUTTON */}
                 <button
-                  className="btn btn-dark text-light px-3 py-2 d-flex align-items-center gap-2"
+                  className="btn btn-dark text-light px-3 py-2 d-flex align-items-center gap-2 mt-3 mt-md-0"
                   onClick={() => setShowUploadModal(true)}
                 >
-                  <FaUpload /> Upload Docs
+                  <FaUpload /> Upload Documents
                 </button>
               </div>
 
               <hr />
 
-              <div className="row">
-                <InfoBox
-                  title="Full Name"
-                  value={name}
-                icon={<FaUser />}
-                />
-
-                <InfoBox title="Email" value={email} icon={<FaEnvelope />} />
+              <div className="row gy-3">
+                <InfoBox title="Full Name " value={name} icon={<FaUser   style={{ color: "#174bdaff" }}/>} />
+                <InfoBox title="Email" value={email} icon={<FaEnvelope   style={{ color: "#174bdaff" }}/>} />
 
                 <InfoBox
                   title="Registered On"
@@ -107,12 +116,12 @@ const formatEventDate = (dateString) => {
                       ? new Date(registered_at).toLocaleDateString()
                       : "Not available"
                   }
-                  icon={<FaCalendarAlt />}
+                  icon={<FaCalendarAlt   style={{ color: "#174bdaff" }}/>}
                 />
               </div>
             </div>
 
-            {/* Event Section */}
+            {/* EVENT DETAILS */}
             {loading ? (
               <div className="text-center py-4">
                 <div
@@ -121,49 +130,81 @@ const formatEventDate = (dateString) => {
                 ></div>
               </div>
             ) : event ? (
-              <div className="card border-0 shadow-sm rounded-3">
-                {/* Event Image */}
-                {event.image && (
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="card-img-top img-fluid"
-                    style={{
-                      height: "250px",
-                      objectFit: "cover",
-                      borderRadius: "0.5rem 0.5rem 0 0",
-                    }}
-                  />
-                )}
+              <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div className="row g-0">
+                  {/* LEFT IMAGE */}
+                  <div className="col-md-4">
+                    {event.image && (
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="img-fluid w-100"
+                        style={{
+                          height: "100%",
+                          maxHeight: "250px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
+                  </div>
 
-                <div className="card-body p-4">
-                  <h3 className="fw-bold text-primary mb-3">
-                                      {event.title}
-                  </h3>
-                  <p className="text-secondary mt-3">{event.description}</p>
+                  {/* RIGHT CONTENT */}
+                  <div className="col-md-8 d-flex align-items-center">
+                    <div className="p-4 w-100">
+                      {/* TITLE */}
+                      <h4 className="fw-bold  mb-2" >
+                        {event.title}
+                      </h4>
 
-                  {/* Event InfoBoxes */}
-                  <div className="row">
-                    <InfoBox
-                      title="Event Date"
-                      value={formatEventDate(event.date)}
-                      icon={<FaCalendarAlt />} 
-                    />
-                    <InfoBox
-                      title="Venue"
-                      value={event.venue}
-                   icon={<FaMapMarkerAlt />} 
-                    />
-                    <InfoBox
-                      title="Author"
-                      value={event.author}
-                     icon={<FaUser />}
-                    />
-                    <InfoBox
-                      title="Fees"
-                      value={event.fees || "Free"}
-                       icon={<FaMoneyBill />}
-                    />
+                      {/* DESCRIPTION */}
+                      <p
+                        className="text-secondary lh-base mb-3"
+                        style={{ fontSize: "0.95rem" }}
+                      >
+                        {event.description}
+                      </p>
+
+                      <hr className="my-3" />
+
+                      {/* DETAILS GRID */}
+                      <div className="row gy-3">
+                        <div className="col-6 d-flex align-items-center gap-3">
+                          <FaCalendarAlt />
+                          <div>
+                            <div className="text-muted small">Event Date</div>
+                            <div className="fw-semibold">
+                              {formatEventDate(event.date)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-6 d-flex align-items-center gap-3">
+                          <FaMapMarkerAlt />
+                          <div>
+                            <div className="text-muted small">Location</div>
+                            <div className="fw-semibold">{event.venue}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-6 d-flex align-items-center gap-3">
+                          <FaUser />
+                          <div>
+                            <div className="text-muted small">Hosted By</div>
+                            <div className="fw-semibold">{event.author}</div>
+                          </div>
+                        </div>
+
+                        <div className="col-6 d-flex align-items-center gap-3">
+                          <FaMoneyBill />
+                          <div>
+                            <div className="text-muted small">Entry Fee</div>
+                            <div className="fw-semibold">
+                              {event.fees || "Free"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -174,9 +215,10 @@ const formatEventDate = (dateString) => {
             )}
           </div>
 
+          {/* FOOTER */}
           <div className="card-footer text-center bg-white py-3">
             <small className="text-muted">
-              © {new Date().getFullYear()} Event Management Portal
+              © {new Date().getFullYear()} Eventify
             </small>
           </div>
         </div>

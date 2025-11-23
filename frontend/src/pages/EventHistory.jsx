@@ -163,103 +163,125 @@ export default function EventHistory() {
     );
 
 return (
-  <div className="history-wrapper py-4">  <div className="event-history-page container">
+  <div className="history-wrapper py-4" style={{ background: "#0d0d4d" }}>
+    <div className="event-history-page container">
 
-    {/* Back + Register */}
-    <div className="d-flex justify-content-between align-items-center mb-4">
-      <button className="btn btn-outline-secondary" onClick={() => navigate(-1)}>
-       <FaArrowLeft className="me-1" />
- Back
-      </button>
-
-      {event.registerLink && (
-        <a className="btn btn-primary" href={event.registerLink} target="_blank" rel="noreferrer">
-          Register
-        </a>
-      )}
-    </div>
-
-    {/* Hero */}
-    <div className="mb-4 fade-in">
-      {event.image ? (
-        <div
-          className="eh-hero shadow"
-          style={{ backgroundImage: `url(${event.image})` }}
+      {/* Top Bar */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <button className="btn btn-outline-secondary d-flex align-items-center gap-2" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back
+        </button>
+ {/* Add History Button */}
+      <div className="text-end mb-4">
+        <button
+          className="btn btn-dark d-inline-flex align-items-center gap-2 px-4 py-2 rounded-3"
+          onClick={() => setShowModal(true)}
         >
-          <div className="h-100 w-100 d-flex flex-column justify-content-end p-3"
-               style={{ background: "linear-gradient(to top, rgba(0,0,0,.6), transparent)" }}>
-            <h1 className="text-white fw-bold mb-1">{event.title}</h1>
-            <p className="text-light small mb-0">
+          <FaClock /> Add Event History
+        </button>
+      </div>
+        {event.registerLink && (
+          <a
+            className="btn btn-primary fw-semibold px-4"
+            href={event.registerLink}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Register
+          </a>
+        )}
+      </div>
+
+      {/* Hero Section */}
+      <div className="mb-4 fade-in shadow-sm rounded-4 overflow-hidden">
+        {event.image ? (
+          <div
+            className="eh-hero position-relative"
+            style={{
+              backgroundImage: `url(${event.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              height: "260px",
+            }}
+          >
+            <div
+              className="position-absolute bottom-0 w-100 p-3"
+              style={{
+                background: "linear-gradient(to top, rgba(0,0,0,.7), transparent)",
+              }}
+            >
+              <h2 className="text-white fw-bold mb-1">{event.title}</h2>
+              <p className="text-light small mb-0">
+                {event.date || "Date TBD"} • {event.venue || "Venue TBD"}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="card p-4 shadow-sm rounded-4">
+            <h2 className="fw-bold mb-1">{event.title}</h2>
+            <p className="text-muted small">
               {event.date || "Date TBD"} • {event.venue || "Venue TBD"}
             </p>
           </div>
+        )}
+      </div>
+
+    
+
+      {/* Info Boxes */}
+      <div className="row g-3 mb-4">
+        <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"} icon={<FaUsers style={{color:"#1e3a8a"}} />} />
+        <InfoBox title="Guests" value={event.guests ?? "0"} icon={<FaIdBadge style={{color:"#1e3a8a"}} />} />
+        <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"} icon={<FaMoneyBill style={{color:"#1e3a8a"}} />} />
+        <InfoBox title="Entry Fee" value={event.fees ?? "Free"} icon={<FaWallet style={{color:"#1e3a8a"}} />} />
+        <InfoBox title="Venue" value={event.venue ?? "N/A"} icon={<FaMapMarkerAlt style={{color:"#1e3a8a"}} />} />
+        <InfoBox title="Contact" value={event.contact ?? "N/A"} icon={<FaPhone style={{color:"#1e3a8a"}} />} />
+      </div>
+
+      {/* Dynamic Sections */}
+      {event.sections?.map((s, idx) => (
+        <div key={idx} className="card p-4 mb-4 shadow-sm rounded-4 fade-in">
+          <h5 className="fw-bold text-primary mb-2">{s.title}</h5>
+          <p className="text-secondary lh-base">{s.content}</p>
         </div>
-      ) : (
-        <div className="card p-4 shadow-sm">
-          <h1 className="fw-bold">{event.title}</h1>
-          <p className="text-muted">
-            {event.date || "Date TBD"} • {event.venue || "Venue TBD"}
-          </p>
+      ))}
+
+      {/* Gallery */}
+      {event.media?.length > 0 && (
+        <div className="card p-4 mb-4 shadow-sm rounded-4 fade-in">
+          <h5 className="fw-bold text-primary mb-3">Gallery</h5>
+
+          <div className="row g-3">
+            {event.media.map((m, i) => (
+              <div className="col-sm-6 col-md-4" key={i}>
+                <div className="ratio ratio-16x9 rounded overflow-hidden">
+                  {m.type?.includes("video") ? (
+                    <video src={m.src} controls className="rounded w-100 h-100" />
+                  ) : (
+                    <img src={m.src} alt="" className="img-fluid w-100 h-100 rounded" />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </div>
 
-    {/* Add History Button */}
-    <div className="text-end mb-4">
-      <button className="btn btn-custom-dark bg-black text-light" onClick={() => setShowModal(true)}>
-       <FaClock className="me-1" />Add Event History
-      </button>
-    </div>
-
-    {/* Info Boxes */}
-    <div className="row g-3 mb-4">
-      <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"}   icon={<FaUsers />} />
-      <InfoBox title="Guests" value={event.guests ?? "0"} icon={<FaIdBadge />} />
-      <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"}   icon={<FaMoneyBill />} />
-      <InfoBox title="Fees" value={event.fees ?? "Free"}   icon={<FaWallet />} />
-      <InfoBox title="Venue" value={event.venue ?? "N/A"}    icon={<FaMapMarkerAlt />} />
-      <InfoBox title="Contact" value={event.contact ?? "N/A"}  icon={<FaPhone />} />
-    </div>
-    {/* Dynamic Sections */}
-    {event.sections?.map((s, idx) => (
-      <div key={idx} className="card p-3 mb-4 shadow-sm fade-in">
-        <h5 className="fw-bold mb-2">{s.title}</h5>
-        <p className="mb-0">{s.content}</p>
+      {/* Footer */}
+      <div className="text-end text-muted small mt-3">
+        Report generated: {new Date(event.created_at ?? Date.now()).toLocaleString()}
       </div>
-    ))}
 
-    {/* Gallery */}
-    {event.media?.length > 0 && (
-      <div className="card p-3 shadow-sm mb-4 fade-in">
-        <h5 className="fw-bold mb-3">Gallery</h5>
-        <div className="row g-3">
-          {event.media.map((m, i) => (
-            <div className="col-sm-6 col-md-4" key={i}>
-              <div className="ratio ratio-16x9 rounded">
-                {m.type?.includes("video") ? (
-                  <video src={m.src} controls className="rounded w-100 h-100" />
-                ) : (
-                  <img src={m.src} alt="" className="img-fluid w-100 h-100 rounded" />
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <div className="text-end text-muted small">
-      Report generated: {new Date(event.created_at ?? Date.now()).toLocaleString()}
+      {/* Modal */}
+      <HistoryModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        eventData={event}
+        onSubmit={handleHistorySubmit}
+      />
     </div>
-
-    {/* Modal */}
-    <HistoryModal
-      show={showModal}
-      onHide={() => setShowModal(false)}
-      eventData={event}
-      onSubmit={handleHistorySubmit}
-    />
-  </div></div>
+  </div>
 );
+
 
 }
