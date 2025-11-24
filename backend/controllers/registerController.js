@@ -59,12 +59,12 @@ exports.register = async (req, res) => {
     const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
       result.insertId,
     ]);
-
+     
     const user = data[0];
     res.json({
       status: "success",
       data: {
-        name: user.name,
+        name: user.name, 
         email: user.email,
         event_id: user.event_id,
         registered_at: user.created_at,

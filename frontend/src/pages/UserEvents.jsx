@@ -9,15 +9,18 @@ import {
   FaTrash,
   FaSearch,
   FaPlus,
+   FaHistory
 } from "react-icons/fa";
-
+import HistoryModal from "../components/HistoryModal";
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
 const API_BASE = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
   : "http://localhost:5000";
 
-const UserEvents = () => {
+
+
+  const UserEvents = () => {
   const navigate = useNavigate();
   const [state, setState] = useState({
     user: null,
@@ -31,6 +34,8 @@ const UserEvents = () => {
     sortKey: "",
     sortOrder: "asc",
   });
+const [selectedEvent, setSelectedEvent] = useState(null);
+const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const {
     user,
@@ -49,6 +54,19 @@ const UserEvents = () => {
       setState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
     else navigate("/login");
   }, [navigate]);
+const isPastEvent = (date) => {
+  if (!date) return false;
+  const today = new Date().setHours(0, 0, 0, 0);
+  return new Date(date) < today;
+};
+
+const isTodayEvent = (date) => {
+  if (!date) return false;
+  const today = new Date().setHours(0, 0, 0, 0);
+  const eventDay = new Date(date).setHours(0, 0, 0, 0);
+  return eventDay === today;
+};
+
 
   // --- Fetch Events (Reusable Function) ---
   const fetchEvents = async () => {
@@ -72,6 +90,10 @@ const UserEvents = () => {
       setState((prev) => ({ ...prev, loading: false }));
     }
   };
+const handleHistorySubmit= (event) => {
+  setSelectedEvent(event);
+  setShowHistoryModal(true);
+};
 
   // --- Run once user is loaded ---
   useEffect(() => {
@@ -205,6 +227,10 @@ const UserEvents = () => {
       editEvent: event, // store the current event to edit
     }));
   };
+const handleHistory = (event) => {
+  setSelectedEvent(event);
+  setShowHistoryModal(true);
+};
 
   const filteredEvents = useMemo(() => {
     let items = events.filter((e) =>
@@ -244,6 +270,69 @@ const UserEvents = () => {
       };
     });
   };
+const renderActionButtons = (event) => {
+  const today = new Date().toISOString().split("T")[0];
+  const eventDate = event.date; // make sure this is yyyy-mm-dd format
+
+  // ► PAST EVENTS
+  if (eventDate < today) {
+    return (
+      <div className="d-flex gap-2">
+        <button
+          className="btn btn-sm btn-outline-dark"
+          title="History"
+          onClick={() => handleHistory(event)}
+        >
+          <FaHistory />
+        </button>
+
+        <button
+          className="btn btn-sm btn-outline-danger"
+          title="Delete"
+          onClick={() => handleDeleteEvent(event.id)}
+        >
+          <FaTrash />
+        </button>
+      </div>
+    );
+  }
+
+  // ► TODAY EVENTS
+  if (eventDate === today) {
+    return (
+      <div className="d-flex gap-2">
+        <button
+          className="btn btn-sm btn-outline-danger"
+          title="Delete"
+          onClick={() => handleDeleteEvent(event.id)}
+        >
+          <FaTrash />
+        </button>
+      </div>
+    );
+  }
+
+  // ► FUTURE EVENTS
+  return (
+    <div className="d-flex gap-2">
+      <button
+        className="btn btn-sm btn-outline-success"
+        title="Edit"
+        onClick={() => handleEditEvent(event)}
+      >
+        <FaEdit />
+      </button>
+
+      <button
+        className="btn btn-sm btn-outline-danger"
+        title="Delete"
+        onClick={() => handleDeleteEvent(event.id)}
+      >
+        <FaTrash />
+      </button>
+    </div>
+  );
+};
 
   const totalPages = Math.ceil(filteredEvents.length / rowsPerPage) || 1;
   const currentEvents = useMemo(() => {
@@ -476,25 +565,8 @@ const UserEvents = () => {
                           })()}
                         </td>
 
-                        <td>
-                          <div className="d-flex gap-2">
-                            <button
-                              className="btn btn-sm btn-outline-success"
-                              title="Edit"
-                              onClick={() => handleEditEvent(event)}
-                            >
-                              <FaEdit />
-                            </button>
+                      <td>{renderActionButtons(event)}</td>
 
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              title="Delete"
-                              onClick={() => handleDeleteEvent(event.id)}
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
                       </tr>
                     ))
                   )}
@@ -557,6 +629,18 @@ const UserEvents = () => {
             isEditing={!!state.editEvent} // 👈 pre-fill modal fields
           />
         )}
+      {showHistoryModal && (
+  <HistoryModal
+    key={selectedEvent?.id || Math.random()}
+    show={showHistoryModal}
+    onHide={() => setShowHistoryModal(false)}
+    eventData={selectedEvent}
+    historyData={selectedEvent?.history || null}
+    onSubmit={handleHistorySubmit}
+  />
+)}
+
+
       </div>
     </div>
   );

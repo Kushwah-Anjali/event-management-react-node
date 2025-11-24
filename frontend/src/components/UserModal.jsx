@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUser,
-  faEnvelope,
-  faLock,
-  faPlusCircle,
-  faEdit,
-} from "@fortawesome/free-solid-svg-icons";
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaPlusCircle,
+  FaEdit,
+} from "react-icons/fa";
 
 export default function UserModal({ show, onClose, onSave, editUser }) {
   const [form, setForm] = useState({
@@ -41,7 +40,7 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
     <div
       className="modal fade show d-block"
       tabIndex="-1"
-     style={{
+      style={{
         backgroundColor: "rgba(0,0,0,0.35)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
@@ -51,18 +50,25 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content border-0 shadow-lg rounded-4">
           {/* Header */}
-          <div className="modal-header border-0 flex-column align-items-start pb-0">
-            <h4 className="fw-bold text-dark d-flex align-items-center gap-2">
-              <FontAwesomeIcon
-                icon={form.id ? faEdit : faPlusCircle}
-                className="text-primary"
-              />
+          <div
+            className="modal-header bg-primary flex-column align-items-start border-0 px-4 pt-4 pb-2"
+            style={{
+              borderTopLeftRadius: "1rem",
+              borderTopRightRadius: "1rem",
+            }}
+          >
+            <h5 className="fw-bold d-flex align-items-center gap-2 text-white">
+              {form.id ? (
+                <FaEdit className="text-white" />
+              ) : (
+                <FaPlusCircle className="text-white" />
+              )}
               {form.id ? "Edit User" : "Add User"}
-            </h4>
-            <div className="underline-accent mb-2"></div>
+            </h5>
+
             <button
               type="button"
-              className="btn-close position-absolute top-0 end-0 m-3"
+              className="btn-close btn-close-white position-absolute top-0 end-0 m-3"
               onClick={onClose}
             ></button>
           </div>
@@ -72,7 +78,7 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon icon={faUser} className="text-primary me-2" />
+                  <FaUser className="text-primary me-2" />
                   Full Name
                 </label>
                 <input
@@ -88,10 +94,7 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
 
               <div className="mb-3">
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faEnvelope}
-                    className="text-primary me-2"
-                  />
+                  <FaEnvelope className="text-primary me-2" />
                   Email Address
                 </label>
                 <input
@@ -107,7 +110,7 @@ export default function UserModal({ show, onClose, onSave, editUser }) {
 
               <div className="mb-3">
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon icon={faLock} className="text-primary me-2" />
+                  <FaLock className="text-primary me-2" />
                   {form.id ? "New Password (optional)" : "Password"}
                 </label>
                 <input

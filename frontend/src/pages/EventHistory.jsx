@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import InfoBox from "../components/InfoBox";
-import HistoryModal from "../components/HistoryModal";
+
 import {
   FaArrowLeft,
-  FaClock,
+
   FaUsers,
+  FaRegClock,
   FaIdBadge,
   FaMoneyBill,
   FaWallet,
@@ -26,31 +27,6 @@ export default function EventHistory() {
   const [loading, setLoading] = useState(Boolean(eventId));
   const [error, setError] = useState(null);
 
-  const [showModal, setShowModal] = useState(false);
-
-  // Handle History Submit
-  const handleHistorySubmit = async (formData, eventId) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/history/${eventId}`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const payload = await res.json();
-
-      if (!res.ok || payload.status === "error") {
-        throw new Error(payload.message || "Failed to save history");
-      }
-
-      alert("History saved successfully!");
-      window.location.reload(); // force refresh after upload
-    } catch (err) {
-      alert("Error: " + err.message);
-      console.error(err);
-    }
-
-    setShowModal(false);
-  };
 
   // Fetch Event + History
   useEffect(() => {
@@ -171,15 +147,7 @@ return (
         <button className="btn btn-outline-secondary d-flex align-items-center gap-2" onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back
         </button>
- {/* Add History Button */}
-      <div className="text-end mb-4">
-        <button
-          className="btn btn-dark d-inline-flex align-items-center gap-2 px-4 py-2 rounded-3"
-          onClick={() => setShowModal(true)}
-        >
-          <FaClock /> Add Event History
-        </button>
-      </div>
+
         {event.registerLink && (
           <a
             className="btn btn-primary fw-semibold px-4"
@@ -192,41 +160,41 @@ return (
         )}
       </div>
 
-      {/* Hero Section */}
-      <div className="mb-4 fade-in shadow-sm rounded-4 overflow-hidden">
-        {event.image ? (
-          <div
-            className="eh-hero position-relative"
-            style={{
-              backgroundImage: `url(${event.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              height: "260px",
-            }}
-          >
-            <div
-              className="position-absolute bottom-0 w-100 p-3"
-              style={{
-                background: "linear-gradient(to top, rgba(0,0,0,.7), transparent)",
-              }}
-            >
-              <h2 className="text-white fw-bold mb-1">{event.title}</h2>
-              <p className="text-light small mb-0">
-                {event.date || "Date TBD"} • {event.venue || "Venue TBD"}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="card p-4 shadow-sm rounded-4">
-            <h2 className="fw-bold mb-1">{event.title}</h2>
-            <p className="text-muted small">
-              {event.date || "Date TBD"} • {event.venue || "Venue TBD"}
-            </p>
-          </div>
-        )}
-      </div>
+   {/* Hero Section */}
+<div className="mb-4 fade-in shadow-sm rounded-4 overflow-hidden bg-light">
+  <div className="d-flex flex-column flex-md-row align-items-stretch">
 
-    
+    {/* Image Left */}
+    <div
+      className="flex-shrink-0"
+      style={{
+        width: "100%",
+        maxWidth: "280px",
+        height: "220px",
+        backgroundImage: `url(${event.image || "/placeholder.jpg"})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+       
+      }}
+    ></div>
+
+    {/* Content Right */}
+    <div className="flex-grow-1 p-3 d-flex flex-column justify-content-center">
+      <h2 className="fw-bold mb-2 d-flex align-items-center gap-2">
+       {event.title}
+      </h2>
+
+      <p className="text-muted mb-1 d-flex align-items-center gap-2">
+        <FaRegClock /> {event.date || "Date TBD"}
+      </p>
+
+      <p className="text-muted mb-0 d-flex align-items-center gap-2">
+        <FaMapMarkerAlt /> {event.venue || "Venue TBD"}
+      </p>
+    </div>
+
+  </div>
+</div>
 
       {/* Info Boxes */}
       <div className="row g-3 mb-4">
@@ -272,13 +240,6 @@ return (
         Report generated: {new Date(event.created_at ?? Date.now()).toLocaleString()}
       </div>
 
-      {/* Modal */}
-      <HistoryModal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        eventData={event}
-        onSubmit={handleHistorySubmit}
-      />
     </div>
   </div>
 );

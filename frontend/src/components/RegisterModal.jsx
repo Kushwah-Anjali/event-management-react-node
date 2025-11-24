@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaEnvelope } from "react-icons/fa";
 
 export default function RegisterModal({ show, handleClose, eventId }) {
   const [email, setEmail] = useState("");
@@ -11,17 +12,14 @@ export default function RegisterModal({ show, handleClose, eventId }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  /** 
-   * FIX: Clean body scroll issues AFTER modal closes.
-   * This keeps Bootstrap's internal lifecycle intact.
-   */
+  // Fix: Clean body scroll after modal closes
   useEffect(() => {
     if (!show) {
       setTimeout(() => {
         document.body.classList.remove("modal-open");
         document.body.style.overflow = "auto";
         document.body.style.paddingRight = "0px";
-      }, 250); // give Bootstrap time to finish closing
+      }, 250);
     }
   }, [show]);
 
@@ -31,16 +29,20 @@ export default function RegisterModal({ show, handleClose, eventId }) {
     if (!isEmailChecked) {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5000/api/register/check-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, event_id: eventId }),
-        });
+        const res = await fetch(
+          "http://localhost:5000/api/register/check-email",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, event_id: eventId }),
+          }
+        );
         const data = await res.json();
 
         if (data.status === "found") {
           const userName = data.data[0].name;
           handleClose();
+
           return navigate("/register-details", {
             state: {
               name: userName,
@@ -106,19 +108,30 @@ export default function RegisterModal({ show, handleClose, eventId }) {
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
-      <Form onSubmit={handleSubmit} className="p-3 rounded-3 shadow-sm">
+    <Modal show={show} onHide={handleClose} centered backdrop="static">
+      <Form onSubmit={handleSubmit} className="rounded-4 shadow-sm">
+        {/* Header */}
         <div className="modal-header bg-primary text-white rounded-top">
-          <h5 className="modal-title">
-            <i className="bi bi-calendar-plus me-2"></i> Register Here
+          <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
+            Register Here
           </h5>
-          <Button variant="close" onClick={handleClose} className="btn-close-white"></Button>
+          <Button
+            variant="close"
+            onClick={handleClose}
+            className="btn-close-white"
+          ></Button>
         </div>
 
-        <Modal.Body>
+        {/* Body */}
+        <Modal.Body className="px-4">
+          {/* Email */}
           {!isEmailChecked && (
             <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
+              <Form.Label className="fw-semibold d-flex align-items-center gap-2">
+                <FaEnvelope className="text-primary" />
+                Email
+              </Form.Label>
+
               <Form.Control
                 type="email"
                 placeholder="Enter your Email"
@@ -129,9 +142,10 @@ export default function RegisterModal({ show, handleClose, eventId }) {
             </Form.Group>
           )}
 
+          {/* Name */}
           {isEmailChecked && !alreadyRegistered && (
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label className="fw-semibold">Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter your Name"
@@ -143,10 +157,36 @@ export default function RegisterModal({ show, handleClose, eventId }) {
           )}
         </Modal.Body>
 
+        {/* Footer */}
         <Modal.Footer>
-          <Button variant="primary" type="submit" disabled={loading}>
-            {loading ? "Processing..." : isEmailChecked ? "Submit" : "Next"}
-          </Button>
+          <div className="d-flex justify-content-end gap-2 w-100">
+            <Button
+              variant="outline-secondary"
+              type="button"
+              onClick={handleClose}
+              className="rounded-pill px-3"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={loading}
+              className="rounded-pill px-3"
+            >
+              {loading ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Processing...
+                </>
+              ) : isEmailChecked ? (
+                "Submit"
+              ) : (
+                "Next"
+              )}
+            </Button>
+          </div>
         </Modal.Footer>
       </Form>
     </Modal>
