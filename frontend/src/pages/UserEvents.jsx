@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/UserEvents.css";
 import InfoBox from "../components/InfoBox";
 import Logout from "../components/Logout";
+import axios from "axios";
 import {
   FaUserCircle,
   FaEdit,
@@ -11,7 +12,7 @@ import {
   FaPlus,
    FaHistory
 } from "react-icons/fa";
-import HistoryModal from "../components/HistoryModal";
+
 import Addeventmodal from "../components/Addeventmodal";
 import Swal from "sweetalert2";
 const API_BASE = process.env.REACT_APP_API_URL
@@ -34,8 +35,7 @@ const API_BASE = process.env.REACT_APP_API_URL
     sortKey: "",
     sortOrder: "asc",
   });
-const [selectedEvent, setSelectedEvent] = useState(null);
-const [showHistoryModal, setShowHistoryModal] = useState(false);
+
 
   const {
     user,
@@ -54,18 +54,6 @@ const [showHistoryModal, setShowHistoryModal] = useState(false);
       setState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
     else navigate("/login");
   }, [navigate]);
-const isPastEvent = (date) => {
-  if (!date) return false;
-  const today = new Date().setHours(0, 0, 0, 0);
-  return new Date(date) < today;
-};
-
-const isTodayEvent = (date) => {
-  if (!date) return false;
-  const today = new Date().setHours(0, 0, 0, 0);
-  const eventDay = new Date(date).setHours(0, 0, 0, 0);
-  return eventDay === today;
-};
 
 
   // --- Fetch Events (Reusable Function) ---
@@ -90,10 +78,7 @@ const isTodayEvent = (date) => {
       setState((prev) => ({ ...prev, loading: false }));
     }
   };
-const handleHistorySubmit= (event) => {
-  setSelectedEvent(event);
-  setShowHistoryModal(true);
-};
+
 
   // --- Run once user is loaded ---
   useEffect(() => {
@@ -228,9 +213,9 @@ const handleHistorySubmit= (event) => {
     }));
   };
 const handleHistory = (event) => {
-  setSelectedEvent(event);
-  setShowHistoryModal(true);
+  navigate("/history", { state: { eventId: event.id } });
 };
+
 
   const filteredEvents = useMemo(() => {
     let items = events.filter((e) =>
@@ -629,17 +614,7 @@ const renderActionButtons = (event) => {
             isEditing={!!state.editEvent} // 👈 pre-fill modal fields
           />
         )}
-      {showHistoryModal && (
-  <HistoryModal
-    key={selectedEvent?.id || Math.random()}
-    show={showHistoryModal}
-    onHide={() => setShowHistoryModal(false)}
-    eventData={selectedEvent}
-    historyData={selectedEvent?.history || null}
-    onSubmit={handleHistorySubmit}
-  />
-)}
-
+    
 
       </div>
     </div>

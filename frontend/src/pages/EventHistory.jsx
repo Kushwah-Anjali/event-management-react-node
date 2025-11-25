@@ -27,6 +27,7 @@ export default function EventHistory() {
   const [loading, setLoading] = useState(Boolean(eventId));
   const [error, setError] = useState(null);
 
+const [history, setHistory] = useState(null);
 
   // Fetch Event + History
   useEffect(() => {

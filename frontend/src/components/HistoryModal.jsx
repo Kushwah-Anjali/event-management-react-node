@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import { 
+  FaUserFriends, FaFileAlt, FaCamera, FaVideo, FaList, FaMoneyBillWave, FaBook 
+} from "react-icons/fa";
 
 const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -14,11 +17,10 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
     videos: [],
   });
 
-  const [existingMedia, setExistingMedia] = useState([]); // OLD media
+  const [existingMedia, setExistingMedia] = useState([]);
   const [photoPreview, setPhotoPreview] = useState([]);
   const [videoPreview, setVideoPreview] = useState([]);
 
-  // Reset + preload history if exists
   useEffect(() => {
     if (show && historyData) {
       setFormData({
@@ -32,90 +34,73 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
         photos: [],
         videos: [],
       });
-
-      const existing = Array.isArray(historyData.media) ? historyData.media : [];
-      setExistingMedia(existing);
+      setExistingMedia(Array.isArray(historyData.media) ? historyData.media : []);
       setPhotoPreview([]);
       setVideoPreview([]);
     }
   }, [show, historyData]);
 
-  // Text fields
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // File uploads
   const handleFileChange = (e, type) => {
     const files = [...e.target.files];
-
     if (type === "photos") {
       setFormData({ ...formData, photos: files });
       setPhotoPreview(files.map((f) => URL.createObjectURL(f)));
     }
-
     if (type === "videos") {
       setFormData({ ...formData, videos: files });
       setVideoPreview(files.map((f) => URL.createObjectURL(f)));
     }
   };
 
-  // Delete an existing image
   const removeExistingMedia = (url) => {
     setExistingMedia((prev) => prev.filter((m) => m.url !== url));
   };
 
-  // Submit
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formDataToSend = new FormData();
-
-    formDataToSend.append("summary", formData.summary);
-    formDataToSend.append("highlights", formData.highlights);
-    formDataToSend.append("attendees", formData.attendees_count);
-    formDataToSend.append("guests", formData.guests);
-    formDataToSend.append("budget", formData.budget_spent);
-    formDataToSend.append("long_summary", formData.long_summary);
-    formDataToSend.append("lessons", formData.lessons_learned);
-
-    // Send list of existing media that user kept
-    formDataToSend.append("existingMedia", JSON.stringify(existingMedia));
-
-    // Add new uploaded files
-    [...formData.photos, ...formData.videos].forEach((file) =>
-      formDataToSend.append("media", file)
-    );
-
-    onSubmit(formDataToSend, eventData.id);
+    const fd = new FormData();
+    fd.append("summary", formData.summary);
+    fd.append("highlights", formData.highlights);
+    fd.append("attendees", formData.attendees_count);
+    fd.append("guests", formData.guests);
+    fd.append("budget", formData.budget_spent);
+    fd.append("lessons", formData.lessons_learned);
+    fd.append("long_summary", formData.long_summary);
+    fd.append("existingMedia", JSON.stringify(existingMedia));
+    [...formData.photos, ...formData.videos].forEach((f) => fd.append("media", f));
+    onSubmit(fd, eventData.id);
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered scrollable>
-      <div className="modal-content border-primary">
+       <div
+      className="modal show d-flex align-items-center justify-content-center"
+      style={{
+        backgroundColor: "rgba(0,0,0,0.35)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+        transition: "opacity 0.25s ease",
+      }}
+    >
+    <Modal show={show} onHide={onHide} centered scrollable>
+      <Modal.Header className="bg-primary text-white">
+        <Modal.Title>
+          <FaFileAlt className="me-2" /> Event History
+        </Modal.Title>
+        <Button variant="close" onClick={onHide} className="btn-close-white" />
+      </Modal.Header>
 
-        {/* Header */}
-        <div className="modal-header bg-primary text-white">
-          <h5 className="modal-title">
-            <i className="bi bi-clock-history me-2"></i> Event History
-          </h5>
-          <Button variant="close" onClick={onHide} className="btn-close-white" />
-        </div>
-
-        <Form onSubmit={handleSubmit} className="modal-body">
-
-          <Alert variant="primary" className="py-2">
+      <Form onSubmit={handleSubmit}>
+        <Modal.Body style={{ maxHeight: "65vh", overflowY: "auto" }}>
+          <h6 className="mb-3">
             <strong>{eventData?.title}</strong> ({eventData?.date})
-          </Alert>
-
-          <div className="mb-3 small text-muted">
-            <strong>Venue:</strong> {eventData?.venue} <br />
-            <strong>Author:</strong> {eventData?.author}
-          </div>
-
-          {/* Summary */}
+          </h6>
+ 
           <Form.Group className="mb-3">
-            <Form.Label>Event Summary *</Form.Label>
+            <Form.Label><FaFileAlt className="me-1 text-primary" /> Summary <span  className="star">*</span></Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -126,94 +111,8 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
             />
           </Form.Group>
 
-          {/* Existing Media */}
-          {existingMedia.length > 0 && (
-            <div className="mb-3">
-              <h6>Existing Media</h6>
-              <div className="d-flex flex-wrap">
-                {existingMedia.map((m, i) => (
-                  <div key={i} className="me-2 mb-2 position-relative">
-                    {m.type.startsWith("image") ? (
-                      <img
-                        src={`http://localhost:5000/history/${m.url}`}
-                        className="img-thumbnail"
-                        style={{ height: "80px" }}
-                      />
-                    ) : (
-                      <video
-                        src={`http://localhost:5000/history/${m.url}`}
-                        controls
-                        className="img-thumbnail"
-                        style={{ height: "80px" }}
-                      />
-                    )}
-
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      className="position-absolute top-0 end-0"
-                      onClick={() => removeExistingMedia(m.url)}
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* New photo preview */}
-          {photoPreview.length > 0 && (
-            <div className="mb-2 d-flex flex-wrap">
-              {photoPreview.map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  className="img-thumbnail me-2 mb-2"
-                  style={{ height: "80px" }}
-                />
-              ))}
-            </div>
-          )}
-
           <Form.Group className="mb-3">
-            <Form.Label>Upload Photos</Form.Label>
-            <Form.Control
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => handleFileChange(e, "photos")}
-            />
-          </Form.Group>
-
-          {/* New video preview */}
-          {videoPreview.length > 0 && (
-            <div className="mb-2 d-flex flex-wrap">
-              {videoPreview.map((src, i) => (
-                <video
-                  key={i}
-                  src={src}
-                  controls
-                  className="me-2 mb-2"
-                  style={{ height: "80px" }}
-                />
-              ))}
-            </div>
-          )}
-
-          <Form.Group className="mb-3">
-            <Form.Label>Upload Videos</Form.Label>
-            <Form.Control
-              type="file"
-              multiple
-              accept="video/*"
-              onChange={(e) => handleFileChange(e, "videos")}
-            />
-          </Form.Group>
-
-          {/* Highlights */}
-          <Form.Group className="mb-3">
-            <Form.Label>Success Highlights</Form.Label>
+            <Form.Label><FaList className="me-1 text-primary" /> Success Highlights</Form.Label>
             <Form.Control
               as="textarea"
               rows={2}
@@ -223,10 +122,9 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
             />
           </Form.Group>
 
-          {/* Stats */}
           <Row>
             <Col md={4} className="mb-3">
-              <Form.Label>Total Attendees</Form.Label>
+              <Form.Label><FaUserFriends className="me-1 text-primary" /> Attendees</Form.Label>
               <Form.Control
                 type="number"
                 name="attendees_count"
@@ -234,9 +132,8 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
                 onChange={handleChange}
               />
             </Col>
-
             <Col md={4} className="mb-3">
-              <Form.Label>Speakers/Guests</Form.Label>
+              <Form.Label><FaUserFriends className="me-1 text-primary" /> Guests</Form.Label>
               <Form.Control
                 type="text"
                 name="guests"
@@ -244,9 +141,8 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
                 onChange={handleChange}
               />
             </Col>
-
             <Col md={4} className="mb-3">
-              <Form.Label>Budget Used (₹)</Form.Label>
+              <Form.Label><FaMoneyBillWave className="me-1 text-primary"  /> Budget (₹)</Form.Label>
               <Form.Control
                 type="number"
                 name="budget_spent"
@@ -256,9 +152,8 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
             </Col>
           </Row>
 
-          {/* Lessons */}
           <Form.Group className="mb-3">
-            <Form.Label>Lessons Learned</Form.Label>
+            <Form.Label><FaBook className="me-1 text-primary" /> Lessons Learned</Form.Label>
             <Form.Control
               as="textarea"
               rows={2}
@@ -268,9 +163,44 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
             />
           </Form.Group>
 
-          {/* Long Summary */}
           <Form.Group className="mb-3">
-            <Form.Label>Long Summary</Form.Label>
+            <Form.Label><FaCamera className="me-1 text-primary" /> Upload Photos</Form.Label>
+            <Form.Control
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleFileChange(e, "photos")}
+            />
+          </Form.Group>
+
+          {photoPreview.length > 0 && (
+            <div className="d-flex flex-wrap mb-3">
+              {photoPreview.map((src, i) => (
+                <img key={i} src={src} alt="" className="img-thumbnail me-2 mb-2" style={{ height: "80px" }} />
+              ))}
+            </div>
+          )}
+
+          <Form.Group className="mb-3">
+            <Form.Label><FaVideo className="me-1 text-primary" /> Upload Videos</Form.Label>
+            <Form.Control
+              type="file"
+              multiple
+              accept="video/*"
+              onChange={(e) => handleFileChange(e, "videos")}
+            />
+          </Form.Group>
+
+          {videoPreview.length > 0 && (
+            <div className="d-flex flex-wrap mb-3">
+              {videoPreview.map((src, i) => (
+                <video key={i} src={src} controls className="me-2 mb-2" style={{ height: "80px" }} />
+              ))}
+            </div>
+          )}
+
+          <Form.Group className="mb-3">
+            <Form.Label><FaFileAlt className="me-1 text-primary" /> Long Summary</Form.Label>
             <Form.Control
               as="textarea"
               rows={5}
@@ -279,15 +209,16 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
               onChange={handleChange}
             />
           </Form.Group>
+        </Modal.Body>
 
-          <div className="text-end">
-            <Button type="submit" variant="primary">
-              <i className="bi bi-upload me-2"></i> Save History
-            </Button>
-          </div>
-        </Form>
-      </div>
+        <Modal.Footer className="position-sticky bottom-0 bg-white border-top py-2">
+          <Button type="submit" variant="primary">
+            <FaFileAlt className="text-primary"/>Save History
+          </Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
+    </div>
   );
 };
 

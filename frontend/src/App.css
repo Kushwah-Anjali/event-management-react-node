@@ -43,6 +43,9 @@
   animation: fadeIn 0.5s ease;
   display: block;
 }
+.star{
+  color:red;
+}
 
 
 /* Fade-in animation */

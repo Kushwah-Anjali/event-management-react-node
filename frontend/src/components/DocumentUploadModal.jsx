@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
+import { FaUpload, FaFolderOpen } from "react-icons/fa";
 
 const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [requiredDocs, setRequiredDocs] = useState([]);
@@ -94,8 +95,9 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
 
   return (
     <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Upload Required Documents</Modal.Title>
+      <Modal.Header closeButton className="bg-primary">
+        <Modal.Title  className="fw-bold d-flex align-items-center gap-2 text-white">
+             <FaUpload className="text-white" />Upload Required Docs</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -140,7 +142,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
 
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose} disabled={loading}>
-          Close
+          Cancle
         </Button>
 
         <Button

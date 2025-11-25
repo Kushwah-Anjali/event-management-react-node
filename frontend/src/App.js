@@ -8,6 +8,7 @@ import Users from "./pages/Users";
 import UserEvents from "./pages/UserEvents";
 import RegisterDetails from "./pages/RegisterDetails";
 import EventHistory from "./pages/EventHistory";
+import HistoryPage from "./pages/HistoryPage";
 import './App.css';
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
         <Route path="/userevents" element={<UserEvents />} />
           <Route path="/register-details" element={<RegisterDetails />} />
     <Route path="/event-history" element ={<EventHistory />}/>
+  <Route path="/history" element={<HistoryPage />} />
+
+
       </Routes>
       <Footer />
     </Router>

@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Select from "react-select";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faArrowLeft,
-  faArrowRight,
-  faPlusCircle,
-  faCheckCircle,
-  faHeading,
-  faTags,
-  faAlignLeft,
-  faCalendarDays,
-  faUser,
-  faLocationDot,
-  faMoneyBillWave,
-  faPhone,
-  faImage,
-  faFileLines,
-} from "@fortawesome/free-solid-svg-icons";
+  FaArrowLeft,
+  FaArrowRight,
+  FaPlusCircle,
+  FaCheckCircle,
+  FaTags,
+  FaAlignLeft,
+  FaCalendar,
+  FaUser,
+  FaMapMarkerAlt,
+  FaMoneyBillWave,
+  FaPhone,
+  FaImage,
+  FaFileAlt,
+} from "react-icons/fa";
+
 import { EventCategory } from "./EventCategory";
 const getFullImageUrl = (imagePath) => {
   if (!imagePath) return "";
@@ -276,7 +275,7 @@ export default function AddEventModal({
 
   const renderCheckIcon = (field) =>
     !errors[field] && data[field] ? (
-      <FontAwesomeIcon icon={faCheckCircle} className="text-success ms-2" />
+      <faCheckCircle className="me-2 text-primary" />
     ) : null;
 
   return (
@@ -301,10 +300,8 @@ export default function AddEventModal({
           {/* Header */}
           <div className="modal-header bg-primary flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2 text-white">
-              <FontAwesomeIcon
-                icon={isEditing ? faCheckCircle : faPlusCircle}
-                className={isEditing ? "text-warning" : "text-white"}
-              />{" "}
+             {isEditing ? <FaCheckCircle className="text-light" /> : <FaPlusCircle  className="me-2 text-light"/>}
+{" "}
               {isEditing ? "Update Event" : "Add Event"}
             </h5>
 
@@ -341,11 +338,9 @@ export default function AddEventModal({
             {step === 0 && (
               <>
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faHeading}
-                    className="me-2 text-primary"
+                  < FaFileAlt className="me-2 text-primary"
                   />{" "}
-                  Event Title *
+                  Event Title <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -361,11 +356,10 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faTags}
-                    className="me-2 text-primary"
+                < FaTags className="me-2 text-primary"
+                    
                   />{" "}
-                  Category *
+                  Category <span  className="star">*</span>
                 </label>
                 <Select
                   options={EventCategory}
@@ -376,9 +370,7 @@ export default function AddEventModal({
                 />
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faAlignLeft}
-                    className="me-2 text-primary"
+                  <FaAlignLeft className="me-2 text-primary"                   
                   />{" "}
                   Description
                 </label>
@@ -391,11 +383,10 @@ export default function AddEventModal({
                 />
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faCalendarDays}
-                    className="me-2 text-primary"
+                  <  FaCalendar
+                   className="me-2 text-primary"
                   />{" "}
-                  Date *
+                  Date <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -415,11 +406,10 @@ export default function AddEventModal({
             {step === 1 && (
               <>
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="me-2 text-primary"
+                  < FaUser className="me-2 text-primary"
+                 
                   />{" "}
-                  Organizer *
+                  Organizer <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -435,11 +425,10 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faLocationDot}
-                    className="me-2 text-primary"
+                  <               FaMapMarkerAlt className="me-2 text-primary"
+  
                   />{" "}
-                  Venue *
+                  Venue <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -454,11 +443,9 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faMoneyBillWave}
-                    className="me-2 text-primary"
+                  <FaMoneyBillWave className="me-2 text-primary"
                   />{" "}
-                  Fees *
+                  Fees <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -474,11 +461,10 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faPhone}
-                    className="me-2 text-primary"
+                  <FaPhone className="me-2 text-primary"
+                    
                   />{" "}
-                  Contact *
+                  Contact <span  className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -498,11 +484,8 @@ export default function AddEventModal({
             {step === 2 && (
               <>
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faImage}
-                    className="me-2 text-primary"
-                  />{" "}
-                  Upload Image *
+                  <FaImage   className="me-2 text-primary"    />{" "}
+                  Upload Image <span  className="star">*</span>
                 </label>
                 <input
                   type="file"
@@ -534,9 +517,8 @@ export default function AddEventModal({
             {step === 3 && (
               <>
                 <label className="form-label fw-semibold">
-                  <FontAwesomeIcon
-                    icon={faFileLines}
-                    className="me-2 text-primary"
+                 <      FaFileAlt className="me-2 text-primary"
+                   
                   />{" "}
                   Required Documents
                 </label>
@@ -569,7 +551,7 @@ export default function AddEventModal({
                 className="btn btn-outline-secondary rounded-pill px-4"
                 onClick={handlePrev}
               >
-                <FontAwesomeIcon icon={faArrowLeft} /> Previous
+                <FaArrowLeft  className="me-2 text-light"/> Previous
               </button>
             )}
             {step < totalSteps - 1 && (
@@ -579,7 +561,7 @@ export default function AddEventModal({
                 onClick={handleNext}
                 disabled={!validateStep(step)}
               >
-                Next <FontAwesomeIcon icon={faArrowRight} />
+                Next <FaArrowRight className="me-2 text-light" />
               </button>
             )}
             {step === totalSteps - 1 && (
@@ -589,7 +571,7 @@ export default function AddEventModal({
                   isEditing ? "btn-warning" : "btn-success"
                 } rounded-pill px-4`}
               >
-                <FontAwesomeIcon icon={faPlusCircle} />{" "}
+                <FaPlusCircle className="me-2 text-light"/>{" "}
                 {isEditing ? "Update Event" : "Add Event"}
               </button>
             )}
