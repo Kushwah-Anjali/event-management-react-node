@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/UserEvents.css";
 import InfoBox from "../components/InfoBox";
 import Logout from "../components/Logout";
-import axios from "axios";
+import Addeventmodal from "../components/Addeventmodal";
+import ColumnsModal from "../components/ColumsModal.jsx";
 import {
   FaUserCircle,
   FaEdit,
@@ -13,8 +14,9 @@ import {
    FaHistory
 } from "react-icons/fa";
 
-import Addeventmodal from "../components/Addeventmodal";
+
 import Swal from "sweetalert2";
+
 const API_BASE = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
   : "http://localhost:5000";
@@ -325,23 +327,41 @@ const renderActionButtons = (event) => {
     return filteredEvents.slice(startIdx, startIdx + rowsPerPage);
   }, [filteredEvents, currentPage, rowsPerPage]);
 
-  const columns = useMemo(
-    () => [
-      { key: "sno", label: "S.No" },
-      { key: "title", label: "Title" },
-      { key: "category", label: "Category" },
-      { key: "description", label: "Description" },
-      { key: "date", label: "Date" },
-      { key: "author", label: "Organizer" },
-      { key: "venue", label: "Venue" },
-      { key: "fees", label: "Fees" },
-      { key: "contact", label: "Contact" },
-      { key: "image", label: "Image" },
-      { key: "required_docs", label: "Documents" },
-      { key: "actions", label: "Actions" },
-    ],
-    []
-  );
+const columns = [
+ 
+ 
+  { key: "category", label: "Category" },
+  { key: "description", label: "Description" },
+  { key: "venue", label: "Venue" },
+  { key: "author", label: "Author" },
+  { key: "fees", label: "Fees" },
+  { key: "required_documents", label: "Required Docs" },
+  { key: "contact", label: "Contact" },
+  { key: "date", label: "Date" },
+  { key: "image", label: "Image" },
+ 
+];
+
+const [visibleColumns, setVisibleColumns] = useState({
+  sno: true,
+  title: true,
+  category: true,
+  date: true,
+  actions: true,
+
+  // hidden by default
+  description: false,
+  venue: false,
+  author: false,
+  fees: false,
+  required_documents: false,
+  contact: false,
+  image: false,
+});
+
+const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+
+
 
   return (
     <div className="users-event-page">
@@ -424,6 +444,13 @@ const renderActionButtons = (event) => {
                   <option value={10}>10 rows</option>
                   <option value={20}>20 rows</option>
                 </select>
+                <button
+  className="btn btn-outline-dark ms-2"
+  onClick={() => setIsColumnModalOpen(true)}
+>
+  Column Settings
+</button>
+
               </div>
 
               {/* RIGHT SIDE: Add Event */}
@@ -440,122 +467,115 @@ const renderActionButtons = (event) => {
 
             {/* Table */}
             <div className="table-responsive rounded">
-              <table className="table  table-hover align-middle mb-0">
-                <thead className="table-primary">
-                  <tr>
-                    {columns.map((col) => {
-                      const nonSortableKeys = [
-                        "image",
-                        "required_docs",
-                        "actions",
-                      ];
-                      const isSortable = !nonSortableKeys.includes(col.key);
+              <table className="table table-hover table-bordered align-middle mb-0">
+     <thead className="table-primary">
+  <tr>
+    {/* FIXED COLUMNS */}
+    <th className="fw-semibold">S. No</th>
+    <th className="fw-semibold">Title</th>
 
-                      return (
-                        <th
-                          key={col.key}
-                          className="fw-semibold"
-                          style={{
-                            cursor: isSortable ? "pointer" : "default",
-                            userSelect: "none",
-                          }}
-                          onClick={() => isSortable && handleSort(col.key)}
-                        >
-                          {col.label}
+    {/* DYNAMIC COLUMNS */}
+    {columns.map((col) =>
+      visibleColumns[col.key] && (
+        <th
+          key={col.key}
+          className="fw-semibold"
+          style={{
+            cursor: ["image"].includes(col.key) ? "default" : "pointer",
+            userSelect: "none",
+          }}
+          onClick={() =>
+            !["image"].includes(col.key) && handleSort(col.key)
+          }
+        >
+          {col.label}
 
-                          {/* Sorting Indicators */}
-                          {isSortable && (
-                            <span className="ms-1 ">
-                              {state.sortKey === col.key
-                                ? state.sortOrder === "asc"
-                                  ? "▲"
-                                  : "▼"
-                                : "⇅"}
-                            </span>
-                          )}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
+          {/* Sorting indicator */}
+          {!["image"].includes(col.key) && (
+            <span className="ms-1">
+              {state.sortKey === col.key
+                ? state.sortOrder === "asc"
+                  ? "▲"
+                  : "▼"
+                : "⇅"}
+            </span>
+          )}
+        </th>
+      )
+    )}
 
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan={columns.length} className="text-center py-4">
-                        Loading events...
-                      </td>
-                    </tr>
-                  ) : currentEvents.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={columns.length}
-                        className="text-center py-4 text-muted"
-                      >
-                        No events found
-                      </td>
-                    </tr>
-                  ) : (
-                    currentEvents.map((event, idx) => (
-                      <tr key={event.id}>
-                        <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
-                        <td>{event.title}</td>
-                        <td>{event.category || "-"}</td>
-                        <td
-                          className="text-truncate"
-                          style={{ maxWidth: "150px" }}
-                        >
-                          {event.description || "-"}
-                        </td>
-                        <td>
-                          {event.date
-                            ? new Date(event.date).toLocaleDateString()
-                            : "-"}
-                        </td>
-                        <td>{event.author || "-"}</td>
-                        <td>{event.venue || "-"}</td>
-                        <td>{event.fees ? `₹${event.fees}` : "-"}</td>
-                        <td>{event.contact || "-"}</td>
-                        <td>
-                          {event.image ? (
-                            <img
-                              src={event.image}
-                              alt="Event"
-                              className="rounded"
-                              width="50"
-                            />
-                          ) : (
-                            "-"
-                          )}
-                        </td>
+    {/* FIXED ACTIONS COLUMN */}
+    <th className="fw-semibold">Actions</th>
+  </tr>
+</thead>
 
-                        <td>
-                          {(() => {
-                            const docs = event.required_documents;
-                            if (!docs) return "-";
-                            if (typeof docs === "string") {
-                              try {
-                                const parsed = JSON.parse(docs);
-                                return Array.isArray(parsed)
-                                  ? parsed.join(", ")
-                                  : docs;
-                              } catch {
-                                return docs.includes(",")
-                                  ? docs
-                                  : docs.split(" ").join(", ");
-                              }
-                            }
-                            if (Array.isArray(docs)) return docs.join(", ");
-                            return "-";
-                          })()}
-                        </td>
 
-                      <td>{renderActionButtons(event)}</td>
 
-                      </tr>
-                    ))
-                  )}
-                </tbody>
+
+    <tbody>
+  {currentEvents.map((event, idx) => (
+    <tr key={event.id}>
+
+      {/* FIXED S.NO */}
+      <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+
+      {/* FIXED TITLE */}
+      <td>{event.title}</td>
+
+      {/* DYNAMIC FIELDS */}
+      {visibleColumns.category && <td>{event.category || "-"}</td>}
+
+      {visibleColumns.description && (
+        <td className="text-truncate">{event.description || "-"}</td>
+      )}
+
+      {visibleColumns.venue && <td>{event.venue || "-"}</td>}
+
+      {visibleColumns.author && <td>{event.author || "-"}</td>}
+
+      {visibleColumns.fees && <td>{event.fees || "-"}</td>}
+
+   {visibleColumns.required_documents && (
+  <td>
+    {Array.isArray(event.required_documents)
+      ? event.required_documents.join(", ")
+      : event.required_documents || "-"}
+  </td>
+)}
+
+      {visibleColumns.contact && <td>{event.contact || "-"}</td>}
+
+      {visibleColumns.date && (
+        <td>
+          {event.date
+            ? new Date(event.date).toLocaleDateString()
+            : "-"}
+        </td>
+      )}
+
+      {visibleColumns.image && (
+        <td>
+          {event.image ? (
+            <img
+              src={event.image}
+              width={50}
+              height={50}
+              className="rounded"
+            />
+          ) : (
+            "-"
+          )}
+        </td>
+      )}
+
+      {/* FIXED ACTIONS */}
+      <td>{renderActionButtons(event)}</td>
+    </tr>
+  ))}
+</tbody>
+
+
+
               </table>
             </div>
           </div>
@@ -614,7 +634,15 @@ const renderActionButtons = (event) => {
             isEditing={!!state.editEvent} // 👈 pre-fill modal fields
           />
         )}
-    
+   <ColumnsModal
+  open={isColumnModalOpen}
+  onClose={() => setIsColumnModalOpen(false)}
+  columns={columns}
+  visibleColumns={visibleColumns}
+  onChange={setVisibleColumns}
+/>
+
+
 
       </div>
     </div>

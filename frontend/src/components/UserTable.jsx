@@ -197,7 +197,7 @@ export default function UserTable() {
           <table className="table table-hover table-bordered align-middle mb-0">
             <thead className="table-primary">
               <tr>
-                <th>#</th>
+                <th>S.No</th>
                 <th
                   onClick={() => handleSort("name")}
                   style={{ cursor: "pointer" }}

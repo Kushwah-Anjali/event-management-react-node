@@ -7,7 +7,7 @@ import {
   Button,
   Modal,
   ProgressBar,
-  Spinner,
+  
 } from "react-bootstrap";
 
 import "../styles/Contact.css";
