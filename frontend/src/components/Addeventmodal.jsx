@@ -290,12 +290,7 @@ export default function AddEventModal({
   return (
     <div
       className="modal show d-flex align-items-center justify-content-center"
-      style={{
-        backgroundColor: "rgba(0,0,0,0.35)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
-        transition: "opacity 0.25s ease",
-      }}
+     
     >
       <div
         className="modal-dialog d-flex flex-column"

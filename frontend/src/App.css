@@ -2,6 +2,12 @@
 .modal.show {
   animation: fadeInModal 0.25s ease forwards;
 }
+.modal{
+     background:rgba(0,0,0,0.35);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        transition: opacity 0.25s ease;
+}
 
 /* Inputs and selects */
 .modal-content input.form-control,
@@ -46,7 +52,17 @@
 .star{
   color:red;
 }
+.modal-header{
+      background: linear-gradient(135deg, #007bff, #6f42c1);
+}
+.input-group{
+  border: 1px solid black;
+  border-radius: 0.37rem;
+}
+.form-select{
+  border: 1px solid black;
 
+}
 
 /* Fade-in animation */
 @keyframes fadeInModal {

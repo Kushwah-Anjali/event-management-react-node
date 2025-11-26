@@ -153,7 +153,7 @@ export default function UserTable() {
         <div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
           <div className="d-flex align-items-center gap-2 flex-grow-1 flex-wrap">
             {/* Search */}
-            <div className="input-group" style={{ maxWidth: "300px" }}>
+            <div className="input-group" style={{ maxWidth: "300px"  }}>
               <span className="input-group-text bg-white">
                 <FaSearch />
               </span>

@@ -1,8 +1,8 @@
-/* iOS style toggle switch */
+/* Slim & responsive toggle switch */
 .switch {
   position: relative;
-  width: 45px;
-  height: 24px;
+  width: 42px;
+  height: 20px;
   display: inline-block;
 }
 
@@ -10,31 +10,41 @@
   display: none;
 }
 
+/* Background track */
 .slider {
   position: absolute;
   inset: 0;
-  background: #ccc;
-  border-radius: 25px;
+  background: #cfcfcf;
+  border-radius: 20px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
+/* Knob */
 .slider:before {
   content: "";
   position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background: white;
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
   border-radius: 50%;
-  transition: 0.3s;
+  transition: transform 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
+/* ON STATE */
 input:checked + .slider {
   background: #0d6efd;
+  box-shadow: 0 0 4px rgba(13, 110, 253, 0.5);
 }
 
 input:checked + .slider:before {
-  transform: translateX(21px);
+  transform: translateX(22px);
+}
+
+/* Click feedback */
+.slider:active:before {
+  width: 20px;
 }

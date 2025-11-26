@@ -11,9 +11,9 @@ import {
   FaTrash,
   FaSearch,
   FaPlus,
-   FaHistory
+  FaHistory,
+   FaCog,
 } from "react-icons/fa";
-
 
 import Swal from "sweetalert2";
 
@@ -21,9 +21,7 @@ const API_BASE = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
   : "http://localhost:5000";
 
-
-
-  const UserEvents = () => {
+const UserEvents = () => {
   const navigate = useNavigate();
   const [state, setState] = useState({
     user: null,
@@ -37,7 +35,6 @@ const API_BASE = process.env.REACT_APP_API_URL
     sortKey: "",
     sortOrder: "asc",
   });
-
 
   const {
     user,
@@ -56,7 +53,6 @@ const API_BASE = process.env.REACT_APP_API_URL
       setState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
     else navigate("/login");
   }, [navigate]);
-
 
   // --- Fetch Events (Reusable Function) ---
   const fetchEvents = async () => {
@@ -80,7 +76,6 @@ const API_BASE = process.env.REACT_APP_API_URL
       setState((prev) => ({ ...prev, loading: false }));
     }
   };
-
 
   // --- Run once user is loaded ---
   useEffect(() => {
@@ -214,10 +209,9 @@ const API_BASE = process.env.REACT_APP_API_URL
       editEvent: event, // store the current event to edit
     }));
   };
-const handleHistory = (event) => {
-  navigate("/history", { state: { eventId: event.id } });
-};
-
+  const handleHistory = (event) => {
+    navigate("/history", { state: { eventId: event.id } });
+  };
 
   const filteredEvents = useMemo(() => {
     let items = events.filter((e) =>
@@ -257,20 +251,57 @@ const handleHistory = (event) => {
       };
     });
   };
-const renderActionButtons = (event) => {
-  const today = new Date().toISOString().split("T")[0];
-  const eventDate = event.date; // make sure this is yyyy-mm-dd format
+  const renderActionButtons = (event) => {
+    const today = new Date().toISOString().split("T")[0];
+    const eventDate = event.date; // make sure this is yyyy-mm-dd format
 
-  // ► PAST EVENTS
-  if (eventDate < today) {
+    // ► PAST EVENTS
+    if (eventDate < today) {
+      return (
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-sm btn-outline-dark"
+            title="History"
+            onClick={() => handleHistory(event)}
+          >
+            <FaHistory />
+          </button>
+
+          <button
+            className="btn btn-sm btn-outline-danger"
+            title="Delete"
+            onClick={() => handleDeleteEvent(event.id)}
+          >
+            <FaTrash />
+          </button>
+        </div>
+      );
+    }
+
+    // ► TODAY EVENTS
+    if (eventDate === today) {
+      return (
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-sm btn-outline-danger"
+            title="Delete"
+            onClick={() => handleDeleteEvent(event.id)}
+          >
+            <FaTrash />
+          </button>
+        </div>
+      );
+    }
+
+    // ► FUTURE EVENTS
     return (
       <div className="d-flex gap-2">
         <button
-          className="btn btn-sm btn-outline-dark"
-          title="History"
-          onClick={() => handleHistory(event)}
+          className="btn btn-sm btn-outline-success"
+          title="Edit"
+          onClick={() => handleEditEvent(event)}
         >
-          <FaHistory />
+          <FaEdit />
         </button>
 
         <button
@@ -282,44 +313,7 @@ const renderActionButtons = (event) => {
         </button>
       </div>
     );
-  }
-
-  // ► TODAY EVENTS
-  if (eventDate === today) {
-    return (
-      <div className="d-flex gap-2">
-        <button
-          className="btn btn-sm btn-outline-danger"
-          title="Delete"
-          onClick={() => handleDeleteEvent(event.id)}
-        >
-          <FaTrash />
-        </button>
-      </div>
-    );
-  }
-
-  // ► FUTURE EVENTS
-  return (
-    <div className="d-flex gap-2">
-      <button
-        className="btn btn-sm btn-outline-success"
-        title="Edit"
-        onClick={() => handleEditEvent(event)}
-      >
-        <FaEdit />
-      </button>
-
-      <button
-        className="btn btn-sm btn-outline-danger"
-        title="Delete"
-        onClick={() => handleDeleteEvent(event.id)}
-      >
-        <FaTrash />
-      </button>
-    </div>
-  );
-};
+  };
 
   const totalPages = Math.ceil(filteredEvents.length / rowsPerPage) || 1;
   const currentEvents = useMemo(() => {
@@ -327,41 +321,36 @@ const renderActionButtons = (event) => {
     return filteredEvents.slice(startIdx, startIdx + rowsPerPage);
   }, [filteredEvents, currentPage, rowsPerPage]);
 
-const columns = [
- 
- 
-  { key: "category", label: "Category" },
-  { key: "description", label: "Description" },
-  { key: "venue", label: "Venue" },
-  { key: "author", label: "Author" },
-  { key: "fees", label: "Fees" },
-  { key: "required_documents", label: "Required Docs" },
-  { key: "contact", label: "Contact" },
-  { key: "date", label: "Date" },
-  { key: "image", label: "Image" },
- 
-];
+  const columns = [
+    { key: "category", label: "Category" },
+    { key: "description", label: "Description" },
+    { key: "venue", label: "Venue" },
+    { key: "author", label: "Author" },
+    { key: "fees", label: "Fees" },
+    { key: "required_documents", label: "Required Docs" },
+    { key: "contact", label: "Contact" },
+    { key: "date", label: "Date" },
+    { key: "image", label: "Image" },
+  ];
 
-const [visibleColumns, setVisibleColumns] = useState({
-  sno: true,
-  title: true,
-  category: true,
-  date: true,
-  actions: true,
+  const [visibleColumns, setVisibleColumns] = useState({
+    sno: true,
+    title: true,
+    category: true,
+    date: true,
+    actions: true,
 
-  // hidden by default
-  description: false,
-  venue: false,
-  author: false,
-  fees: false,
-  required_documents: false,
-  contact: false,
-  image: false,
-});
+    // hidden by default
+    description: false,
+    venue: false,
+    author: false,
+    fees: false,
+    required_documents: false,
+    contact: false,
+    image: false,
+  });
 
-const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
-
-
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
 
   return (
     <div className="users-event-page">
@@ -406,176 +395,182 @@ const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
         <div className="card shadow-sm border-0 rounded-3">
           <div className="card-body">
             {/* Toolbar */}
-            <div className="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-3">
+         <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
               {/* LEFT SIDE: Rows + Search */}
-              <div className="d-flex align-items-center gap-2  flex-grow-1 flex-wrap">
-                {/* Search */}
-                <div className="input-group" style={{ maxWidth: "300px" }}>
-                  <span className="input-group-text bg-white">
-                    <FaSearch />
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        search: e.target.value,
-                        currentPage: 1,
-                      }))
-                    }
-                  />
-                </div>
-                <select
-                  className="form-select"
-                  style={{ width: "6rem" }}
-                  value={rowsPerPage}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      rowsPerPage: Number(e.target.value),
-                      currentPage: 1,
-                    }))
-                  }
-                >
-                  <option value={5}>5 rows</option>
-                  <option value={10}>10 rows</option>
-                  <option value={20}>20 rows</option>
-                </select>
-                <button
-  className="btn btn-outline-dark ms-2"
-  onClick={() => setIsColumnModalOpen(true)}
->
-  Column Settings
-</button>
+            <div className="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
+  {/* Search box */}
+  <div className="input-group" style={{ minWidth: "200px", maxWidth: "300px" }}>
+    <span className="input-group-text bg-white"><FaSearch /></span>
+    <input
+      type="text"
+      className="form-control"
+      placeholder="Search..."
+      value={search}
+      onChange={(e) =>
+        setState((prev) => ({
+          ...prev,
+          search: e.target.value,
+          currentPage: 1,
+        }))
+      }
+    />
+  </div>
 
-              </div>
+  {/* Rows selector */}
+  <select
+    className="form-select"
+    style={{ width: "6rem" }}
+    value={rowsPerPage}
+    onChange={(e) =>
+      setState((prev) => ({
+        ...prev,
+        rowsPerPage: Number(e.target.value),
+        currentPage: 1,
+      }))
+    }
+  >
+    <option value={5}>5 rows</option>
+    <option value={10}>10 rows</option>
+    <option value={20}>20 rows</option>
+  </select>
 
-              {/* RIGHT SIDE: Add Event */}
-              <button
-                className="btn btn-custom-dark d-flex align-items-center gap-2 roundebtn flex-shrink-0 text-light bg-black"
-                onClick={() =>
-                  setState((prev) => ({ ...prev, isModalOpen: true }))
-                }
-              >
-                <FaPlus />
-                Add Event
-              </button>
+  {/* Column/settings button */}
+  <button
+    className="btn btn-outline-dark d-flex align-items-center gap-2"
+    onClick={() => setIsColumnModalOpen(true)}
+  >
+    <FaCog />
+    Columns
+  </button>
+</div>
+
+
+           <div className="flex-shrink-0">
+  <button
+    className="btn btn-custom-dark d-flex align-items-center gap-2 rounded-3 text-light bg-black"
+    onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
+  >
+    <FaPlus />
+    Add Event
+  </button>
+</div>
+
             </div>
 
             {/* Table */}
             <div className="table-responsive rounded">
               <table className="table table-hover table-bordered align-middle mb-0">
-     <thead className="table-primary">
-  <tr>
-    {/* FIXED COLUMNS */}
-    <th className="fw-semibold">S. No</th>
-    <th className="fw-semibold">Title</th>
+                <thead className="table-primary">
+                  <tr>
+                    {/* FIXED COLUMNS */}
+                    <th className="fw-semibold">S. No</th>
+                    <th className="fw-semibold">Title</th>
 
-    {/* DYNAMIC COLUMNS */}
-    {columns.map((col) =>
-      visibleColumns[col.key] && (
-        <th
-          key={col.key}
-          className="fw-semibold"
-          style={{
-            cursor: ["image"].includes(col.key) ? "default" : "pointer",
-            userSelect: "none",
-          }}
-          onClick={() =>
-            !["image"].includes(col.key) && handleSort(col.key)
-          }
-        >
-          {col.label}
+                    {/* DYNAMIC COLUMNS */}
+                    {columns.map(
+                      (col) =>
+                        visibleColumns[col.key] && (
+                          <th
+                            key={col.key}
+                            className="fw-semibold"
+                            style={{
+                              cursor: ["image"].includes(col.key)
+                                ? "default"
+                                : "pointer",
+                              userSelect: "none",
+                            }}
+                            onClick={() =>
+                              !["image"].includes(col.key) &&
+                              handleSort(col.key)
+                            }
+                          >
+                            {col.label}
 
-          {/* Sorting indicator */}
-          {!["image"].includes(col.key) && (
-            <span className="ms-1">
-              {state.sortKey === col.key
-                ? state.sortOrder === "asc"
-                  ? "▲"
-                  : "▼"
-                : "⇅"}
-            </span>
-          )}
-        </th>
-      )
-    )}
+                            {/* Sorting indicator */}
+                            {!["image"].includes(col.key) && (
+                              <span className="ms-1">
+                                {state.sortKey === col.key
+                                  ? state.sortOrder === "asc"
+                                    ? "▲"
+                                    : "▼"
+                                  : "⇅"}
+                              </span>
+                            )}
+                          </th>
+                        )
+                    )}
 
-    {/* FIXED ACTIONS COLUMN */}
-    <th className="fw-semibold">Actions</th>
-  </tr>
-</thead>
+                    {/* FIXED ACTIONS COLUMN */}
+                    <th className="fw-semibold">Actions</th>
+                  </tr>
+                </thead>
 
+                <tbody>
+                  {currentEvents.map((event, idx) => (
+                    <tr key={event.id}>
+                      {/* FIXED S.NO */}
+                      <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
 
+                      {/* FIXED TITLE */}
+                      <td>{event.title}</td>
 
+                      {/* DYNAMIC FIELDS */}
+                      {visibleColumns.category && (
+                        <td>{event.category || "-"}</td>
+                      )}
 
-    <tbody>
-  {currentEvents.map((event, idx) => (
-    <tr key={event.id}>
+                      {visibleColumns.description && (
+                        <td className="text-truncate">
+                          {event.description || "-"}
+                        </td>
+                      )}
 
-      {/* FIXED S.NO */}
-      <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                      {visibleColumns.venue && <td>{event.venue || "-"}</td>}
 
-      {/* FIXED TITLE */}
-      <td>{event.title}</td>
+                      {visibleColumns.author && <td>{event.author || "-"}</td>}
 
-      {/* DYNAMIC FIELDS */}
-      {visibleColumns.category && <td>{event.category || "-"}</td>}
+                      {visibleColumns.fees && <td>{event.fees || "-"}</td>}
 
-      {visibleColumns.description && (
-        <td className="text-truncate">{event.description || "-"}</td>
-      )}
+                      {visibleColumns.required_documents && (
+                        <td>
+                          {Array.isArray(event.required_documents)
+                            ? event.required_documents.join(", ")
+                            : event.required_documents || "-"}
+                        </td>
+                      )}
 
-      {visibleColumns.venue && <td>{event.venue || "-"}</td>}
+                      {visibleColumns.contact && (
+                        <td>{event.contact || "-"}</td>
+                      )}
 
-      {visibleColumns.author && <td>{event.author || "-"}</td>}
+                      {visibleColumns.date && (
+                        <td>
+                          {event.date
+                            ? new Date(event.date).toLocaleDateString()
+                            : "-"}
+                        </td>
+                      )}
 
-      {visibleColumns.fees && <td>{event.fees || "-"}</td>}
+                      {visibleColumns.image && (
+                        <td>
+                          {event.image ? (
+                            <img
+                              src={event.image}
+                              width={50}
+                              height={50}
+                              className="rounded"
+                            />
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      )}
 
-   {visibleColumns.required_documents && (
-  <td>
-    {Array.isArray(event.required_documents)
-      ? event.required_documents.join(", ")
-      : event.required_documents || "-"}
-  </td>
-)}
-
-      {visibleColumns.contact && <td>{event.contact || "-"}</td>}
-
-      {visibleColumns.date && (
-        <td>
-          {event.date
-            ? new Date(event.date).toLocaleDateString()
-            : "-"}
-        </td>
-      )}
-
-      {visibleColumns.image && (
-        <td>
-          {event.image ? (
-            <img
-              src={event.image}
-              width={50}
-              height={50}
-              className="rounded"
-            />
-          ) : (
-            "-"
-          )}
-        </td>
-      )}
-
-      {/* FIXED ACTIONS */}
-      <td>{renderActionButtons(event)}</td>
-    </tr>
-  ))}
-</tbody>
-
-
-
+                      {/* FIXED ACTIONS */}
+                      <td>{renderActionButtons(event)}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
@@ -634,16 +629,13 @@ const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
             isEditing={!!state.editEvent} // 👈 pre-fill modal fields
           />
         )}
-   <ColumnsModal
-  open={isColumnModalOpen}
-  onClose={() => setIsColumnModalOpen(false)}
-  columns={columns}
-  visibleColumns={visibleColumns}
-  onChange={setVisibleColumns}
-/>
-
-
-
+        <ColumnsModal
+          open={isColumnModalOpen}
+          onClose={() => setIsColumnModalOpen(false)}
+          columns={columns}
+          visibleColumns={visibleColumns}
+          onChange={setVisibleColumns}
+        />
       </div>
     </div>
   );

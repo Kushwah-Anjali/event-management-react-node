@@ -13,7 +13,7 @@ export default function ColumnsModal({
 }) {
   const modalRef = useRef();
 
-  // Handle outside click
+  // Close when clicking outside
   useEffect(() => {
     if (!open) return;
 
@@ -27,12 +27,22 @@ export default function ColumnsModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onClose]);
 
+  // Unified toggle handler
   const handleToggle = (key) => {
     onChange({
       ...visibleColumns,
       [key]: !visibleColumns[key],
     });
   };
+
+  // Create list based on visibleColumns object keys
+  // Ensures modal ALWAYS syncs with table config
+  const modalColumns = [
+    { key: "sno", label: "S. No (Fixed)" },
+    { key: "title", label: "Title (Fixed)" },
+    ...columns, // dynamic columns you passed earlier
+    { key: "actions", label: "Actions (Fixed)" },
+  ];
 
   return (
     <div
@@ -42,7 +52,7 @@ export default function ColumnsModal({
       <div className="modal-dialog modal-dialog-centered" ref={modalRef}>
         <div className="modal-content border-0 shadow-lg">
 
-          {/* Header with Icon */}
+          {/* Header */}
           <div className="modal-header bg-primary text-white">
             <h5 className="modal-title d-flex align-items-center gap-2">
               <FiSettings size={20} />
@@ -53,18 +63,19 @@ export default function ColumnsModal({
 
           {/* Body */}
           <div className="modal-body">
-            {columns.map((col) => (
+            {modalColumns.map((col) => (
               <div
                 key={col.key}
                 className="d-flex justify-content-between align-items-center mb-3"
               >
                 <span className="fw-semibold">{col.label}</span>
 
-                {/* Toggle Switch */}
+                {/* Disable toggle for fixed columns */}
                 <label className="switch">
                   <input
                     type="checkbox"
                     checked={visibleColumns[col.key]}
+                    disabled={["sno", "title", "actions"].includes(col.key)}
                     onChange={() => handleToggle(col.key)}
                   />
                   <span className="slider"></span>
