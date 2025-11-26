@@ -145,34 +145,43 @@ export default function AddEventModal({
           date: value < today ? "Cannot select past date" : "",
         }));
         break;
-      case "image":
-      if (files[0]) {
-  const file = files[0];
-  
-  // optional: you can still limit file size
-  if (file.size > 5 * 1024 * 1024) {
-    setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
+    case "image":
+  if (files[0]) {
+    const file = files[0];
+
+    // Validate file size (optional)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
+      setPreview(null);
+      setData((d) => ({ ...d, image: null }));
+      return;
+    }
+
+    // Validate image dimensions (exact match)
+    const img = new Image();
+    img.onload = () => {
+      if (img.width < img.height) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Vertical images are not allowed. Please upload a landscape image",
+        }));
+        setPreview(null);
+        setData((d) => ({ ...d, image: null }));
+      } else {
+        setErrors((prev) => ({ ...prev, image: "" }));
+        setPreview(URL.createObjectURL(file)); // valid preview
+        setData((d) => ({ ...d, image: file }));
+      }
+    };
+
+    img.src = URL.createObjectURL(file);
   } else {
-    setErrors((prev) => ({ ...prev, image: "" }));
-  }
-
-  // Automatically preview only if it's an image type
-  if (file.type.startsWith("image/")) {
-    setPreview(URL.createObjectURL(file));
-  } else {
-    setPreview(null);
-  }
-
-  updatedValue = file;
-} 
-
-        
-        else {
-    // ✅ no new file selected — retain old image + preview
+    // No new file selected — keep old image
     updatedValue = data.image || "";
     if (data.image) setPreview(getFullImageUrl(data.image));
   }
-        break;
+  break;
+
       case "required_docs":
         setData((d) => {
           let docs = d.required_docs;
@@ -275,7 +284,7 @@ export default function AddEventModal({
 
   const renderCheckIcon = (field) =>
     !errors[field] && data[field] ? (
-      <faCheckCircle className="me-2 text-primary" />
+      <FaCheckCircle className="me-2 text-primary" />
     ) : null;
 
   return (
@@ -551,7 +560,7 @@ export default function AddEventModal({
                 className="btn btn-outline-secondary rounded-pill px-4"
                 onClick={handlePrev}
               >
-                <FaArrowLeft  className="me-2 text-light"/> Previous
+                <FaArrowLeft  className="me-2 "/> Previous
               </button>
             )}
             {step < totalSteps - 1 && (

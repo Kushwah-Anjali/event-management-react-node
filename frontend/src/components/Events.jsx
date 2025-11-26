@@ -66,44 +66,41 @@ export default function Events() {
   return (
     <section className="events-section py-5" id="event-section">
       <div className="container">
-        {/* Filter Buttons */}
-        <div className="events-filter-section">
-          <h2 className="filter-heading mb-4">Filter Your Events</h2>
-          <div className="d-flex justify-content-center gap-3 flex-wrap">
-            <button
-              className={`btn ${
-                filter === "upcoming" ? "btn-primary" : "btn-outline-primary"
-              }`}
-              onClick={() => setFilter("upcoming")}
-            >
-              Upcoming
-            </button>
-            <button
-              className={`btn ${
-                filter === "today" ? "btn-success" : "btn-outline-success"
-              }`}
-              onClick={() => setFilter("today")}
-            >
-              Today
-            </button>
-            <button
-              className={`btn ${
-                filter === "past" ? "btn-secondary" : "btn-outline-secondary"
-              }`}
-              onClick={() => setFilter("past")}
-            >
-              Past
-            </button>
-            <button
-              className={`btn ${
-                filter === "all" ? "btn-dark" : "btn-outline-dark"
-              }`}
-              onClick={() => setFilter("all")}
-            >
-              Show All
-            </button>
-          </div>
-        </div>
+    {/* Filter Buttons */}
+<div className="events-filter-section">
+
+  <h2 className="filter-heading mb-4">Filter Your Events</h2>
+
+  {/* Mobile Dropdown */}
+  <div className="filter-dropdown d-md-none mb-4">
+    <select
+      className="filter-select"
+      value={filter}
+      onChange={(e) => setFilter(e.target.value)}
+    >
+      <option value="upcoming">Upcoming</option>
+      <option value="today">Today</option>
+      <option value="past">Past</option>
+      <option value="all">Show All</option>
+    </select>
+  </div>
+
+  {/* Desktop Gradient Buttons */}
+  <div className="d-none d-md-flex justify-content-center gap-3 flex-wrap">
+    {["upcoming", "today", "past", "all"].map((item) => (
+      <button
+        key={item}
+        className={`filter-btn ${filter === item ? "active" : ""}`}
+        onClick={() => setFilter(item)}
+      >
+        {item === "all" ? "Show All" : item.charAt(0).toUpperCase() + item.slice(1)}
+      </button>
+    ))}
+  </div>
+
+</div>
+
+
 
         {/* Event Grid */}
         <div className="row g-4">
