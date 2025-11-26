@@ -10,6 +10,8 @@ import RegisterDetails from "./pages/RegisterDetails";
 import EventHistory from "./pages/EventHistory";
 import HistoryPage from "./pages/HistoryPage";
 import './App.css';
+import RegisterAdminView from "./pages/RegisterAdminView";
+
 function App() {
   return (
     <Router>
@@ -23,6 +25,7 @@ function App() {
           <Route path="/register-details" element={<RegisterDetails />} />
     <Route path="/event-history" element ={<EventHistory />}/>
   <Route path="/history" element={<HistoryPage />} />
+<Route path="/RegisterAdminView" element={<RegisterAdminView />} />
 
 
       </Routes>

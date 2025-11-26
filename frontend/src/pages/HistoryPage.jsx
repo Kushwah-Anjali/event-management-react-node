@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import InfoBox from "../components/InfoBox";
+import { FaHistory, FaRegClipboard, FaTags, FaRegCalendarAlt , FaArrowLeft} from "react-icons/fa";
 
-import { FaHistory, FaArrowLeft } from "react-icons/fa";
 
 export default function HistoryPage() {
   const location = useLocation();
@@ -46,33 +47,66 @@ export default function HistoryPage() {
     { key: "long_summary", label: "Long Summary" },
     { key: "lessons_learned", label: "Lessons Learned" },
     { key: "media", label: "Media" },
-    { key: "created_at", label: "Created At" },
+   
   ];
 
+const { title, category, date } = location.state || {};
   return (
-    <div className="container py-4">
-      {/* ------- Header (dashboard-style but with Back button) ------- */}
-      <div className="d-flex justify-content-between align-items-center dash-head mb-4">
-        <h3 className="text-white d-flex align-items-center gap-2 mb-0">
-          <FaHistory />
-          Event History
-        </h3>
-
-       <button
+     <div style={{background:"#0d0d4d",paddingTop:"40px"}}>
+        <div className="container py-4">
+    <div className="card shadow-sm border-0 rounded-4 mb-4">
+  <div className="card-body">
+    {/* Full-width header row */}
+    <div className="d-flex justify-content-between align-items-center dash-head mb-4">
+      {/* Title */}
+      <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+        <FaHistory />
+        Event History
+      </h3>
+    <button
   className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
   style={{ width: "42px", height: "42px" }}
   onClick={() => navigate(-1)}
 >
-  <FaArrowLeft />
+  <FaArrowLeft size={18} />
 </button>
 
-      </div>
+    </div>
+
+    {/* Info Grid */}
+    <div className="row g-4">
+
+      {/* Event Title */}
+      <InfoBox
+        title="Title"
+        value={title}
+        icon={<FaRegClipboard />}
+      />
+
+      {/* Event Category */}
+      <InfoBox
+        title="Category"
+        value={category}
+        icon={<FaTags />}
+      />
+
+      {/* Event Date */}
+      <InfoBox
+        title="Date"
+        value={new Date(date).toLocaleDateString()}
+        icon={<FaRegCalendarAlt />}
+      />
+
+    </div>
+  </div>
+</div>
+
       {/* ----------------------------------------------------------- */}
 
-      <div className="card shadow-sm border-0 rounded-4">
+      <div className="card shadow-sm border-0 ">
         <div className="card-body">
           <div className="table-responsive rounded">
-            <table className="table table-hover align-middle mb-0">
+            <table className="table table-hover table-bordered align-middle mb-0">
               <thead className="table-primary">
                 <tr>
                   {columns.map((col) => (
@@ -129,11 +163,7 @@ export default function HistoryPage() {
                         : "-"}
                     </td>
 
-                    <td>
-                      {history.created_at
-                        ? new Date(history.created_at).toLocaleString()
-                        : "-"}
-                    </td>
+                   
                   </tr>
                 )}
               </tbody>
@@ -142,5 +172,7 @@ export default function HistoryPage() {
         </div>
       </div>
     </div>
+     </div>
+  
   );
 }

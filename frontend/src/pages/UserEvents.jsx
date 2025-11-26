@@ -210,7 +210,9 @@ const UserEvents = () => {
     }));
   };
   const handleHistory = (event) => {
-    navigate("/history", { state: { eventId: event.id } });
+    navigate("/history", { state: { eventId: event.id , title: event.title,
+      category: event.category,
+      date: event.date, } });
   };
 
   const filteredEvents = useMemo(() => {
@@ -464,7 +466,21 @@ const UserEvents = () => {
                   <tr>
                     {/* FIXED COLUMNS */}
                     <th className="fw-semibold">S. No</th>
-                    <th className="fw-semibold">Title</th>
+                  <th
+  className="fw-semibold"
+  style={{ cursor: "pointer", userSelect: "none" }}
+  onClick={() => handleSort("title")}
+>
+  Title
+  <span className="ms-1">
+    {state.sortKey === "title"
+      ? state.sortOrder === "asc"
+        ? "▲"
+        : "▼"
+      : "⇅"}
+  </span>
+</th>
+
 
                     {/* DYNAMIC COLUMNS */}
                     {columns.map(
@@ -507,7 +523,19 @@ const UserEvents = () => {
 
                 <tbody>
                   {currentEvents.map((event, idx) => (
-                    <tr key={event.id}>
+                 <tr 
+  key={event.id} 
+  onDoubleClick={() => navigate("/RegisterAdminView", {
+    state: {
+      eventId: event.id,
+      title: event.title,
+      category: event.category,
+      date: event.date
+    }
+  })}
+  style={{ cursor: "pointer" }}
+>
+
                       {/* FIXED S.NO */}
                       <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
 

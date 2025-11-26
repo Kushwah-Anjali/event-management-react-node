@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FiSettings } from "react-icons/fi";
 import "../styles/ColumsModal.css";
@@ -12,8 +12,10 @@ export default function ColumnsModal({
   title = "Customize Columns",
 }) {
   const modalRef = useRef();
+  const fixedKeys = ["sno", "title", "actions"];
 
-  // Close when clicking outside
+  const [activeAction, setActiveAction] = useState(null);
+
   useEffect(() => {
     if (!open) return;
 
@@ -24,10 +26,10 @@ export default function ColumnsModal({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onClose]);
 
-  // Unified toggle handler
   const handleToggle = (key) => {
     onChange({
       ...visibleColumns,
@@ -35,34 +37,66 @@ export default function ColumnsModal({
     });
   };
 
-  // Create list based on visibleColumns object keys
-  // Ensures modal ALWAYS syncs with table config
   const modalColumns = [
     { key: "sno", label: "S. No (Fixed)" },
     { key: "title", label: "Title (Fixed)" },
-    ...columns, // dynamic columns you passed earlier
+    ...columns,
     { key: "actions", label: "Actions (Fixed)" },
   ];
 
+  const handleSelectAll = () => {
+    const updated = {};
+    Object.keys(visibleColumns).forEach((key) => {
+      updated[key] = true;
+    });
+    onChange(updated);
+    setActiveAction("select");
+  };
+
+  const handleUnselectAll = () => {
+    const updated = {};
+    Object.keys(visibleColumns).forEach((key) => {
+      updated[key] = fixedKeys.includes(key) ? true : false;
+    });
+    onChange(updated);
+    setActiveAction("unselect");
+  };
+
+  if (!open) return null;
+
   return (
     <div
-      className={`modal fade ${open ? "show d-block" : "d-none"} bg-dark bg-opacity-50`}
+      className="modal fade show d-block"
       tabIndex="-1"
+    
     >
-      <div className="modal-dialog modal-dialog-centered" ref={modalRef}>
-        <div className="modal-content border-0 shadow-lg">
-
+      <div className="modal-dialog modal-dialog-centered">
+        <div
+          className="modal-content border-0 shadow-lg rounded-4"
+          ref={modalRef}
+        >
           {/* Header */}
-          <div className="modal-header bg-primary text-white">
-            <h5 className="modal-title d-flex align-items-center gap-2">
-              <FiSettings size={20} />
+          <div
+            className="modal-header bg-primary flex-column align-items-start border-0 px-4 pt-4 pb-2"
+            style={{
+              borderTopLeftRadius: "1rem",
+              borderTopRightRadius: "1rem",
+            }}
+          >
+            <h5 className="fw-bold d-flex align-items-center gap-2 text-white">
+              <FiSettings size={20} className="text-white" />
               {title}
             </h5>
-            <button className="btn-close btn-close-white" onClick={onClose}></button>
+
+            <button
+              type="button"
+              className="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+              onClick={onClose}
+            ></button>
           </div>
 
           {/* Body */}
-          <div className="modal-body">
+          <div className="modal-body px-4">
             {modalColumns.map((col) => (
               <div
                 key={col.key}
@@ -70,12 +104,11 @@ export default function ColumnsModal({
               >
                 <span className="fw-semibold">{col.label}</span>
 
-                {/* Disable toggle for fixed columns */}
                 <label className="switch">
                   <input
                     type="checkbox"
                     checked={visibleColumns[col.key]}
-                    disabled={["sno", "title", "actions"].includes(col.key)}
+                    disabled={fixedKeys.includes(col.key)}
                     onChange={() => handleToggle(col.key)}
                   />
                   <span className="slider"></span>
@@ -85,12 +118,40 @@ export default function ColumnsModal({
           </div>
 
           {/* Footer */}
-          <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onClose}>
+          <div className="modal-footer d-flex justify-content-between align-items-center px-4 pb-4">
+
+            {/* Left actions */}
+            <div className="d-flex gap-2">
+              <button
+                className={`btn btn-sm ${
+                  activeAction === "select"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                } rounded-pill px-3`}
+                onClick={handleSelectAll}
+              >
+                Check All
+              </button>
+
+              <button
+                className={`btn btn-sm ${
+                  activeAction === "unselect"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                } rounded-pill px-3`}
+                onClick={handleUnselectAll}
+              >
+                Uncheck All
+              </button>
+            </div>
+
+            <button
+              className="btn btn-outline-secondary rounded-pill px-3"
+              onClick={onClose}
+            >
               Close
             </button>
           </div>
-
         </div>
       </div>
     </div>

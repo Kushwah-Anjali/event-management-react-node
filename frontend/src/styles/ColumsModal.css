@@ -48,3 +48,19 @@ input:checked + .slider:before {
 .slider:active:before {
   width: 20px;
 }
+/* Make modal body scrollable instead of page */
+.modal-body {
+  max-height: 60vh;   /* adjusts based on screen size */
+  overflow-y: auto;
+  padding-right: 10px; /* avoid hiding scrollbar overlay */
+}
+
+/* Optional: smooth internal scrolling */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 10px;
+}
