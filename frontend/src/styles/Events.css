@@ -237,3 +237,28 @@
     height: 40px;
   }
 }
+.location-chip {
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.icon-base {
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.expand-info {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: 0.3s ease;
+}
+
+.location-chip:hover .expand-info {
+  max-width: 200px;
+  opacity: 1;
+}

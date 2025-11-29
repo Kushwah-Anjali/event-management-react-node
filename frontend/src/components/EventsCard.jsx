@@ -65,11 +65,11 @@ const handleMapClick = () => {
 
           {isPastEvent ? (
             <button
-              className="btn btn-secondary border-0"
+              className="btn btn-gradient-circle border-0"
               onClick={handleHistoryClick}
               title="Event Ended"
             >
-              <i className="bi bi-clock-history fs-5"></i>
+              <i className="bi bi-clock-history fs-5 text-dark"></i>
             </button>
           ) : (
             <button
@@ -80,14 +80,6 @@ const handleMapClick = () => {
               <i className="bi bi-pencil-square fs-5"></i>
             </button>
           )}
-          <button
-              className="btn btn-gradient-circle border-0"
-              onClick={handleMapClick}
-              title="Location"
-            >
-              <i className="bi bi-geo-alt-fill fs-5"></i>
-
-            </button>
         </div>
 
         {/* Date Badge */}
@@ -100,6 +92,20 @@ const handleMapClick = () => {
           <small>{isPastEvent ? "Event Ended" : event.description || "No description available"}</small>
         </div>
       </div>
+{/* LOCATION CHIP (Bootstrap-Optimized) */}
+<div 
+  className="location-chip d-flex align-items-center position-absolute top-0 end-0 m-2"
+  onClick={handleMapClick}
+>
+  <div className="icon-base d-flex justify-content-center align-items-center">
+    <i className="bi bi-geo-alt-fill fs-6"></i>
+  </div>
+
+  <span className="expand-info text-white small ms-2">
+    {event.venue}
+  </span>
+</div>
+
 
       {/* Modal */}
       <RegisterModal key={showModal} show={showModal} handleClose={handleCloseModal} eventId={event.id} />

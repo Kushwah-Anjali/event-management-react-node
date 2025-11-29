@@ -15,6 +15,10 @@ app.use(
   express.static("D:/Gallery-Event-Management/events") // full absolute path
 );
 app.use("/documents", express.static("D:/Gallery-Event-Management/documents"));
+app.use(
+  "/history",
+  express.static("D:/Gallery-Event-Management/history")
+);
 
 const authRoutes = require("./routes/auth");
 const eventRoutes = require("./routes/events");
