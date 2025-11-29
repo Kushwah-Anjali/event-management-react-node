@@ -54,7 +54,7 @@ const RegisterAdminView = () => {
 
     const fetchRegisteredUsers = async () => {
       const res = await fetch(
-        `http://localhost:5000/api/events/${eventId}/registrations`
+        `http://localhost:5000/api/register/${eventId}/registrations`
       );
       const data = await res.json();
 
@@ -172,18 +172,14 @@ const RegisterAdminView = () => {
                           <td>{user.email}</td>
 
                           {/* Documents */}
-                          <td>
-                            {documents.photo ? (
-                              <img
-                                src={documents.photo}
-                                alt="doc"
-                                width="50"
-                                className="rounded"
-                              />
-                            ) : (
-                              "-"
-                            )}
-                          </td>
+                         <td>
+  <input
+    type="checkbox"
+    checked={Boolean(documents.photo)}
+    readOnly
+  />
+</td>
+
                         </tr>
                       );
                     })

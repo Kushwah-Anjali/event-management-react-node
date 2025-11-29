@@ -252,3 +252,27 @@ exports.getRequiredDocs = async (req, res) => {
     res.status(500).json({ status: "error", message: err.message });
   }
 };
+exports.getEventRegistrations = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const [rows] = await db.query(
+      `SELECT id, name, email, registered_at, documents 
+       FROM registrations 
+       WHERE event_id = ?`,
+      [eventId]
+    );
+
+    res.json({
+      status: "success",
+      users: rows   // <--- FIXED
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error"
+    });
+  }
+};

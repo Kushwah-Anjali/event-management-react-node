@@ -11,6 +11,13 @@ export default function EventsCard({ event }) {
   const handleRegisterClick = () => setShowModal(true);
   const handleHistoryClick = () => navigate("/event-history", {  state: { eventId: event.id } });
   const handleCloseModal = () => setShowModal(false);
+const handleMapClick = () => {
+  navigate("/map", { state: { 
+    lat: event.latitude,
+    lng: event.longitude,
+    venue: event.venue
+  }});
+};
 
   // Format date
   const formattedDate = (() => {
@@ -73,6 +80,14 @@ export default function EventsCard({ event }) {
               <i className="bi bi-pencil-square fs-5"></i>
             </button>
           )}
+          <button
+              className="btn btn-gradient-circle border-0"
+              onClick={handleMapClick}
+              title="Location"
+            >
+              <i className="bi bi-geo-alt-fill fs-5"></i>
+
+            </button>
         </div>
 
         {/* Date Badge */}

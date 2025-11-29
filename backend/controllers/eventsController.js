@@ -2,7 +2,6 @@ const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
 
-
 exports.addEvent = async (req, res) => {
   try {
     const {
@@ -16,6 +15,8 @@ exports.addEvent = async (req, res) => {
       contact,
       required_docs,
       user_id,
+      latitude,
+      longitude,
     } = req.body;
 
     // Handle required_docs
@@ -34,23 +35,23 @@ exports.addEvent = async (req, res) => {
       }
     }
 
-// Handle image
-let imagePath;
-if (req.file) {
-  imagePath = req.file.filename;
-} else if (req.body.existingImage) {
-  // keep the old image if provided
-  imagePath = req.body.existingImage.replace(/^.*\/events\//, "");
-} else {
-  imagePath = null;
-}
-
+    // Handle image
+    let imagePath;
+    if (req.file) {
+      imagePath = req.file.filename;
+    } else if (req.body.existingImage) {
+      // keep the old image if provided
+      imagePath = req.body.existingImage.replace(/^.*\/events\//, "");
+    } else {
+      imagePath = null;
+    }
 
     // Insert query
     const sql = `
-      INSERT INTO events 
-      (title, category, description, date, author, venue, fees, contact, image, required_documents, users) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+   INSERT INTO events 
+(title, category, description, date, author, venue, fees, contact, image, required_documents, users, latitude, longitude)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
     `;
 
     const [result] = await db.execute(sql, [
@@ -65,6 +66,8 @@ if (req.file) {
       imagePath,
       JSON.stringify(docsArray),
       user_id,
+      latitude,
+      longitude,
     ]);
 
     // ✅ Build full image URL for frontend
@@ -88,6 +91,8 @@ if (req.file) {
         required_documents: docsArray,
         image: imageUrl, // ✅ now full URL sent
         users: user_id,
+        latitude,
+        longitude,
       },
     });
   } catch (err) {
@@ -112,6 +117,8 @@ exports.updateEvent = async (req, res) => {
       contact,
       required_docs,
       existingImage,
+      latitude,
+      longitude,
     } = req.body;
 
     let imagePath;
@@ -128,23 +135,27 @@ exports.updateEvent = async (req, res) => {
     }
 
     const sql = `
-      UPDATE events 
-      SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=? 
-      WHERE id=?`;
+     UPDATE events 
+SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=?, latitude=?, longitude=?
+WHERE id=?
+`;
 
-    await db.execute(sql, [
-      title,
-      category,
-      description,
-      date,
-      author,
-      venue,
-      fees,
-      contact,
-      imagePath,
-      JSON.stringify(required_docs),
-      eventId,
-    ]);
+  await db.execute(sql, [
+  title,
+  category,
+  description,
+  date,
+  author,
+  venue,
+  fees,
+  contact,
+  imagePath,
+  JSON.stringify(required_docs),
+  latitude,     // correct
+  longitude,    // correct
+  eventId,      // correct
+]);
+
 
     res.json({ status: "success", message: "Event updated successfully!" });
   } catch (err) {
@@ -244,7 +255,15 @@ exports.getUserEvents = async (req, res) => {
         ? `${req.protocol}://${req.get("host")}/events/${r.image}`
         : null;
 
-      return { ...r, required_documents: docs, image: imageUrl };
+   return { 
+  ...r,
+  required_documents: docs,
+  image: imageUrl,
+  latitude: r.latitude,
+  longitude: r.longitude,
+  venue: r.venue
+};
+
     });
 
     res.json({ status: "success", events: normalized });

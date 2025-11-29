@@ -11,6 +11,8 @@ import EventHistory from "./pages/EventHistory";
 import HistoryPage from "./pages/HistoryPage";
 import './App.css';
 import RegisterAdminView from "./pages/RegisterAdminView";
+import 'leaflet/dist/leaflet.css';
+import MapPage from "./pages/Mappage";
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
   <Route path="/history" element={<HistoryPage />} />
 <Route path="/RegisterAdminView" element={<RegisterAdminView />} />
 
+<Route path="/map" element={<MapPage />} />
 
       </Routes>
       <Footer />

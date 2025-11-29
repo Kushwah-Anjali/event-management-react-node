@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation ,useNavigate} from "react-router-dom";
+
 import DocumentUploadModal from "../components/DocumentUploadModal";
 import {
   FaUpload,
@@ -8,11 +9,13 @@ import {
   FaUser,
   FaMoneyBill,
   FaEnvelope,
+  FaArrowLeft,
 } from "react-icons/fa";
 import InfoBox from "../components/InfoBox";
 
 function RegisterDetails() {
   const location = useLocation();
+    const navigate = useNavigate();
   const { name, email, eventId, registered_at } = location.state || {};
 
   const [event, setEvent] = useState(null);
@@ -52,62 +55,37 @@ function RegisterDetails() {
       <div className="container py-5">
         {/* WRAPPER CARD */}
         <div className="card shadow-lg border-0 rounded-4 overflow-hidden">
-          {/* HEADER */}
-          <div
-            className="card-header text-white text-center py-4"
-            style={{
-              background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
-            }}
-          >
-            <h2 className="fw-bold mb-1">Registration Summary</h2>
-            <p className="text-light mb-0 small">
-              Review your registration and event details
-            </p>
-          </div>
+         
 
           {/* BODY */}
           <div className="card-body bg-light p-4">
             {/* REGISTRATION CARD */}
+             <div className="d-flex justify-content-between align-items-center dash-head mb-4">
+            <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+              <FaUser/>
+              Registeration Summary
+            </h3>
+
+            <button
+              className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
+              style={{ width: "42px", height: "42px" }}
+              onClick={() => navigate(-1)}
+            >
+              <FaArrowLeft size={18} />
+            </button>
+          </div>
             <div className="card border-0 shadow-sm mb-4 p-4 rounded-4">
-              <div className="d-flex justify-content-between flex-wrap align-items-center mb-3">
-                {/* LEFT */}
-                <div className="d-flex align-items-center gap-3">
-                  <div
-                    className=" text-white rounded-circle d-flex justify-content-center align-items-center"
-                    style={{
-                      width: "55px",
-                      height: "55px",
-                      fontSize: "1.6rem",
-                      background: "rgb(233 206 27 / 73%)",
-                    }}
-                  >
-                    🎉
-                  </div>
-
-                  <div>
-                    <h5 className="fw-bold mb-0" style={{ color: "#194abf" }}>
-                      Welcome, {name}!
-                    </h5>
-                    <small className="text-muted">
-                      Your registration is confirmed
-                    </small>
-                  </div>
-                </div>
-
-                {/* RIGHT BUTTON */}
-                <button
-                  className="btn btn-dark text-light px-3 py-2 d-flex align-items-center gap-2 mt-3 mt-md-0"
-                  onClick={() => setShowUploadModal(true)}
-                >
-                  <FaUpload /> Upload Documents
-                </button>
-              </div>
-
-              <hr />
-
               <div className="row gy-3">
-                <InfoBox title="Full Name " value={name} icon={<FaUser   style={{ color: "#174bdaff" }}/>} />
-                <InfoBox title="Email" value={email} icon={<FaEnvelope   style={{ color: "#174bdaff" }}/>} />
+                <InfoBox
+                  title="Full Name "
+                  value={name}
+                  icon={<FaUser  />}
+                />
+                <InfoBox
+                  title="Email"
+                  value={email}
+                  icon={<FaEnvelope style={{ color: "#174bdaff" }} />}
+                />
 
                 <InfoBox
                   title="Registered On"
@@ -116,7 +94,7 @@ function RegisterDetails() {
                       ? new Date(registered_at).toLocaleDateString()
                       : "Not available"
                   }
-                  icon={<FaCalendarAlt   style={{ color: "#174bdaff" }}/>}
+                  icon={<FaCalendarAlt style={{ color: "#174bdaff" }} />}
                 />
               </div>
             </div>
@@ -152,17 +130,29 @@ function RegisterDetails() {
                   <div className="col-md-8 d-flex align-items-center">
                     <div className="p-4 w-100">
                       {/* TITLE */}
-                      <h4 className="fw-bold  mb-2" >
-                        {event.title}
-                      </h4>
-
-                      {/* DESCRIPTION */}
-                      <p
-                        className="text-secondary lh-base mb-3"
-                        style={{ fontSize: "0.95rem" }}
-                      >
-                        {event.description}
-                      </p>
+                      <div className="d-flex justify-content-between">
+                        {" "}
+                        <div>
+                          {" "}
+                          <h4 className="fw-bold  mb-2">{event.title}</h4>
+                          {/* DESCRIPTION */}
+                          <p
+                            className="text-secondary lh-base mb-3"
+                            style={{ fontSize: "0.95rem" }}
+                          >
+                            {event.description}
+                          </p>
+                        </div>
+                        <div>
+                          {" "}
+                          <button
+                            className="btn btn-dark text-light px-3 py-2 d-flex align-items-center gap-2 mt-3 mt-md-0"
+                            onClick={() => setShowUploadModal(true)}
+                          >
+                            <FaUpload /> Upload Documents
+                          </button>
+                        </div>
+                      </div>
 
                       <hr className="my-3" />
 

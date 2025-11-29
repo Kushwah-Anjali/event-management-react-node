@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Select from "react-select";
+
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -18,12 +19,12 @@ import {
 } from "react-icons/fa";
 
 import { EventCategory } from "./EventCategory";
+import MapPicker from "../pages/MapPicker";
 const getFullImageUrl = (imagePath) => {
   if (!imagePath) return "";
   if (imagePath.startsWith("http")) return imagePath;
   return `http://localhost:5000/events/${imagePath}`;
 };
-
 
 const steps = ["Basic Info", "Details", "Image", "Documents"];
 
@@ -48,10 +49,12 @@ export default function AddEventModal({
     contact: "",
     image: null,
     required_docs: [],
+    latitude: "",
+    longitude: "",
   });
   const [errors, setErrors] = useState({});
   const [preview, setPreview] = useState(null);
-
+  const [showMapPicker, setShowMapPicker] = useState(false);
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => {
@@ -79,13 +82,15 @@ export default function AddEventModal({
           venue: existingData.venue || "",
           fees: existingData.fees || "",
           contact: existingData.contact || "",
-         image: existingData.image || null,  // no auto-load for file input
+          image: existingData.image || null, // no auto-load for file input
           required_docs: Array.isArray(existingData.required_documents)
             ? existingData.required_documents
             : [],
+          latitude: existingData.latitude || "",
+          longitude: existingData.longitude || "",
         });
         if (existingData.image) {
-           setPreview(getFullImageUrl(existingData.image)); 
+          setPreview(getFullImageUrl(existingData.image));
         } else {
           setPreview(null);
         }
@@ -101,6 +106,8 @@ export default function AddEventModal({
           contact: "",
           image: null,
           required_docs: [],
+          latitude: "",
+          longitude: "",
         });
       }
 
@@ -131,13 +138,14 @@ export default function AddEventModal({
         }));
         break;
       case "author":
-      case "venue":
-        updatedValue = value.replace(/[^a-zA-Z\s]/g, "");
-        setErrors((prev) => ({
-          ...prev,
-          [name]: updatedValue ? "" : "Only letters allowed",
-        }));
-        break;
+    case "venue":
+  updatedValue = value;
+  setErrors((prev) => ({
+    ...prev,
+    venue: updatedValue ? "" : "Venue cannot be empty",
+  }));
+  break;
+
       case "date":
         const today = new Date().toISOString().split("T")[0];
         setErrors((prev) => ({
@@ -145,42 +153,43 @@ export default function AddEventModal({
           date: value < today ? "Cannot select past date" : "",
         }));
         break;
-    case "image":
-  if (files[0]) {
-    const file = files[0];
+      case "image":
+        if (files[0]) {
+          const file = files[0];
 
-    // Validate file size (optional)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
-      setPreview(null);
-      setData((d) => ({ ...d, image: null }));
-      return;
-    }
+          // Validate file size (optional)
+          if (file.size > 5 * 1024 * 1024) {
+            setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
+            setPreview(null);
+            setData((d) => ({ ...d, image: null }));
+            return;
+          }
 
-    // Validate image dimensions (exact match)
-    const img = new Image();
-    img.onload = () => {
-      if (img.width < img.height) {
-        setErrors((prev) => ({
-          ...prev,
-          image: "Vertical images are not allowed. Please upload a landscape image",
-        }));
-        setPreview(null);
-        setData((d) => ({ ...d, image: null }));
-      } else {
-        setErrors((prev) => ({ ...prev, image: "" }));
-        setPreview(URL.createObjectURL(file)); // valid preview
-        setData((d) => ({ ...d, image: file }));
-      }
-    };
+          // Validate image dimensions (exact match)
+          const img = new Image();
+          img.onload = () => {
+            if (img.width < img.height) {
+              setErrors((prev) => ({
+                ...prev,
+                image:
+                  "Vertical images are not allowed. Please upload a landscape image",
+              }));
+              setPreview(null);
+              setData((d) => ({ ...d, image: null }));
+            } else {
+              setErrors((prev) => ({ ...prev, image: "" }));
+              setPreview(URL.createObjectURL(file)); // valid preview
+              setData((d) => ({ ...d, image: file }));
+            }
+          };
 
-    img.src = URL.createObjectURL(file);
-  } else {
-    // No new file selected — keep old image
-    updatedValue = data.image || "";
-    if (data.image) setPreview(getFullImageUrl(data.image));
-  }
-  break;
+          img.src = URL.createObjectURL(file);
+        } else {
+          // No new file selected — keep old image
+          updatedValue = data.image || "";
+          if (data.image) setPreview(getFullImageUrl(data.image));
+        }
+        break;
 
       case "required_docs":
         setData((d) => {
@@ -232,7 +241,7 @@ export default function AddEventModal({
         !errors.fees &&
         !errors.contact
       );
-  if (s === 2) return (data.image || preview) && !errors.image;
+    if (s === 2) return (data.image || preview) && !errors.image;
 
     return true;
   };
@@ -263,14 +272,15 @@ export default function AddEventModal({
     formData.append("venue", data.venue);
     formData.append("fees", data.fees);
     formData.append("contact", data.contact);
- if (data.image instanceof File) {
-  // New image selected
-  formData.append("image", data.image);
-} else if (isEditing && data.image) {
-  // Keep the old image path if no new file
-  formData.append("existingImage", data.image);
-}
-
+    formData.append("latitude", data.latitude || "");
+    formData.append("longitude", data.longitude || "");
+    if (data.image instanceof File) {
+      // New image selected
+      formData.append("image", data.image);
+    } else if (isEditing && data.image) {
+      // Keep the old image path if no new file
+      formData.append("existingImage", data.image);
+    }
 
     // Backend expects an array of docs
     data.required_docs.forEach((doc) =>
@@ -288,10 +298,7 @@ export default function AddEventModal({
     ) : null;
 
   return (
-    <div
-      className="modal show d-flex align-items-center justify-content-center"
-     
-    >
+    <div className="modal show d-flex align-items-center justify-content-center">
       <div
         className="modal-dialog d-flex flex-column"
         style={{ width: "100%", maxWidth: "550px", maxHeight: "90vh" }}
@@ -304,14 +311,16 @@ export default function AddEventModal({
           {/* Header */}
           <div className="modal-header bg-primary flex-column align-items-start border-0 px-4 pt-4 pb-2">
             <h5 className="fw-bold d-flex align-items-center gap-2 text-white">
-             {isEditing ? <FaCheckCircle className="text-light" /> : <FaPlusCircle  className="me-2 text-light"/>}
-{" "}
+              {isEditing ? (
+                <FaCheckCircle className="text-light" />
+              ) : (
+                <FaPlusCircle className="me-2 text-light" />
+              )}{" "}
               {isEditing ? "Update Event" : "Add Event"}
             </h5>
 
             <button
               type="button"
-              
               className="btn-close btn-close-white position-absolute top-0 end-0 m-3 "
               onClick={onClose}
             ></button>
@@ -342,9 +351,8 @@ export default function AddEventModal({
             {step === 0 && (
               <>
                 <label className="form-label fw-semibold">
-                  < FaFileAlt className="me-2 text-primary"
-                  />{" "}
-                  Event Title <span  className="star">*</span>
+                  <FaFileAlt className="me-2 text-primary" /> Event Title{" "}
+                  <span className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -360,10 +368,8 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                < FaTags className="me-2 text-primary"
-                    
-                  />{" "}
-                  Category <span  className="star">*</span>
+                  <FaTags className="me-2 text-primary" /> Category{" "}
+                  <span className="star">*</span>
                 </label>
                 <Select
                   options={EventCategory}
@@ -374,9 +380,7 @@ export default function AddEventModal({
                 />
 
                 <label className="form-label fw-semibold">
-                  <FaAlignLeft className="me-2 text-primary"                   
-                  />{" "}
-                  Description
+                  <FaAlignLeft className="me-2 text-primary" /> Description
                 </label>
                 <textarea
                   name="description"
@@ -387,10 +391,8 @@ export default function AddEventModal({
                 />
 
                 <label className="form-label fw-semibold">
-                  <  FaCalendar
-                   className="me-2 text-primary"
-                  />{" "}
-                  Date <span  className="star">*</span>
+                  <FaCalendar className="me-2 text-primary" /> Date{" "}
+                  <span className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -410,10 +412,8 @@ export default function AddEventModal({
             {step === 1 && (
               <>
                 <label className="form-label fw-semibold">
-                  < FaUser className="me-2 text-primary"
-                 
-                  />{" "}
-                  Organizer <span  className="star">*</span>
+                  <FaUser className="me-2 text-primary" /> Organizer{" "}
+                  <span className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -429,11 +429,10 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <               FaMapMarkerAlt className="me-2 text-primary"
-  
-                  />{" "}
-                  Venue <span  className="star">*</span>
+                  <FaMapMarkerAlt className="me-2 text-primary" /> Venue{" "}
+                  <span className="star">*</span>
                 </label>
+
                 <div className="d-flex align-items-center mb-3">
                   <input
                     name="venue"
@@ -442,14 +441,57 @@ export default function AddEventModal({
                     className={`form-control ${
                       errors.venue ? "is-invalid" : ""
                     }`}
+                    placeholder="Venue address or name"
                   />
                   {renderCheckIcon("venue")}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary ms-2"
+                    onClick={() => setShowMapPicker((s) => !s)}
+                  >
+                    Pick on map
+                  </button>
                 </div>
 
+                {showMapPicker && (
+                  <div className="mb-3">
+                    <MapPicker
+                      onSelect={({ lat, lng }) => {
+                        setData((d) => ({
+                          ...d,
+                          latitude: lat,
+                          longitude: lng,
+                          venue: `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(
+                            5
+                          )}`,
+                        }));
+
+                        Swal.fire({
+                          icon: "success",
+                          title: "Location selected",
+                          timer: 900,
+                          showConfirmButton: false,
+                        });
+                      }}
+                      initialPosition={
+                        data.latitude && data.longitude
+                          ? {
+                              lat: Number(data.latitude),
+                              lng: Number(data.longitude),
+                            }
+                          : null
+                      }
+                      height={280}
+                    />
+                    <div className="small text-muted mt-1">
+                      Click on the map to pick the event location.
+                    </div>
+                  </div>
+                )}
+
                 <label className="form-label fw-semibold">
-                  <FaMoneyBillWave className="me-2 text-primary"
-                  />{" "}
-                  Fees <span  className="star">*</span>
+                  <FaMoneyBillWave className="me-2 text-primary" /> Fees{" "}
+                  <span className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -465,10 +507,8 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FaPhone className="me-2 text-primary"
-                    
-                  />{" "}
-                  Contact <span  className="star">*</span>
+                  <FaPhone className="me-2 text-primary" /> Contact{" "}
+                  <span className="star">*</span>
                 </label>
                 <div className="d-flex align-items-center mb-3">
                   <input
@@ -488,8 +528,8 @@ export default function AddEventModal({
             {step === 2 && (
               <>
                 <label className="form-label fw-semibold">
-                  <FaImage   className="me-2 text-primary"    />{" "}
-                  Upload Image <span  className="star">*</span>
+                  <FaImage className="me-2 text-primary" /> Upload Image{" "}
+                  <span className="star">*</span>
                 </label>
                 <input
                   type="file"
@@ -521,10 +561,7 @@ export default function AddEventModal({
             {step === 3 && (
               <>
                 <label className="form-label fw-semibold">
-                 <      FaFileAlt className="me-2 text-primary"
-                   
-                  />{" "}
-                  Required Documents
+                  <FaFileAlt className="me-2 text-primary" /> Required Documents
                 </label>
                 <div className="d-flex flex-wrap gap-3 mt-2">
                   {["Aadhar Card", "Resume", "Marksheet", "Photo"].map((d) => (
@@ -555,7 +592,7 @@ export default function AddEventModal({
                 className="btn btn-outline-secondary rounded-pill px-4"
                 onClick={handlePrev}
               >
-                <FaArrowLeft  className="me-2 "/> Previous
+                <FaArrowLeft className="me-2 " /> Previous
               </button>
             )}
             {step < totalSteps - 1 && (
@@ -575,7 +612,7 @@ export default function AddEventModal({
                   isEditing ? "btn-warning" : "btn-success"
                 } rounded-pill px-4`}
               >
-                <FaPlusCircle className="me-2 text-light"/>{" "}
+                <FaPlusCircle className="me-2 text-light" />{" "}
                 {isEditing ? "Update Event" : "Add Event"}
               </button>
             )}
