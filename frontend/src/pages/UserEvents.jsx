@@ -4,7 +4,7 @@ import "../styles/UserEvents.css";
 import InfoBox from "../components/InfoBox";
 import Logout from "../components/Logout";
 import Addeventmodal from "../components/Addeventmodal";
-import ColumnsModal from "../components/ColumsModal.jsx";
+import ColumnsModal from "../components/ColumsModal";
 import {
   FaUserCircle,
   FaEdit,

@@ -11,7 +11,7 @@ export default function MapPage() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h3>{venue || "Event Location"}</h3>
+    
       <MapViewer lat={lat} lng={lng} height={420} />
     </div>
   );

@@ -258,7 +258,3 @@
   transition: 0.3s ease;
 }
 
-.location-chip:hover .expand-info {
-  max-width: 200px;
-  opacity: 1;
-}

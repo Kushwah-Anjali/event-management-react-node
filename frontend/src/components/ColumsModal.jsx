@@ -37,12 +37,8 @@ export default function ColumnsModal({
     });
   };
 
-  const modalColumns = [
-    { key: "sno", label: "S. No (Fixed)" },
-    { key: "title", label: "Title (Fixed)" },
-    ...columns,
-    { key: "actions", label: "Actions (Fixed)" },
-  ];
+ const modalColumns = [...columns];
+
 
   const handleSelectAll = () => {
     const updated = {};

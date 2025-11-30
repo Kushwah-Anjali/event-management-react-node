@@ -3,12 +3,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import InfoBox from "../components/InfoBox";
 import MediaHistory from "../components/MediaHistory";
+import HistoryModal from "../components/HistoryModal";
+import ColumsModal from "../components/ColumsModal";
 import {
   FaHistory,
   FaRegClipboard,
   FaTags,
   FaRegCalendarAlt,
   FaArrowLeft,
+  FaCog,
 } from "react-icons/fa";
 
 export default function HistoryPage() {
@@ -18,6 +21,18 @@ export default function HistoryPage() {
 
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState({
+    Summary: true,
+    attandees: true,
+    budget_spent: true,
+    media: true,
+    highlights: false,
+    long_summary: false,
+    lessons_learned: false,
+    guests: false,
+  });
 
   const fetchHistory = async () => {
     if (!eventId) return;
@@ -33,13 +48,12 @@ export default function HistoryPage() {
         const h = Array.isArray(data.history) ? data.history[0] : data.history;
 
         // Parse media_links into usable media array
-       const media = Array.isArray(h.media)
-  ? h.media.map((m) => ({
-      ...m,
-      src: `http://localhost:5000/history/${m.url}`,
-    }))
-  : [];
-
+        const media = Array.isArray(h.media)
+          ? h.media.map((m) => ({
+              ...m,
+              src: `http://localhost:5000/history/${m.url}`,
+            }))
+          : [];
 
         setHistory({ ...h, media });
       }
@@ -67,6 +81,12 @@ export default function HistoryPage() {
   ];
 
   const { title, category, date } = location.state || {};
+  const eventData = {
+    id: eventId,
+    title: title || "",
+    date: date || "",
+  };
+
   return (
     <div style={{ background: "#0d0d4d", paddingTop: "40px" }}>
       <div className="container py-4">
@@ -108,31 +128,64 @@ export default function HistoryPage() {
 
         {/* ----------------------------------------------------------- */}
 
-        <div className="card shadow-sm border-0 ">
-          <div className="card-body">
-            <div className="table-responsive rounded">
+        <div className="card shadow-sm border-0">
+          <div className="card-body pb-2">
+            {/* Buttons Row */}
+           
+              <div className="d-flex gap-2 flex-wrap justify-content-between mb-3">
+                <button
+                  className="btn btn-outline-dark d-flex align-items-center gap-2"
+                  onClick={() => setIsColumnModalOpen(true)}
+                >
+                  <FaCog />
+                  Columns
+                </button>
+
+                <button
+                  className="btn fw-semibold rounded-3 btn-custom-dark bg-black text-light"
+                  onClick={() => setShowHistoryModal(true)}
+                >
+                  + Add History
+                </button>
+              </div>
+           
+          </div>
+
+          <div className="card-body pt-0">
+            <div className="table-responsive">
               <table className="table table-hover table-bordered align-middle mb-0">
                 <thead className="table-primary">
                   <tr>
-                    {columns.map((col) => (
-                      <th key={col.key} className="fw-semibold">
-                        {col.label}
-                      </th>
-                    ))}
+                    {columns
+                      .filter((col) => visibleColumns[col.key] !== false)
+                      .map((col) => (
+                        <th key={col.key} className="fw-semibold">
+                          {col.label}
+                        </th>
+                      ))}
                   </tr>
                 </thead>
 
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={columns.length} className="text-center py-4">
+                      <td
+                        colSpan={
+                          columns.filter((c) => visibleColumns[c.key] !== false)
+                            .length
+                        }
+                        className="text-center py-4"
+                      >
                         Loading history...
                       </td>
                     </tr>
                   ) : !history ? (
                     <tr>
                       <td
-                        colSpan={columns.length}
+                        colSpan={
+                          columns.filter((c) => visibleColumns[c.key] !== false)
+                            .length
+                        }
                         className="text-center py-4 text-muted"
                       >
                         No history available
@@ -140,46 +193,24 @@ export default function HistoryPage() {
                     </tr>
                   ) : (
                     <tr>
-                      <td>{history.summary || "-"}</td>
-                      <td>{history.highlights || "-"}</td>
-                      <td>{history.attendees_count || "-"}</td>
-                      <td>{history.guests || "-"}</td>
-                      <td>{history.budget_spent || "-"}</td>
-
-                      <td
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {history.long_summary || "-"}
-                      </td>
-
-                      <td
-                        className="text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {history.lessons_learned || "-"}
-                      </td>
-                 <td style={{ minWidth: "120px", maxWidth: "150px" }} className="text-center">
-
-                     
-
-                        {history?.media?.length ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "6px",
-                              flexWrap: "wrap",
-                            }}
-                          >
-                            <MediaHistory
-                              media={history.media}
-                              thumbnailWidth={50}
-                            />
-                          </div>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
+                      {columns
+                        .filter((col) => visibleColumns[col.key] !== false)
+                        .map((col) => (
+                          <td key={col.key}>
+                            {col.key === "media" ? (
+                              history.media?.length ? (
+                                <MediaHistory
+                                  media={history.media}
+                                  thumbnailWidth={50}
+                                />
+                              ) : (
+                                "-"
+                              )
+                            ) : (
+                              history[col.key] || "-"
+                            )}
+                          </td>
+                        ))}
                     </tr>
                   )}
                 </tbody>
@@ -188,6 +219,23 @@ export default function HistoryPage() {
           </div>
         </div>
       </div>
+      <HistoryModal
+        show={showHistoryModal}
+        onHide={() => setShowHistoryModal(false)}
+        eventData={eventData}
+        historyData={history ?? {}}
+        onSubmit={(fd, id) => {
+          setShowHistoryModal(false);
+          fetchHistory();
+        }}
+      />
+      <ColumsModal
+        open={isColumnModalOpen}
+        onClose={() => setIsColumnModalOpen(false)}
+        columns={columns}
+        visibleColumns={visibleColumns}
+        onChange={setVisibleColumns}
+      />
     </div>
   );
 }
