@@ -85,33 +85,40 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
     setExistingMedia((prev) => prev.filter((m) => m.url !== url));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    const fd = new FormData();
-    fd.append("summary", formData.summary);
-    fd.append("highlights", formData.highlights);
-    fd.append("attendees", formData.attendees_count);
-    fd.append("guests", formData.guests);
-    fd.append("budget", formData.budget_spent);
-    fd.append("lessons", formData.lessons_learned);
-    fd.append("long_summary", formData.long_summary);
-    fd.append("existingMedia", JSON.stringify(existingMedia));
+  const fd = new FormData();
 
- photos.forEach((p) => fd.append("media", p.file));
-videos.forEach((v) => fd.append("media", v.file));
+  fd.append("summary", formData.summary);
+  fd.append("highlights", formData.highlights);
+  fd.append("attendees_count", formData.attendees_count);
+  fd.append("guests", formData.guests);
+  fd.append("budget_spent", formData.budget_spent);
+  fd.append("lessons_learned", formData.lessons_learned);
+  fd.append("long_summary", formData.long_summary);
 
+  fd.append("existing_media", JSON.stringify(existingMedia));
 
-    onSubmit(fd, eventData?.id ?? "");
-    onHide(); // 🔥 critical fix
-  };
+  photos.forEach((p) => fd.append("media", p.file));
+  videos.forEach((v) => fd.append("media", v.file));
+for (let [key, value] of fd.entries()) {
+  console.log("FD KEY =>", key, "VALUE =>", value);
+}
+
+  onSubmit(fd, eventData?.id ?? "");
+  onHide();
+};
+
 
   return (
     <Modal show={show} onHide={onHide} centered scrollable>
       <Modal.Header closeButton className="bg-primary text-white ">
-        <Modal.Title>
-          <FaFileAlt className="me-2" /> Event History
-        </Modal.Title>
+     <Modal.Title>
+  <FaFileAlt className="me-2" />
+  {historyData && Object.keys(historyData).length > 0 ? "Update History" : "Add History"}
+</Modal.Title>
+
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
@@ -280,9 +287,10 @@ videos.forEach((v) => fd.append("media", v.file));
 
         <Modal.Footer className="position-sticky bottom-0 bg-white border-top py-2">
           <Button type="submit" variant="primary" className="rounded-pill px-3">
-            <FaFileAlt className="text-primary" />
-            Save History
-          </Button>
+  <FaFileAlt className="text-primary" />
+  {historyData && Object.keys(historyData).length > 0 ? "Update History" : "Add History"}
+</Button>
+
         </Modal.Footer>
       </Form>
     </Modal>
