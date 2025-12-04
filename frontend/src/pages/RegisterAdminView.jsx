@@ -24,7 +24,6 @@ const RegisterAdminView = () => {
 
   const sortedUsers = [...registeredUsers].sort((a, b) => {
     if (!sortConfig.key) return 0;
-
     let aValue = a[sortConfig.key];
     let bValue = b[sortConfig.key];
 

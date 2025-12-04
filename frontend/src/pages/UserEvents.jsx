@@ -12,7 +12,7 @@ import {
   FaSearch,
   FaPlus,
   FaHistory,
-   FaCog,
+  FaCog,
 } from "react-icons/fa";
 
 import Swal from "sweetalert2";
@@ -45,7 +45,11 @@ const UserEvents = () => {
     isModalOpen,
     loading,
   } = state;
-
+  const dashboardData = [
+    { title: "Name", value: user?.name },
+    { title: "Email", value: user?.email },
+    { title: "Total Events", value: events.length },
+  ];
   // --- Auth Check ---
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -210,9 +214,14 @@ const UserEvents = () => {
     }));
   };
   const handleHistory = (event) => {
-    navigate("/history", { state: { eventId: event.id , title: event.title,
-      category: event.category,
-      date: event.date, } });
+    navigate("/history", {
+      state: {
+        eventId: event.id,
+        title: event.title,
+        category: event.category,
+        date: event.date,
+      },
+    });
   };
 
   const filteredEvents = useMemo(() => {
@@ -363,124 +372,108 @@ const UserEvents = () => {
           <div className="card-body">
             {/* Full-width header row */}
             <div className="d-flex justify-content-between align-items-center dash-head mb-4">
-              {/* Title */}
-              <h3 className="text-white d-flex align-items-center gap-2 mb-0">
-                <FaUserCircle />
-                My Events Dashboard
-              </h3>
+              {/* Slide-in InfoCard */}
+             <InfoBox
+  icon={FaUserCircle}
+  title="My Events Dashboard"
+  data={[
+    { title: "Name", value: user?.name },
+    { title: "Email", value: user?.email },
+    { title: "Total Events", value: events.length },
+  ]}
+/>
+
+
+              {/* Logout button stays */}
               <Logout />
             </div>
 
-            {/* Info Grid */}
-            <div className="row g-4">
-              <InfoBox
-                title="Name"
-                value={user?.name}
-                icon="bi bi-people-fill"
-              />
-
-              <InfoBox
-                title="Email"
-                value={user?.email}
-                icon="bi bi-envelope-fill"
-              />
-
-              <InfoBox
-                title="Total Events"
-                value={events.length}
-                icon="bi bi-calendar-event-fill"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="card shadow-sm border-0 rounded-3">
-          <div className="card-body">
-            {/* Toolbar */}
-         <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
               {/* LEFT SIDE: Rows + Search */}
-            <div className="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
-  {/* Search box */}
-  <div className="input-group" style={{ minWidth: "200px", maxWidth: "300px" }}>
-    <span className="input-group-text bg-white"><FaSearch /></span>
-    <input
-      type="text"
-      className="form-control"
-      placeholder="Search..."
-      value={search}
-      onChange={(e) =>
-        setState((prev) => ({
-          ...prev,
-          search: e.target.value,
-          currentPage: 1,
-        }))
-      }
-    />
-  </div>
+              <div className="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
+                {/* Search box */}
+                <div
+                  className="input-group"
+                  style={{ minWidth: "200px", maxWidth: "300px" }}
+                >
+                  <span className="input-group-text bg-white">
+                    <FaSearch />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search..."
+                    value={search}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        search: e.target.value,
+                        currentPage: 1,
+                      }))
+                    }
+                  />
+                </div>
 
-  {/* Rows selector */}
-  <select
-    className="form-select"
-    style={{ width: "6rem" }}
-    value={rowsPerPage}
-    onChange={(e) =>
-      setState((prev) => ({
-        ...prev,
-        rowsPerPage: Number(e.target.value),
-        currentPage: 1,
-      }))
-    }
-  >
-    <option value={5}>5 rows</option>
-    <option value={10}>10 rows</option>
-    <option value={20}>20 rows</option>
-  </select>
+                {/* Rows selector */}
+                <select
+                  className="form-select"
+                  style={{ width: "6rem" }}
+                  value={rowsPerPage}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      rowsPerPage: Number(e.target.value),
+                      currentPage: 1,
+                    }))
+                  }
+                >
+                  <option value={5}>5 rows</option>
+                  <option value={10}>10 rows</option>
+                  <option value={20}>20 rows</option>
+                </select>
 
-  {/* Column/settings button */}
-  <button
-    className="btn btn-outline-dark d-flex align-items-center gap-2"
-    onClick={() => setIsColumnModalOpen(true)}
-  >
-    <FaCog />
-    Columns
-  </button>
-</div>
+                {/* Column/settings button */}
+                <button
+                  className="btn btn-outline-dark d-flex align-items-center gap-2"
+                  onClick={() => setIsColumnModalOpen(true)}
+                >
+                  <FaCog />
+                  Columns
+                </button>
+              </div>
 
-
-           <div className="flex-shrink-0">
-  <button
-    className="btn btn-custom-dark d-flex align-items-center gap-2 rounded-3 text-light bg-black"
-    onClick={() => setState((prev) => ({ ...prev, isModalOpen: true }))}
-  >
-    <FaPlus />
-    Add Event
-  </button>
-</div>
-
+              <div className="flex-shrink-0">
+                <button
+                  className="btn btn-custom-dark d-flex align-items-center gap-2 rounded-3 text-light bg-black"
+                  onClick={() =>
+                    setState((prev) => ({ ...prev, isModalOpen: true }))
+                  }
+                >
+                  <FaPlus />
+                  Add Event
+                </button>
+              </div>
             </div>
-
-            {/* Table */}
             <div className="table-responsive rounded">
               <table className="table table-hover table-bordered align-middle mb-0">
                 <thead className="table-primary">
                   <tr>
                     {/* FIXED COLUMNS */}
                     <th className="fw-semibold">S. No</th>
-                  <th
-  className="fw-semibold"
-  style={{ cursor: "pointer", userSelect: "none" }}
-  onClick={() => handleSort("title")}
->
-  Title
-  <span className="ms-1">
-    {state.sortKey === "title"
-      ? state.sortOrder === "asc"
-        ? "▲"
-        : "▼"
-      : "⇅"}
-  </span>
-</th>
-
+                    <th
+                      className="fw-semibold"
+                      style={{ cursor: "pointer", userSelect: "none" }}
+                      onClick={() => handleSort("title")}
+                    >
+                      Title
+                      <span className="ms-1">
+                        {state.sortKey === "title"
+                          ? state.sortOrder === "asc"
+                            ? "▲"
+                            : "▼"
+                          : "⇅"}
+                      </span>
+                    </th>
 
                     {/* DYNAMIC COLUMNS */}
                     {columns.map(
@@ -523,19 +516,20 @@ const UserEvents = () => {
 
                 <tbody>
                   {currentEvents.map((event, idx) => (
-                 <tr 
-  key={event.id} 
-  onDoubleClick={() => navigate("/RegisterAdminView", {
-    state: {
-      eventId: event.id,
-      title: event.title,
-      category: event.category,
-      date: event.date
-    }
-  })}
-  style={{ cursor: "pointer" }}
->
-
+                    <tr
+                      key={event.id}
+                      onDoubleClick={() =>
+                        navigate("/RegisterAdminView", {
+                          state: {
+                            eventId: event.id,
+                            title: event.title,
+                            category: event.category,
+                            date: event.date,
+                          },
+                        })
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
                       {/* FIXED S.NO */}
                       <td>{(currentPage - 1) * rowsPerPage + idx + 1}</td>
 
@@ -601,6 +595,26 @@ const UserEvents = () => {
                 </tbody>
               </table>
             </div>
+            {/* Info Grid */}
+            {/* <div className="row g-4">
+              <InfoBox
+                title="Name"
+                value={user?.name}
+                icon="bi bi-people-fill"
+              />
+
+              <InfoBox
+                title="Email"
+                value={user?.email}
+                icon="bi bi-envelope-fill"
+              />
+
+              <InfoBox
+                title="Total Events"
+                value={events.length}
+                icon="bi bi-calendar-event-fill"
+              />
+            </div> */}
           </div>
         </div>
 

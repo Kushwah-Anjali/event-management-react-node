@@ -144,7 +144,16 @@ export default function HistoryPage() {
       </div>
 
       {/* Modals */}
-      <HistoryModal show={showHistoryModal} onHide={() => setShowHistoryModal(false)} eventData={eventData} historyData={history ?? {}} onSubmit={handleHistorySubmit} />
+{showHistoryModal && (
+  <HistoryModal
+    show={true}
+    onHide={() => setShowHistoryModal(false)}
+    eventData={eventData}
+    historyData={history}
+    onSubmit={handleHistorySubmit}
+  />
+)}
+
       <ColumsModal open={isColumnModalOpen} onClose={() => setIsColumnModalOpen(false)} columns={columns} visibleColumns={visibleColumns} onChange={setVisibleColumns} />
     </div>
   );

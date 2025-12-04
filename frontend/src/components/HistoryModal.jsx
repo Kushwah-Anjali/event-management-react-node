@@ -27,24 +27,26 @@ const HistoryModal = ({ show, onHide, eventData, historyData, onSubmit }) => {
   const [photos, setPhotos] = useState([]);
   const [videos, setVideos] = useState([]);
 
-  useEffect(() => {
-    if (show && historyData != null) {
-      setFormData({
-        summary: historyData.summary || "",
-        highlights: historyData.highlights || "",
-        attendees_count: historyData.attendees_count || "",
-        guests: historyData.guests || "",
-        budget_spent: historyData.budget_spent || "",
-        lessons_learned: historyData.lessons_learned || "",
-        long_summary: historyData.long_summary || "",
-        photos: [],
-        videos: [],
-      });
-      setExistingMedia(
-        Array.isArray(historyData?.media) ? historyData.media : []
-      );
-    }
-  }, [show, historyData]);
+useEffect(() => {
+  if (show && historyData) {
+    setFormData({
+      summary: historyData.summary || "",
+      highlights: historyData.highlights || "",
+      attendees_count: historyData.attendees_count || "",
+      guests: historyData.guests || "",
+      budget_spent: historyData.budget_spent || "",
+      lessons_learned: historyData.lessons_learned || "",
+      long_summary: historyData.long_summary || "",
+      photos: [],
+      videos: [],
+    });
+
+    setExistingMedia(
+      Array.isArray(historyData.media) ? historyData.media : []
+    );
+  }
+}, [show, historyData]);
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -102,9 +104,6 @@ const handleSubmit = (e) => {
 
   photos.forEach((p) => fd.append("media", p.file));
   videos.forEach((v) => fd.append("media", v.file));
-for (let [key, value] of fd.entries()) {
-  console.log("FD KEY =>", key, "VALUE =>", value);
-}
 
   onSubmit(fd, eventData?.id ?? "");
   onHide();
@@ -286,8 +285,8 @@ for (let [key, value] of fd.entries()) {
         </Modal.Body>
 
         <Modal.Footer className="position-sticky bottom-0 bg-white border-top py-2">
-          <Button type="submit" variant="primary" className="rounded-pill px-3">
-  <FaFileAlt className="text-primary" />
+          <Button type="submit" className="rounded-pill px-3">
+  <FaFileAlt className="me-2" />
   {historyData && Object.keys(historyData).length > 0 ? "Update History" : "Add History"}
 </Button>
 
