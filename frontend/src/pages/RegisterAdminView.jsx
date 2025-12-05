@@ -15,6 +15,7 @@ const RegisterAdminView = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { eventId, title, category, date } = state || {};
+const [showMobileInfo, setShowMobileInfo] = useState(false);
 
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [sortConfig, setSortConfig] = useState({
@@ -71,31 +72,37 @@ const RegisterAdminView = () => {
         {/* Header Card */}
         <div className="card shadow-sm border-0 rounded-4 mb-4">
           <div className="card-body">
-            <div className="d-flex justify-content-between align-items-center dash-head mb-4">
-              <h3 className="text-white d-flex align-items-center gap-2 mb-0">
-                <FaUsers />
-                Register Users
-              </h3>
+           <div
+  className="d-flex justify-content-between align-items-center dash-head mb-4"
+  onClick={() => {
+    if (window.innerWidth <= 768) {
+      setShowMobileInfo(prev => !prev);
+    }
+  }}
+>
+  <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+    <FaUsers />
+    Register Users
+  </h3>
 
-              <button
-                className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
-                style={{ width: "42px", height: "42px" }}
-                onClick={() => navigate(-1)}
-              >
-                <FaArrowLeft size={18} />
-              </button>
-            </div>
-            <div className="row g-4">
-              <InfoBox title="Title" value={title} icon={<FaRegClipboard />} />
+  <button
+    className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
+    style={{ width: 42, height: 42 }}
+    onClick={() => navigate(-1)}
+  >
+    <FaArrowLeft size={18} />
+  </button>
+</div>
 
-              <InfoBox title="Category" value={category} icon={<FaTags />} />
+          {/* Info Grid — mobile toggle wrapper */}
+<div className={`infobox-wrapper ${showMobileInfo ? "show" : ""}`}>
+  <div className="row g-4">
+    <InfoBox title="Title" value={title} icon={<FaRegClipboard />} />
+    <InfoBox title="Category" value={category} icon={<FaTags />} />
+    <InfoBox title="Date" value={date ? new Date(date).toLocaleDateString() : "-"} icon={<FaRegCalendarAlt />} />
+  </div>
+</div>
 
-              <InfoBox
-                title="Date"
-                value={date ? new Date(date).toLocaleDateString() : "-"}
-                icon={<FaRegCalendarAlt />}
-              />
-            </div>
           </div>
         </div>
 

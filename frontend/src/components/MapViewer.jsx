@@ -7,19 +7,46 @@ export default function MapViewer({ lat, lng, height = 400 }) {
   const position = [lat, lng];
   const [address, setAddress] = useState("Loading address...");
 
+  const formatAddress = (address) => {
+  if (!address) return "Address not available";
+
+  const parts = [
+    address.neighbourhood,
+    address.suburb,
+    address.city_district,
+    address.city,
+    address.postcode,
+    address.country
+  ];
+
+  // Filter out undefined or empty values, then join
+  return parts.filter(Boolean).join(", ");
+};
+
+
   useEffect(() => {
-    const fetchAddress = async () => {
-      try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-        );
-        const data = await response.json();
-        if (data?.display_name) setAddress(data.display_name);
-        else setAddress("Address not found");
-      } catch {
-        setAddress("Error fetching address");
-      }
-    };
+  const fetchAddress = async () => {
+  try {
+    console.log("Fetching address for:", lat, lng);
+
+    const response = await fetch(
+      `http://localhost:5000/api/reverse-geo?lat=${lat}&lon=${lng}`
+    );
+
+    const data = await response.json();
+
+    console.log("Received address data:", data['address']);
+
+    const formatted = formatAddress(data['address']);
+    console.log("Formatted address:", formatted);
+
+    if (data['address']) setAddress(formatted);
+    else setAddress("Address not found");
+  } catch (error) {
+    setAddress("Error fetching address");
+  }
+};
+
     fetchAddress();
   }, [lat, lng]);
 

@@ -34,6 +34,7 @@ const UserEvents = () => {
     editEvent: null,
     sortKey: "",
     sortOrder: "asc",
+      showMobileInfo: false,
   });
 
   const {
@@ -45,11 +46,7 @@ const UserEvents = () => {
     isModalOpen,
     loading,
   } = state;
-  const dashboardData = [
-    { title: "Name", value: user?.name },
-    { title: "Email", value: user?.email },
-    { title: "Total Events", value: events.length },
-  ];
+ 
   // --- Auth Check ---
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -57,7 +54,6 @@ const UserEvents = () => {
       setState((prev) => ({ ...prev, user: JSON.parse(storedUser) }));
     else navigate("/login");
   }, [navigate]);
-
   // --- Fetch Events (Reusable Function) ---
   const fetchEvents = async () => {
     if (!user?.id) return;
@@ -371,23 +367,54 @@ const UserEvents = () => {
         <div className="card shadow-sm border-0 rounded-4 mb-4">
           <div className="card-body">
             {/* Full-width header row */}
-            <div className="d-flex justify-content-between align-items-center dash-head mb-4">
-              {/* Slide-in InfoCard */}
-             <InfoBox
-  icon={FaUserCircle}
-  title="My Events Dashboard"
-  data={[
-    { title: "Name", value: user?.name },
-    { title: "Email", value: user?.email },
-    { title: "Total Events", value: events.length },
-  ]}
-/>
+    <div
+  className="d-flex justify-content-between align-items-center dash-head mb-4"
+  onClick={() => {
+    if (window.innerWidth <= 768) {
+      setState((s) => ({ ...s, showMobileInfo: !s.showMobileInfo }));
+    }
+  }}
+>
+  <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+    <FaUserCircle />
+    My Events Dashboard
+  </h3>
+  <Logout />
+</div>
 
 
-              {/* Logout button stays */}
-              <Logout />
+  {/* Info Grid */}
+           {/* Info Grid — mobile toggle wrapper */}
+           
+<div className={`infobox-wrapper ${state.showMobileInfo ? "show" : ""}`}>
+  <div className="row g-4">
+
+    <InfoBox 
+      title="Name" 
+      value={user?.name} 
+      icon="bi bi-people-fill" 
+    />
+
+    <InfoBox 
+      title="Email" 
+      value={user?.email} 
+      icon="bi bi-envelope-fill" 
+    />
+
+    <InfoBox 
+      title="Total Events" 
+      value={events.length} 
+      icon="bi bi-calendar-event-fill" 
+    />
+
+  </div>
+</div>
+
+
             </div>
-
+            </div>
+              <div className="card shadow-sm border-0 rounded-3">
+          <div className="card-body">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
               {/* LEFT SIDE: Rows + Search */}
               <div className="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
@@ -435,6 +462,7 @@ const UserEvents = () => {
                 {/* Column/settings button */}
                 <button
                   className="btn btn-outline-dark d-flex align-items-center gap-2"
+                  title="Select columns"
                   onClick={() => setIsColumnModalOpen(true)}
                 >
                   <FaCog />
@@ -595,26 +623,7 @@ const UserEvents = () => {
                 </tbody>
               </table>
             </div>
-            {/* Info Grid */}
-            {/* <div className="row g-4">
-              <InfoBox
-                title="Name"
-                value={user?.name}
-                icon="bi bi-people-fill"
-              />
-
-              <InfoBox
-                title="Email"
-                value={user?.email}
-                icon="bi bi-envelope-fill"
-              />
-
-              <InfoBox
-                title="Total Events"
-                value={events.length}
-                icon="bi bi-calendar-event-fill"
-              />
-            </div> */}
+           
           </div>
         </div>
 
