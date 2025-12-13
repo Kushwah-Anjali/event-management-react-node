@@ -8,7 +8,7 @@ import Users from "./pages/Users";
 import UserEvents from "./pages/UserEvents";
 import RegisterDetails from "./pages/RegisterDetails";
 import EventHistory from "./pages/EventHistory";
-import HistoryPage from "./pages/HistoryPage";
+import HistoryPageAdmin from "./pages/HistoryPageAdmin";
 import './App.css';
 import RegisterAdminView from "./pages/RegisterAdminView";
 import 'leaflet/dist/leaflet.css';
@@ -26,7 +26,7 @@ function App() {
         <Route path="/userevents" element={<UserEvents />} />
           <Route path="/register-details" element={<RegisterDetails />} />
     <Route path="/event-history" element ={<EventHistory />}/>
-  <Route path="/history" element={<HistoryPage />} />
+  <Route path="/history" element={<HistoryPageAdmin />} />
 <Route path="/RegisterAdminView" element={<RegisterAdminView />} />
 
 <Route path="/map" element={<MapPage />} />

@@ -8,7 +8,7 @@ import ColumsModal from "../components/ColumsModal";
 import { FaHistory, FaRegClipboard, FaTags, FaRegCalendarAlt, FaArrowLeft, FaCog } from "react-icons/fa";
 import { getHistoryByEvent, saveHistory } from "../services/adminHistoryPage"; // Axios
 
-export default function HistoryPage() {
+export default function HistoryPageAdmin() {
   const location = useLocation();
   const navigate = useNavigate();
   const eventId = location.state?.eventId;

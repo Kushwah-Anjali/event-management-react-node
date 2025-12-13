@@ -7,7 +7,6 @@ import InfoBox from "../components/InfoBox";
 import MediaHistory from "../components/MediaHistory";
 
 import {
-  FaArrowLeft,
   FaUsers,
   FaRegClock,
   FaIdBadge,
@@ -36,7 +35,7 @@ export default function EventHistory() {
       // 1️⃣ Fetch event
       const eventRes = await axios.get(`http://localhost:5000/api/register/event/${eventId}`);
       let evt = eventRes.data.event || eventRes.data;
-
+   
       // Sections
       const sections = [];
       if (evt.summary) sections.push({ title: "Summary", type: "text", content: evt.summary });
@@ -116,7 +115,12 @@ export default function EventHistory() {
     fadeEls.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [event]);
+ const formatEventDate = (dateString) => {
+    if (!dateString) return "Not specified";
 
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-GB", options);
+  };
   if (loading) return <div className="container my-5 text-center">Loading event...</div>;
   if (error) return <div className="container my-5 text-center text-danger">Error: {error}</div>;
   if (!event) return (
@@ -129,43 +133,47 @@ export default function EventHistory() {
   return (
     <div className="history-wrapper py-4" style={{ background: "#0d0d4d" }}>
       <div className="event-history-page container">
-        {/* Top Bar */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <button className="btn btn-outline-light d-flex align-items-center gap-2" onClick={() => navigate(-1)}>
-            <FaArrowLeft /> Back
-          </button>
-          {event.registerLink && (
-            <a className="btn btn-primary fw-semibold px-4" href={event.registerLink} target="_blank" rel="noreferrer">Register</a>
-          )}
+      
+
+       {/* Hero Section */}
+<div className="mb-4 fade-in shadow-sm rounded-4 overflow-hidden bg-light">
+  <div className="row g-0 align-items-stretch">
+    
+    {/* Image Section */}
+    <div className="col-12 col-md-4">
+      <div
+        className="w-100 h-100"
+        style={{
+          minHeight: "220px",
+          backgroundImage: `url(${event.image || "/placeholder.jpg"})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
+    </div>
+
+    {/* Content Section */}
+    <div className="col-12 col-md-8 p-3 d-flex flex-column justify-content-center">
+      <h2 className="fw-bold mb-2 d-flex align-items-center gap-2">
+        {event.title}
+      </h2>
+      <p className="text-muted mb-1 d-flex align-items-center gap-2">
+        <FaRegClock /> {formatEventDate(event.date) || "Date TBD"}
+      </p>
         </div>
 
-        {/* Hero Section */}
-        <div className="mb-4 fade-in shadow-sm rounded-4 overflow-hidden bg-light">
-          <div className="d-flex flex-column flex-md-row align-items-stretch">
-            <div className="flex-shrink-0" style={{
-              width: "100%",
-              maxWidth: "280px",
-              height: "220px",
-              backgroundImage: `url(${event.image || "/placeholder.jpg"})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}></div>
-            <div className="flex-grow-1 p-3 d-flex flex-column justify-content-center">
-              <h2 className="fw-bold mb-2 d-flex align-items-center gap-2">{event.title}</h2>
-              <p className="text-muted mb-1 d-flex align-items-center gap-2"><FaRegClock /> {event.date || "Date TBD"}</p>
-              <p className="text-muted mb-0 d-flex align-items-center gap-2"><FaMapMarkerAlt /> {event.venue || "Venue TBD"}</p>
-            </div>
-          </div>
-        </div>
+  </div>
+</div>
+
 
         {/* Info Boxes */}
         <div className="row g-3 mb-4">
-          <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"} icon={<FaUsers style={{ color: "#1e3a8a" }} />} />
-          <InfoBox title="Guests" value={event.guests ?? "0"} icon={<FaIdBadge style={{ color: "#1e3a8a" }} />} />
-          <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"} icon={<FaMoneyBill style={{ color: "#1e3a8a" }} />} />
-          <InfoBox title="Entry Fee" value={event.fees ?? "Free"} icon={<FaWallet style={{ color: "#1e3a8a" }} />} />
-          <InfoBox title="Venue" value={event.venue ?? "N/A"} icon={<FaMapMarkerAlt style={{ color: "#1e3a8a" }} />} />
-          <InfoBox title="Contact" value={event.contact ?? "N/A"} icon={<FaPhone style={{ color: "#1e3a8a" }} />} />
+          <InfoBox title="Attendees" value={event.attendees_count ?? event.attendees ?? "0"} icon={<FaUsers  />} />
+          <InfoBox title="Guests" value={event.guests ?? "0"} icon={<FaIdBadge  />} />
+          <InfoBox title="Budget Spent" value={event.budget_spent ?? event.budget ?? "N/A"} icon={<FaMoneyBill  />} />
+          <InfoBox title="Entry Fee" value={event.fees ?? "Free"} icon={<FaWallet  />} />
+          <InfoBox title="Venue" value={event.venue ?? "N/A"} icon={<FaMapMarkerAlt  />} />
+          <InfoBox title="Contact" value={event.contact ?? "N/A"} icon={<FaPhone  />} />
         </div>
 
         {/* Dynamic Sections */}

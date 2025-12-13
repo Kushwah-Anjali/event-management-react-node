@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const nodemailer = require("nodemailer");
+import Logo from "./Logo";
 require("dotenv").config();
 
 router.post("/", async (req, res) => {
@@ -25,9 +26,17 @@ router.post("/", async (req, res) => {
       to: process.env.EMAIL_USER,
       subject: `📨 New Inquiry from ${name}`,
       html: `
-        <div style="font-family:Poppins,sans-serif;background:#f9fafc;padding:20px;border-radius:10px;">
+        <div style="background:#f9fafc;padding:20px;border-radius:10px;">
           <div style="max-width:600px;margin:auto;background:white;padding:20px;border-radius:10px;">
-            <h2 style="color:#007bff;">New Message from Contact Form</h2>
+        <img 
+  src="https://yourdomain.com/logo.png" 
+  alt="Eventify Logo" 
+  width="40"
+  style="vertical-align:middle;"
+/>
+<span style="margin-left:8px;font-weight:bold;">Eventify</span>
+
+           
             <p><b>Name:</b> ${name}</p>
             <p><b>Email:</b> ${email}</p>
             <p><b>Message:</b></p>
@@ -44,7 +53,7 @@ router.post("/", async (req, res) => {
       to: email,
       subject: "✅ We’ve received your message!",
       html: `
-        <div style="font-family:Poppins,sans-serif;background:#f8f9fa;padding:20px;">
+        <div style="background:#f8f9fa;padding:20px;">
           <div style="max-width:600px;margin:auto;background:white;border-radius:10px;padding:20px;text-align:center;">
             <img src="https://img.icons8.com/color/96/event.png" alt="logo" width="80"/>
             <h2 style="color:#007bff;">Thanks for Reaching Out!</h2>

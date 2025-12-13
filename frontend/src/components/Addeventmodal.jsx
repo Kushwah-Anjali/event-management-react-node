@@ -16,6 +16,7 @@ import {
   FaPhone,
   FaImage,
   FaFileAlt,
+  FaSearch,
 } from "react-icons/fa";
 
 import { EventCategory } from "./EventCategory";
@@ -138,13 +139,13 @@ export default function AddEventModal({
         }));
         break;
       case "author":
-    case "venue":
-  updatedValue = value;
-  setErrors((prev) => ({
-    ...prev,
-    venue: updatedValue ? "" : "Venue cannot be empty",
-  }));
-  break;
+      case "venue":
+        updatedValue = value;
+        setErrors((prev) => ({
+          ...prev,
+          venue: updatedValue ? "" : "Venue cannot be empty",
+        }));
+        break;
 
       case "date":
         const today = new Date().toISOString().split("T")[0];
@@ -296,6 +297,31 @@ export default function AddEventModal({
     !errors[field] && data[field] ? (
       <FaCheckCircle className="me-2 text-primary" />
     ) : null;
+  const handleVenueSearch = async (e) => {
+    const value = e.target.value;
+    setData((d) => ({ ...d, venue: value }));
+
+    if (!value.trim()) return;
+
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${value}`;
+      const res = await fetch(url);
+      const result = await res.json();
+
+      if (result.length > 0) {
+        const { lat, lon, display_name } = result[0];
+
+        setData((d) => ({
+          ...d,
+          venue: display_name,
+          latitude: lat,
+          longitude: lon,
+        }));
+      }
+    } catch (err) {
+      console.error("Search failed", err);
+    }
+  };
 
   return (
     <div className="modal show d-flex align-items-center justify-content-center">
@@ -433,61 +459,54 @@ export default function AddEventModal({
                   <span className="star">*</span>
                 </label>
 
-                <div className="d-flex align-items-center mb-3">
+                <div className="input-group mb-3">
+                  <span className="input-group-text">
+                    <FaSearch className="text-primary" />
+                  </span>
+
                   <input
                     name="venue"
                     value={data.venue}
-                    onChange={handleChange}
+                    onChange={handleVenueSearch}
                     className={`form-control ${
                       errors.venue ? "is-invalid" : ""
                     }`}
-                    placeholder="Venue address or name"
+                    placeholder="Search location..."
                   />
-                  {renderCheckIcon("venue")}
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary ms-2"
-                    onClick={() => setShowMapPicker((s) => !s)}
-                  >
-                    Pick on map
-                  </button>
                 </div>
 
-                {showMapPicker && (
-                  <div className="mb-3">
-                    <MapPicker
-                      onSelect={({ lat, lng }) => {
-                        setData((d) => ({
-                          ...d,
-                          latitude: lat,
-                          longitude: lng,
-                          venue: `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(
-                            5
-                          )}`,
-                        }));
+                <div className="mb-3">
+                  <MapPicker
+                    onSelect={({ lat, lng, address }) => {
+                      setData((d) => ({
+                        ...d,
+                        latitude: lat,
+                        longitude: lng,
+                        venue: address,
+                      }));
 
-                        Swal.fire({
-                          icon: "success",
-                          title: "Location selected",
-                          timer: 900,
-                          showConfirmButton: false,
-                        });
-                      }}
-                      initialPosition={
-                        data.latitude && data.longitude
-                          ? {
-                              lat: Number(data.latitude),
-                              lng: Number(data.longitude),
-                            }
-                          : null
-                      }
-                      height={280}
-                    />
-                    <div className="small text-muted mt-1">
-                      Click on the map to pick the event location.
-                    </div>
+                      Swal.fire({
+                        icon: "success",
+                        title: "Location selected",
+                        timer: 900,
+                        showConfirmButton: false,
+                      });
+                    }}
+                    initialPosition={
+                      data.latitude && data.longitude
+                        ? {
+                            lat: Number(data.latitude),
+                            lng: Number(data.longitude),
+                          }
+                        : null
+                    }
+                    height={280}
+                  />
+
+                  <div className="small text-muted mt-1">
+                    Click any point on the map to update location.
                   </div>
-                )}
+                </div>
 
                 <label className="form-label fw-semibold">
                   <FaMoneyBillWave className="me-2 text-primary" /> Fees{" "}

@@ -71,6 +71,7 @@
 }
 html, body {
   overflow-x: hidden !important;  
+  font-family: "poppins", sans-serif;
 }
 
 body.modal-open {

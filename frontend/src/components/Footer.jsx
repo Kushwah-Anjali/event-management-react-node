@@ -21,8 +21,7 @@ const Footer = () => {
   return (
     <footer
       style={{
-        fontFamily: "Poppins, sans-serif",
-        background: "linear-gradient(135deg, #0a0a2a)",
+              background: "linear-gradient(135deg, #0a0a2a)",
       }}
       className="pt-5 pb-3"
     >
