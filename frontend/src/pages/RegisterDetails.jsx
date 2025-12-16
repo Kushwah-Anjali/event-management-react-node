@@ -13,6 +13,8 @@ import {
 } from "react-icons/fa";
 import InfoBox from "../components/InfoBox";
 
+
+
 function RegisterDetails() {
   const location = useLocation();
     const navigate = useNavigate();

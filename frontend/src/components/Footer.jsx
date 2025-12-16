@@ -35,20 +35,29 @@ const Footer = () => {
             <p className="small text-secondary">
               Simplifying event management with innovation and seamless coordination.
             </p>
-            <div className="d-flex gap-3 mt-3 justify-content-center justify-content-md-start">
-              {[faFacebookF, faInstagram, faLinkedinIn, faWhatsapp].map((icon, idx) => (
-                <a
-                  key={idx}
-                  href="#"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-secondary fs-5 social-icon"
-                  style={{ transition: "all 0.3s ease" }}
-                >
-                  <FontAwesomeIcon icon={icon} />
-                </a>
-              ))}
-            </div>
+           <div className="d-flex gap-3 mt-3 justify-content-center justify-content-md-start">
+  {[
+    { icon: faFacebookF, color: "#1877F2" }, // Facebook Blue
+    { icon: faInstagram, color: "#E4405F" }, // Instagram Pink
+    { icon: faLinkedinIn, color: "#0A66C2" }, // LinkedIn Blue
+    { icon: faWhatsapp, color: "#25D366" }, // WhatsApp Green
+  ].map((item, idx) => (
+    <a
+      key={idx}
+      href="#"
+      target="_blank"
+      rel="noreferrer"
+      className="fs-5 social-icon"
+      style={{
+        color: item.color,
+        transition: "all 0.3s ease",
+      }}
+    >
+      <FontAwesomeIcon icon={item.icon} />
+    </a>
+  ))}
+</div>
+
           </Col>
 
           {/* Quick Links */}
