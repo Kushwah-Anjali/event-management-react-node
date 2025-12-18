@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Hero.css";
 
 const Hero = () => {
@@ -25,8 +24,12 @@ const Hero = () => {
       <div className="container py-5 position-relative">
         <p className="hero-caption">Celebrate • Connect • Create</p>
         <h1 className="hero-title mb-3">Your Event, Your Way</h1>
-        <p className="hero-subcaption">Discover, Experience, and Make Memories</p>
-        <a href="#event-section" className="btn hero-btn">Explore Events</a>
+        <p className="hero-subcaption">
+          Discover, Experience, and Make Memories
+        </p>
+        <a href="#event-section" className="btn hero-btn">
+          Explore Events
+        </a>
       </div>
     </section>
   );

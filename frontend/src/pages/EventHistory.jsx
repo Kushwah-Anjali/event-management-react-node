@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
 import InfoBox from "../components/InfoBox";
 import MediaHistory from "../components/MediaHistory";
 
