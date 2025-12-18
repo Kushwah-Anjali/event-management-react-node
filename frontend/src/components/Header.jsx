@@ -1,16 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { Navbar, Nav, Container, Offcanvas } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faEnvelope, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { FaHome, FaEnvelope, FaUserCircle } from "react-icons/fa";
 import Logo from "./Logo";
 import "../styles/Header.css";
 
 const navLinks = [
-  { path: "/", label: "Home", icon: faHouse },
-  { path: "/contact", label: "Contact", icon: faEnvelope },
-  { path: "/login", label: "Login", icon: faUserCircle },
+  { path: "/", label: "Home", icon: FaHome },
+  { path: "/contact", label: "Contact", icon: FaEnvelope },
+  { path: "/login", label: "Login", icon: FaUserCircle },
 ];
+
+const NavItems = ({ isActive, onClick, animated = false }) => (
+  <>
+    {navLinks.map((link, index) => {
+      const Icon = link.icon;
+      return (
+        <Nav.Link
+          as={Link}
+          key={link.path}
+          to={link.path}
+          onClick={onClick}
+          className={`fw-semibold d-flex align-items-center gap-2 nav-link ${
+            isActive(link.path) ? "active-link" : ""
+          } ${animated ? "mobile-nav-item" : ""}`}
+          style={animated ? { animationDelay: `${index * 0.08}s` } : undefined}
+        >
+          <span className="nav-icon">
+            <Icon />
+          </span>
+          {link.label}
+        </Nav.Link>
+      );
+    })}
+  </>
+);
 
 const Header = () => {
   const location = useLocation();
@@ -18,7 +42,12 @@ const Header = () => {
   const [showCanvas, setShowCanvas] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => {
+      // “Have I scrolled more than 50 pixels?”
+      const isScrolled = window.scrollY > 50;
+      setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
+    };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -27,55 +56,54 @@ const Header = () => {
 
   return (
     <>
-      <Navbar expand="lg" variant="dark" sticky="top" className={`shadow-sm py-2 ${scrolled ? "navbar-scrolled" : "bg-dark"}`}>
+      <Navbar
+        expand="lg"
+        variant="dark"
+        sticky="top"
+        className={`shadow-sm py-2 ${scrolled ? "navbar-scrolled" : "bg-dark"}`}
+      >
         <Container fluid>
-          <Navbar.Brand as={Link} to="/" className="d-flex align-items-center fw-bold fs-4 text-light">
+          <Navbar.Brand
+            as={Link}
+            to="/"
+            className="d-flex align-items-center fw-bold fs-4 text-light"
+          >
             <Logo width={40} height={40} />
             <span className="ms-2">Eventify</span>
           </Navbar.Brand>
 
           <Navbar.Toggle onClick={() => setShowCanvas(true)} />
 
+          {/* Desktop Nav */}
           <Navbar.Collapse className="justify-content-end d-none d-lg-flex">
             <Nav>
-              {navLinks.map((link) => (
-                <Nav.Link
-                  as={Link}
-                  key={link.path}
-                  to={link.path}
-                  className={`fw-semibold px-3 d-flex align-items-center gap-2 ${isActive(link.path) ? "active-link" : "text-light"}`}
-                >
-                  <FontAwesomeIcon icon={link.icon} />
-                  {link.label}
-                </Nav.Link>
-              ))}
+              <NavItems isActive={isActive} />
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      {/* Offcanvas for mobile */}
-      <Offcanvas show={showCanvas} onHide={() => setShowCanvas(false)} placement="end" className="bg-dark text-light">
+      {/* Mobile Offcanvas */}
+      <Offcanvas
+        show={showCanvas}
+        onHide={() => setShowCanvas(false)}
+        placement="end"
+        className="bg-dark text-light"
+      >
         <Offcanvas.Header closeButton closeVariant="white">
           <Offcanvas.Title className="d-flex align-items-center gap-2">
-            <Logo width={40} height={40} /> Eventify
+            <Logo width={40} height={40} />
+            Eventify
           </Offcanvas.Title>
         </Offcanvas.Header>
+
         <Offcanvas.Body>
           <Nav className="flex-column">
-            {navLinks.map((link, index) => (
-              <Nav.Link
-                as={Link}
-                key={link.path}
-                to={link.path}
-                onClick={() => setShowCanvas(false)}
-                className={`fw-semibold d-flex align-items-center gap-2 my-2 ${isActive(link.path) ? "active-link" : "text-light"} mobile-nav-item`}
-                style={{ animationDelay: `${index * 0.08}s` }}
-              >
-                <FontAwesomeIcon icon={link.icon} />
-                {link.label}
-              </Nav.Link>
-            ))}
+            <NavItems
+              isActive={isActive}
+              onClick={() => setShowCanvas(false)}
+              animated
+            />
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>
