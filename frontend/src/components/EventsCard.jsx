@@ -4,53 +4,37 @@ import RegisterModal from "./RegisterModal";
 import "../styles/Events.css";
 
 export default function EventsCard({ event }) {
-  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-
+  const [showModal, setShowModal] = useState(false);
   const handleRegisterClick = () => setShowModal(true);
-  const handleHistoryClick = () => navigate("/event-history", {  state: { eventId: event.id } });
+  const handleHistoryClick = () =>
+    navigate("/event-history", { state: { eventId: event.id } });
   const handleCloseModal = () => setShowModal(false);
-const handleMapClick = () => {
-  navigate("/map", { state: { 
-    lat: event.latitude,
-    lng: event.longitude,
-    venue: event.venue
-  }});
-};
-
-  // Format date
-  const formattedDate = (() => {
-    if (!event.date) return "Date TBD";
-    const parts = event.date.split(" ");
-    return isNaN(parts[0]) ? `${parts[1]} ${parts[0]}` : `${parts[0]} ${parts[1]}`;
-  })();
-
-  // Check if event is past
-  const isPastEvent = (() => {
-    if (!event.date) return false;
-    const [day, month, year] = (() => {
-      const parts = event.date.split(" ");
-      return !isNaN(parts[0])
-        ? [parseInt(parts[0]), parts[1], parseInt(parts[2]) || new Date().getFullYear()]
-        : [parseInt(parts[1]), parts[0], parseInt(parts[2]) || new Date().getFullYear()];
-    })();
-    const monthIndex = new Date(`${month} 1, 2000`).getMonth();
-    const eventDate = new Date(year, monthIndex, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return eventDate < today;
-  })();
+  const handleMapClick = () => {
+    navigate("/map", {
+      state: {
+        lat: event.latitude,
+        lng: event.longitude,
+        venue: event.venue,
+      },
+    });
+  };
 
   return (
-    <div className={`card border-0 shadow-sm overflow-hidden position-relative event-card ${isPastEvent ? "past-event" : ""}`}>
-      
+    <div
+      className={`card border-0 shadow-sm overflow-hidden position-relative event-card ${
+        event.isPastEvent ? "past-event" : ""
+      }`}
+    >
       {/* Image Section */}
       <div className="position-relative overflow-hidden">
         {event.image ? (
           <img
             src={`http://localhost:5000/events/${event.image}`}
             alt={event.title || "Event"}
-            className={`card-img-top img-fluid event-img ${isPastEvent ? "img-dim" : ""}`}
+            className={`card-img-top img-fluid event-img ${
+              event.isPastEvent ? "img-dim" : ""
+            }`}
           />
         ) : (
           <div className="bg-light d-flex align-items-center justify-content-center event-placeholder">
@@ -60,9 +44,11 @@ const handleMapClick = () => {
 
         {/* Overlay Title & Action Button */}
         <div className="position-absolute bottom-0 start-0 w-100 px-3 pb-3 d-flex justify-content-between align-items-center text-white z-3">
-          <h5 className="fw-bold mb-0 text-shadow">{event.title || "Event Title"}</h5>
+          <h5 className="fw-bold mb-0 text-shadow">
+            {event.title || "Event Title"}
+          </h5>
 
-          {isPastEvent ? (
+          {event.isPastEvent ? (
             <button
               className="btn btn-gradient-circle border-0"
               onClick={handleHistoryClick}
@@ -83,31 +69,36 @@ const handleMapClick = () => {
 
         {/* Date Badge */}
         <div className="event-date-badge d-flex justify-content-center align-items-center">
-          <span>{formattedDate}</span>
+          <span>{event.date || "Date TBD"}</span>
         </div>
 
         {/* Hover Description */}
         <div className="event-hover position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white text-center px-3">
-          <small>{isPastEvent ? "Event Ended" : event.description || "No description available"}</small>
+          <small>
+            {event.isPastEvent
+              ? "Event Ended"
+              : event.description || "No description available"}
+          </small>
         </div>
       </div>
-{/* LOCATION CHIP (Bootstrap-Optimized) */}
-<div 
-  className="location-chip d-flex align-items-center position-absolute top-0 end-0 m-2"
-  onClick={handleMapClick}
->
-  <div className="icon-base d-flex justify-content-center align-items-center">
-    <i className="bi bi-geo-alt-fill fs-6"></i>
-  </div>
+      {/* LOCATION CHIP (Bootstrap-Optimized) */}
+      <div
+        className="location-chip d-flex align-items-center position-absolute top-0 end-0 m-2"
+        onClick={handleMapClick}
+      >
+        <div className="icon-base d-flex justify-content-center align-items-center">
+          <i className="bi bi-geo-alt-fill fs-6"></i>
+        </div>
 
-  <span className="expand-info text-white small ms-2">
-    {event.venue}
-  </span>
-</div>
-
+        <span className="expand-info text-white small ms-2">{event.venue}</span>
+      </div>
 
       {/* Modal */}
-      <RegisterModal key={showModal} show={showModal} handleClose={handleCloseModal} eventId={event.id} />
+      <RegisterModal
+        show={showModal}
+        handleClose={handleCloseModal}
+        eventId={event.id}
+      />
     </div>
   );
 }

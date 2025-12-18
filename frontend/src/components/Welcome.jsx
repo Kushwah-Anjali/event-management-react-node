@@ -19,7 +19,7 @@ const Welcome = () => {
           data-aos-easing="ease-out-cubic"
         >
           <h6
-            className="text-uppercase fw-bold text-pink mb-2"
+            className="text-uppercase fw-bold mb-2"
             style={{ letterSpacing: "2px" }}
           >
             WELCOME TO
