@@ -4,17 +4,22 @@
   width: 350px;
   height: 350px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(236,72,153,0.25), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.25),
+    transparent 70%
+  );
   top: -100px;
   right: -100px;
   z-index: 0;
-  transition: transform 0.3s ease-out;
 }
-.welcome{
+
+/* Section background */
+.welcome {
   background-color: #0d0d4d;
 }
 
-/* Image hover zoom */
+/* Image hover effect (keep CSS – correct choice) */
 .welcomeImage img {
   transition: transform 6s ease;
 }
@@ -23,17 +28,7 @@
   transform: scale(1.1);
 }
 
-/* Zoom effect on scroll */
-.zoomOnScroll {
-  transform: scale(0.95);
-  transition: transform 2s ease-out;
-}
-
-[data-aos].aos-animate.zoomOnScroll {
-  transform: scale(1);
-}
-
-/* Gradient Button */
+/* Gradient button */
 .btn-gradient {
   background: linear-gradient(90deg, #ec4899, #8b5cf6);
   color: #fff;
@@ -48,11 +43,11 @@
 
 .btn-gradient:hover {
   background: linear-gradient(90deg, #8b5cf6, #ec4899);
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
+  transform: translateY(-4px);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
 }
 
-/* Responsive adjustments for gradient glow */
+/* Responsive adjustments */
 @media (max-width: 480px) {
   .gradientGlow {
     width: 250px;

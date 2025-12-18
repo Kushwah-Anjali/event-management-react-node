@@ -18,12 +18,6 @@
   z-index: -1;
 }
 
-.hero-caption,
-.hero-title,
-.hero-subcaption {
-  opacity: 0;
-}
-
 .hero-caption {
   font-size: clamp(1rem, 2.5vw, 1.5rem);
   font-weight: 600;
@@ -71,11 +65,4 @@
   box-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+
