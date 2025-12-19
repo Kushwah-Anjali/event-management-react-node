@@ -5,7 +5,7 @@ import "swiper/css/navigation";
 import "swiper/css/autoplay";
 import { Navigation, Autoplay } from "swiper/modules";
 import "../styles/Feedback.css";
-
+import { FaComments } from "react-icons/fa";
 const feedbackData = [
   {
     text: "Amazing experience! The team managed everything smoothly and the event went beyond expectations.",
@@ -35,9 +35,11 @@ export default function Feedback() {
       style={{ background: "#0d0d4d" }}
     >
       <div className="container">
-        <h2 className="fw-bold text-uppercase mb-3 display-6 text-white">
-          💬 What Our Customers Say
-        </h2>
+       <h2 className="fw-bold text-uppercase mb-3 display-6 text-white d-flex justify-content-center align-items-center gap-2">
+  <FaComments className="me-2" />
+  What Our Customers Say
+</h2>
+
         <p className="text-light opacity-75 mb-5">
           Real experiences from people who trusted us with their events
         </p>

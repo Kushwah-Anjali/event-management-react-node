@@ -2,7 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaEnvelope } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaPlusCircle,
+  FaArrowRight,
+  FaArrowLeft,
+  FaUser,
+  FaUserPlus,
+} from "react-icons/fa";
 
 export default function RegisterModal({ show, handleClose, eventId }) {
   const [email, setEmail] = useState("");
@@ -106,13 +113,19 @@ export default function RegisterModal({ show, handleClose, eventId }) {
       }
     }
   };
+  const handlePrevious = () => {
+    setIsEmailChecked(false);
+    setName("");
+  };
 
   return (
     <Modal show={show} onHide={handleClose} centered backdrop="static">
       <Form onSubmit={handleSubmit} className="rounded-4 shadow-sm">
         {/* Header */}
         <div className="modal-header bg-primary text-white rounded-top">
-          <h5 className="modal-title fw-bold d-flex align-items-center gap-2">
+          <h5 className="modal-title fw-bold d-flex align-items-center gap-2 ms-2">
+            {" "}
+           <FaUserPlus className="text-light" />
             Register Here
           </h5>
           <Button
@@ -138,6 +151,7 @@ export default function RegisterModal({ show, handleClose, eventId }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                
               />
             </Form.Group>
           )}
@@ -145,7 +159,9 @@ export default function RegisterModal({ show, handleClose, eventId }) {
           {/* Name */}
           {isEmailChecked && !alreadyRegistered && (
             <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Name</Form.Label>
+              <Form.Label className="fw-semibold d-flex align-items-center gap-2">
+                <FaUser className="text-primary" /> Name
+              </Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter your Name"
@@ -160,15 +176,29 @@ export default function RegisterModal({ show, handleClose, eventId }) {
         {/* Footer */}
         <Modal.Footer>
           <div className="d-flex justify-content-end gap-2 w-100">
-            <Button
-              variant="outline-secondary"
-              type="button"
-              onClick={handleClose}
-              className="rounded-pill px-3"
-            >
-              Cancel
-            </Button>
+            {/* Cancel / Previous */}
+            {!isEmailChecked ? (
+              <Button
+                variant="outline-secondary"
+                type="button"
+                onClick={handleClose}
+                className="rounded-pill px-3"
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                variant="outline-secondary"
+                type="button"
+                onClick={handlePrevious}
+                className="rounded-pill px-3"
+              >
+                <FaArrowLeft className="me-2" />
+                Previous
+              </Button>
+            )}
 
+            {/* Next / Submit */}
             <Button
               variant="primary"
               type="submit"
@@ -183,7 +213,9 @@ export default function RegisterModal({ show, handleClose, eventId }) {
               ) : isEmailChecked ? (
                 "Submit"
               ) : (
-                "Next"
+                <>
+                  Next <FaArrowRight className="ms-2 text-light" />
+                </>
               )}
             </Button>
           </div>

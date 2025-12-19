@@ -95,6 +95,7 @@ export default function EventsCard({ event }) {
 
       {/* Modal */}
       <RegisterModal
+      key={showModal}
         show={showModal}
         handleClose={handleCloseModal}
         eventId={event.id}

@@ -2,6 +2,7 @@ import React from "react";
 import "../styles/Welcome.css";
 import welcomeImg from "../assets/images/WelcomeImg.jpg";
 
+
 const Welcome = () => {
   return (
     <section className="position-relative overflow-hidden welcome text-light py-5">
@@ -44,7 +45,7 @@ const Welcome = () => {
           </p>
 
           <a href="/contact" className="btn btn-gradient">
-            Contact Us →
+            Contact Us
           </a>
         </div>
 

@@ -1,27 +1,25 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../styles/Footer.css";
 import {
-  faFacebookF,
-  faInstagram,
-  faLinkedinIn,
-  faWhatsapp,
-} from "@fortawesome/free-brands-svg-icons";
-import {
-  faHome,
-  faCalendarAlt,
-  faEnvelope,
-  faCommentDots,
-  faPhone,
-  faMapMarkerAlt,
-} from "@fortawesome/free-solid-svg-icons";
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaWhatsapp,
+  FaHome,
+  FaCalendarAlt,
+  FaEnvelope,
+  FaCommentDots,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaCode,
+} from "react-icons/fa";
 
 const Footer = () => {
   return (
     <footer
       style={{
-              background: "linear-gradient(135deg, #0a0a2a)",
+        background: "linear-gradient(135deg, #0a0a2a)",
       }}
       className="pt-5 pb-3"
     >
@@ -33,15 +31,19 @@ const Footer = () => {
               Eventify
             </h3>
             <p className="small text-secondary">
-              Simplifying event management with innovation and seamless coordination.
+              Simplifying event management with innovation and seamless
+              coordination.
             </p>
-           <div className="d-flex gap-3 mt-3 justify-content-center justify-content-md-start">
-  {[
-    { icon: faFacebookF, color: "#1877F2" }, // Facebook Blue
-    { icon: faInstagram, color: "#E4405F" }, // Instagram Pink
-    { icon: faLinkedinIn, color: "#0A66C2" }, // LinkedIn Blue
-    { icon: faWhatsapp, color: "#25D366" }, // WhatsApp Green
-  ].map((item, idx) => (
+            <div className="d-flex gap-3 mt-3 justify-content-center justify-content-md-start">
+            {[
+  { icon: FaFacebookF, color: "#1877F2" },
+  { icon: FaInstagram, color: "#E4405F" },
+  { icon: FaLinkedinIn, color: "#0A66C2" },
+  { icon: FaWhatsapp, color: "#25D366" },
+].map((item, idx) => {
+  const Icon = item.icon;
+
+  return (
     <a
       key={idx}
       href="#"
@@ -53,11 +55,12 @@ const Footer = () => {
         transition: "all 0.3s ease",
       }}
     >
-      <FontAwesomeIcon icon={item.icon} />
+      <Icon />
     </a>
-  ))}
-</div>
+  );
+})}
 
+            </div>
           </Col>
 
           {/* Quick Links */}
@@ -66,22 +69,27 @@ const Footer = () => {
               Quick Links
             </h4>
             <ul className="list-unstyled">
-              {[
-                { icon: faHome, label: "Home", href: "#home" },
-                { icon: faCalendarAlt, label: "Events", href: "#events" },
-                { icon: faEnvelope, label: "Contact", href: "#contact" },
-                { icon: faCommentDots, label: "Feedback", href: "#feedback" },
-              ].map((link, idx) => (
-                <li
-                  key={idx}
-                  className="mb-2 d-flex align-items-center gap-2 justify-content-center justify-content-md-start"
-                >
-                  <FontAwesomeIcon icon={link.icon} className="text-secondary" />
-                  <a href={link.href} className="text-secondary text-decoration-none">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+             {[
+  { icon: FaHome, label: "Home", href: "#home" },
+  { icon: FaCalendarAlt, label: "Events", href: "#events" },
+  { icon: FaEnvelope, label: "Contact", href: "#contact" },
+  { icon: FaCommentDots, label: "Feedback", href: "#feedback" },
+].map((link, idx) => {
+  const Icon = link.icon;
+
+  return (
+    <li
+      key={idx}
+      className="mb-2 d-flex align-items-center gap-2 justify-content-center justify-content-md-start"
+    >
+      <Icon className="text-secondary" />
+      <a href={link.href} className="text-secondary text-decoration-none">
+        {link.label}
+      </a>
+    </li>
+  );
+})}
+
             </ul>
           </Col>
 
@@ -91,26 +99,33 @@ const Footer = () => {
               Contact
             </h4>
             <ul className="list-unstyled">
-              {[
-                { icon: faEnvelope, text: "info@eventify.com" },
-                { icon: faPhone, text: "+91 12345 67890" },
-                { icon: faMapMarkerAlt, text: "Mumbai, India" },
-              ].map((item, idx) => (
-                <li
-                  key={idx}
-                  className="mb-2 d-flex align-items-center gap-2 justify-content-center justify-content-md-start"
-                >
-                  <FontAwesomeIcon icon={item.icon} className="text-secondary" />
-                  <span className="text-secondary">{item.text}</span>
-                </li>
-              ))}
+           {[
+  { icon: FaEnvelope, text: "info@eventify.com" },
+  { icon: FaPhone, text: "+91 12345 67890" },
+  { icon: FaMapMarkerAlt, text: "Mumbai, India" },
+].map((item, idx) => {
+  const Icon = item.icon;
+
+  return (
+    <li
+      key={idx}
+      className="mb-2 d-flex align-items-center gap-2 justify-content-center justify-content-md-start"
+    >
+      <Icon className="text-secondary" />
+      <span className="text-secondary">{item.text}</span>
+    </li>
+  );
+})}
+
             </ul>
           </Col>
         </Row>
 
-        <div className="text-center mt-4 pt-3 border-top border-secondary small text-secondary">
-          &copy; {new Date().getFullYear()} Eventify. Crafted with <span className="text-danger">❤</span> by <strong>Anju</strong>.
-        </div>
+      <div className="text-center mt-4 pt-3 border-top border-secondary small text-secondary">
+  &copy; {new Date().getFullYear()} Eventify. Crafted with{" "}
+  <FaCode className="text-secondary mx-1" /> by <strong>Anju</strong>.
+</div>
+
       </Container>
     </footer>
   );

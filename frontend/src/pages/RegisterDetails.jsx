@@ -86,7 +86,7 @@ function RegisterDetails() {
                 <InfoBox
                   title="Email"
                   value={email}
-                  icon={<FaEnvelope style={{ color: "#174bdaff" }} />}
+                  icon={<FaEnvelope  />}
                 />
 
                 <InfoBox
@@ -96,7 +96,7 @@ function RegisterDetails() {
                       ? new Date(registered_at).toLocaleDateString()
                       : "Not available"
                   }
-                  icon={<FaCalendarAlt style={{ color: "#174bdaff" }} />}
+                  icon={<FaCalendarAlt />}
                 />
               </div>
             </div>
