@@ -33,8 +33,6 @@ exports.checkEmail = async (req, res) => {
   }
 };
 
-// ✅ Register a new user
-// ✅ Register a new user (with try-catch)
 exports.register = async (req, res) => {
   try {
     const { name, email, event_id } = req.body;
@@ -49,14 +47,13 @@ exports.register = async (req, res) => {
 
     const documents = JSON.stringify({});
 
-    // ✅ Insert new registration
-    const [result] = await db.query(
+ 
+    onst [result] = await db.query(
       "INSERT INTO registrations (event_id, name, email, documents) VALUES (?, ?, ?, ?)",
       [event_id, name, email, documents]
     );
 
-    // ✅ Fetch newly inserted user
-    const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
+      const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
       result.insertId,
     ]);
      
@@ -79,12 +76,9 @@ exports.register = async (req, res) => {
     });
   }
 };
-// ✅ Get details of a single event
 exports.getEventById = async (req, res) => {
   try {
     const { eventId } = req.params;
-
-    // Query event from the database
     const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
       eventId,
     ]);

@@ -84,7 +84,11 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
         setSelectedFiles({});
         handleClose();
       } else {
-        Swal.fire("Upload Failed", data.message || "Something went wrong.", "error");
+        Swal.fire(
+          "Upload Failed",
+          data.message || "Something went wrong.",
+          "error"
+        );
       }
     } catch (error) {
       Swal.fire("Error", "Upload failed. Try again.", "error");
@@ -95,9 +99,12 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
 
   return (
     <Modal show={show} onHide={handleClose} centered>
-      <Modal.Header closeButton className="bg-primary">
-        <Modal.Title  className="fw-bold d-flex align-items-center gap-2 text-white">
-             <FaUpload className="text-white" />Upload Required Docs</Modal.Title>
+      <Modal.Header closeButton className="bg-primary btn-close-white">
+        <Modal.Title className="fw-bold d-flex align-items-center gap-2 text-white ms-3">
+          <FaUpload className="text-light" />
+          Upload Required Docs
+        </Modal.Title>
+        
       </Modal.Header>
 
       <Modal.Body>
@@ -112,7 +119,10 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
           </p>
         ) : (
           requiredDocs.map((doc, index) => (
-            <div key={index} className="p-3 mb-3 border rounded bg-light shadow-sm">
+            <div
+              key={index}
+              className="p-3 mb-3 border rounded bg-light shadow-sm"
+            >
               <div className="d-flex justify-content-between mb-2">
                 <strong>{doc}</strong>
                 {uploadedDocs[doc] && (

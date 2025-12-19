@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
   FaEnvelope,
-  FaPlusCircle,
   FaArrowRight,
   FaArrowLeft,
   FaUser,
@@ -15,20 +14,8 @@ export default function RegisterModal({ show, handleClose, eventId }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
-  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Fix: Clean body scroll after modal closes
-  useEffect(() => {
-    if (!show) {
-      setTimeout(() => {
-        document.body.classList.remove("modal-open");
-        document.body.style.overflow = "auto";
-        document.body.style.paddingRight = "0px";
-      }, 250);
-    }
-  }, [show]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,7 +64,6 @@ export default function RegisterModal({ show, handleClose, eventId }) {
           body: JSON.stringify({ event_id: eventId, name, email }),
         });
         const data = await res.json();
-
         if (data.status === "success") {
           userName = data.data.name;
 
@@ -125,8 +111,8 @@ export default function RegisterModal({ show, handleClose, eventId }) {
         <div className="modal-header bg-primary text-white rounded-top">
           <h5 className="modal-title fw-bold d-flex align-items-center gap-2 ms-2">
             {" "}
-           <FaUserPlus className="text-light" />
-            Register Here
+            <FaUserPlus className="text-light" />
+            Register Here         
           </h5>
           <Button
             variant="close"
@@ -151,13 +137,12 @@ export default function RegisterModal({ show, handleClose, eventId }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                
               />
             </Form.Group>
           )}
 
           {/* Name */}
-          {isEmailChecked && !alreadyRegistered && (
+          {isEmailChecked && (
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold d-flex align-items-center gap-2">
                 <FaUser className="text-primary" /> Name
