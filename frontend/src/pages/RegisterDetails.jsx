@@ -214,14 +214,14 @@ function RegisterDetails() {
           </div>
         </div>
 
-        <DocumentUploadModal
-          show={showUploadModal}
-          handleClose={() => setShowUploadModal(false)}
-          event={event}
-          email={email}
-          event_id={eventId}
-          registered_at={registered_at}
-        />
+        {showUploadModal && (
+          <DocumentUploadModal
+            show={showUploadModal}
+            handleClose={() => setShowUploadModal(false)}
+            email={email}
+            event_id={eventId}
+          />
+        )}
       </div>
     </div>
   );

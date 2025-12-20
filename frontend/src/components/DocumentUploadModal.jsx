@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { FaUpload, FaFolderOpen } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
 
 const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [requiredDocs, setRequiredDocs] = useState([]);
@@ -9,9 +9,22 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [selectedFiles, setSelectedFiles] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Fetch required + uploaded documents
+  // Use ref to store previous event_id/email to avoid unnecessary re-fetch
+  const prevEventRef = useRef({ event_id: null, email: null });
+
   useEffect(() => {
     if (!show) return;
+
+    // Only fetch if event_id or email changed or if first open
+    if (
+      prevEventRef.current.event_id === event_id &&
+      prevEventRef.current.email === email &&
+      requiredDocs.length > 0
+    ) {
+      return; // Already fetched for this event
+    }
+
+    let isMounted = true;
 
     const fetchDocs = async () => {
       try {
@@ -22,31 +35,44 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
           `http://localhost:5000/api/register/required-docs/${event_id}`
         );
         const reqData = await reqRes.json();
+        if (!isMounted) return;
 
         if (reqData.status === "success") {
           setRequiredDocs(reqData.required_docs);
         } else {
-          Swal.fire("Error", "Failed to load required documents.", "error");
+          console.error("Failed to load required documents");
         }
 
-        // Fetch already uploaded docs
+        // Fetch uploaded docs
         const upRes = await fetch(
           `http://localhost:5000/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
         );
         const upData = await upRes.json();
+        if (!isMounted) return;
 
         setUploadedDocs(upData.uploadedDocs || {});
+
+        // Save current event/email to ref
+        prevEventRef.current = { event_id, email };
       } catch (error) {
-        Swal.fire("Error", "Unable to fetch documents.", "error");
+        console.error("Unable to fetch documents:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchDocs();
-  }, [show, event_id, email]);
 
-  // File selection
+    return () => {
+      isMounted = false;
+    };
+  }, [show, event_id, email, requiredDocs.length]);
+
+  const handleModalClose = () => {
+    setSelectedFiles({});
+    handleClose();
+  };
+
   const handleFileChange = (e, docName) => {
     setSelectedFiles((prev) => ({
       ...prev,
@@ -54,11 +80,9 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
     }));
   };
 
-  // Upload files
   const handleUpload = async () => {
     try {
       setLoading(true);
-
       const formData = new FormData();
       formData.append("event_id", event_id);
       formData.append("email", email);
@@ -74,15 +98,13 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
           body: formData,
         }
       );
-
       const data = await res.json();
 
       if (data.success) {
         Swal.fire("Success", "Documents uploaded successfully!", "success");
-
         setUploadedDocs((prev) => ({ ...prev, ...data.data }));
         setSelectedFiles({});
-        handleClose();
+        handleModalClose();
       } else {
         Swal.fire(
           "Upload Failed",
@@ -98,13 +120,12 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   };
 
   return (
-    <Modal show={show} onHide={handleClose} centered>
+    <Modal show={show} onHide={handleModalClose} centered>
       <Modal.Header closeButton className="bg-primary btn-close-white">
         <Modal.Title className="fw-bold d-flex align-items-center gap-2 text-white ms-3">
           <FaUpload className="text-light" />
           Upload Required Docs
         </Modal.Title>
-        
       </Modal.Header>
 
       <Modal.Body>
@@ -151,10 +172,13 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose} disabled={loading}>
-          Cancle
+        <Button
+          variant="secondary"
+          onClick={handleModalClose}
+          disabled={loading}
+        >
+          Cancel
         </Button>
-
         <Button
           variant="primary"
           onClick={handleUpload}
