@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
     const documents = JSON.stringify({});
 
  
-    onst [result] = await db.query(
+   const [result] = await db.query(
       "INSERT INTO registrations (event_id, name, email, documents) VALUES (?, ?, ?, ?)",
       [event_id, name, email, documents]
     );

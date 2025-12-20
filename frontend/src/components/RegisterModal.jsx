@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -25,7 +25,7 @@ export default function RegisterModal({ show, handleClose, eventId }) {
         setLoading(true);
         const res = await fetch(
           "http://localhost:5000/api/register/check-email",
-          {
+          { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, event_id: eventId }),
@@ -141,7 +141,7 @@ export default function RegisterModal({ show, handleClose, eventId }) {
             </Form.Group>
           )}
 
-          {/* Name */}
+        
           {isEmailChecked && (
             <Form.Group className="mb-3">
               <Form.Label className="fw-semibold d-flex align-items-center gap-2">

@@ -13,34 +13,6 @@
     white-space: nowrap;
   }
 }
-/* === Mobile: hide by default, show when .show exists === */
-@media (max-width: 768px) {
-  .infobox-wrapper {
-    display: none;
-    transition: all 200ms ease-in-out;
-  }
-
-  /* when dashboard header toggles, add .show to display */
-  .infobox-wrapper.show {
-    display: block;
-    /* optionally add small entrance animation */
-    animation: slideDownFade 220ms ease forwards;
-  }
-
-  /* Make sure InfoBox columns stack nicely on mobile */
-  .infobox-wrapper .col-sm-6 {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-}
-
-/* Desktop: always visible */
-@media (min-width: 769px) {
-  .infobox-wrapper {
-    display: block !important;
-  }
-}
-
 /* optional animation */
 @keyframes slideDownFade {
   from {
@@ -53,14 +25,3 @@
   }
 }
  
-@media (min-width: 769px) {
-  .infobox-wrapper {
-    display: block !important;
-  }
-}
-.infobox-wrapper {
-  display: none;
-}
-.infobox-wrapper.show {
-  display: block;
-}

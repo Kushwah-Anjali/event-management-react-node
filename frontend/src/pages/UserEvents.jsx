@@ -34,20 +34,11 @@ const UserEvents = () => {
     editEvent: null,
     sortKey: "",
     sortOrder: "asc",
-      showMobileInfo: false,
+    
   });
+const [open, setOpen] = useState(false);
+  const { user, events, search, rowsPerPage, currentPage, isModalOpen } = state;
 
-  const {
-    user,
-    events,
-    search,
-    rowsPerPage,
-    currentPage,
-    isModalOpen,
-    loading,
-  } = state;
- 
-  // --- Auth Check ---
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser)
@@ -89,7 +80,6 @@ const UserEvents = () => {
 
     try {
       formData.append("user_id", user.id);
-
       const res = await fetch("http://localhost:5000/api/userevents/add", {
         method: "POST",
         body: formData,
@@ -364,56 +354,47 @@ const UserEvents = () => {
       <div className="container py-4">
         {/* Dashboard White Card */}
 
-        <div className="card shadow-sm border-0 rounded-4 mb-4">
-          <div className="card-body">
+        <div className="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+          <div className="card-body  bg-light ">
             {/* Full-width header row */}
-    <div
-  className="d-flex justify-content-between align-items-center dash-head mb-4"
-  onClick={() => {
-    if (window.innerWidth <= 768) {
-      setState((s) => ({ ...s, showMobileInfo: !s.showMobileInfo }));
-    }
-  }}
+          <div
+  className="d-flex justify-content-between align-items-center dash-head section-header"
+  onClick={() => setOpen((prev) => !prev)}
 >
-  <h3 className="text-white d-flex align-items-center gap-2 mb-0">
+   <h3 className="text-white d-flex align-items-center gap-2 mb-0 section-title">
     <FaUserCircle />
     My Events Dashboard
   </h3>
-  <Logout />
-</div>
 
-
-  {/* Info Grid */}
-           {/* Info Grid — mobile toggle wrapper */}
-           
-<div className={`infobox-wrapper ${state.showMobileInfo ? "show" : ""}`}>
-  <div className="row g-4">
-
-    <InfoBox 
-      title="Name" 
-      value={user?.name} 
-      icon="bi bi-people-fill" 
-    />
-
-    <InfoBox 
-      title="Email" 
-      value={user?.email} 
-      icon="bi bi-envelope-fill" 
-    />
-
-    <InfoBox 
-      title="Total Events" 
-      value={events.length} 
-      icon="bi bi-calendar-event-fill" 
-    />
-
+  {/* Logout should NOT trigger toggle */}
+  <div
+    onClick={(e) => {
+      e.stopPropagation(); // KEY LINE
+    }}
+  >
+    <Logout />
   </div>
 </div>
 
+<div
+  className={`info-section card border-0 shadow-sm mb-4 p-4 rounded-4 ${
+    open ? "show" : ""
+  }`}
+>
+  <div className="row g-4">
+    <InfoBox title="Name" value={user?.name} icon="bi bi-people-fill" />
+    <InfoBox title="Email" value={user?.email} icon="bi bi-envelope-fill" />
+    <InfoBox
+      title="Total Events"
+      value={events.length}
+      icon="bi bi-calendar-event-fill"
+    />
+  </div>
+</div>
 
-            </div>
-            </div>
-              <div className="card shadow-sm border-0 rounded-3">
+          </div>
+        </div>
+        <div className="card shadow-sm border-0 rounded-3">
           <div className="card-body">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
               {/* LEFT SIDE: Rows + Search */}
@@ -623,7 +604,6 @@ const UserEvents = () => {
                 </tbody>
               </table>
             </div>
-           
           </div>
         </div>
 
