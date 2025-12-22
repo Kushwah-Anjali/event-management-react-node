@@ -32,11 +32,10 @@ const Contact = () => {
     try {
       const data = await sendContactMessage(form, setProgress);
       if (data.success) {
-        showAlert("Message sent successfully!", "success");
         setShowModal(true);
         setForm({ name: "", email: "", message: "" });
       } else {
-        showAlert(data.error || "Something went wrong");
+        showAlert(data.error);
       }
     } catch (err) {
       showAlert("Server error", "warning");
@@ -160,7 +159,7 @@ const Contact = () => {
               className="p-4 bg-white d-flex flex-column justify-content-center"
             >
               <h4 className="fw-bold text-center text-gradient mb-4">
-                Contact Us
+                <i className="fas fa-paper-plane me-2"></i> Contact Us
               </h4>
               <Form onSubmit={handleSubmit} className="form-standardized">
                 {/* Name */}

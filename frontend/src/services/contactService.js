@@ -12,7 +12,7 @@ export async function sendContactMessage(formData, onProgress) {
   }, 200);
 
   try {
-    const res = await fetch(`${BASE_URL}/contact`, {
+    const res = await fetch(`${BASE_URL}/api/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
