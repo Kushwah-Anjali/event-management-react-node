@@ -131,11 +131,11 @@ exports.addHistory = async (req, res) => {
           event_id: eventId,
           summary,
           highlights,
-          attendees_count: attendees,
+          attendees_count,
           guests,
-          budget_spent: budget,
+          budget_spent,
           long_summary,
-          lessons_learned: lessons,
+          lessons_learned,
           media: mapMediaUrls(finalMedia), // URLs for frontend
         },
       });

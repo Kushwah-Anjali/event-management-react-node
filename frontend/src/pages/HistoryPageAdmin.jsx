@@ -17,6 +17,7 @@ export default function HistoryPageAdmin() {
   const [loading, setLoading] = useState(true);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const visibleColumnsDefault = {
     summary: true,
@@ -42,8 +43,6 @@ export default function HistoryPageAdmin() {
   ], []);
 
   const filteredColumns = useMemo(() => columns.filter(col => visibleColumns[col.key]), [columns, visibleColumns]);
-const [showMobileInfo, setShowMobileInfo] = useState(false);
-
   // Fetch history
   const fetchHistory = async () => {
     if (!eventId) return;
@@ -54,8 +53,7 @@ const [showMobileInfo, setShowMobileInfo] = useState(false);
         setHistory(null);
         Swal.fire("No History", "No history found for this event.", "info");
       } else {
-        setHistory(data.history); // Backend already has media.src
-      }
+        setHistory(data.history);}
     } catch (err) {
       Swal.fire("Error", "Cannot fetch history", "error");
     } finally {
@@ -67,7 +65,7 @@ const [showMobileInfo, setShowMobileInfo] = useState(false);
   const handleHistorySubmit = async (fd, id) => {
     try {
       const { data } = await saveHistory(id, fd);
-      setHistory(data.history); // **Update state directly** without extra GET
+      setHistory(data.history); 
       setShowHistoryModal(false);
       Swal.fire("Success", `History ${data.action} successfully`, "success");
     } catch (err) {
@@ -90,26 +88,29 @@ const [showMobileInfo, setShowMobileInfo] = useState(false);
         <div className="card shadow-sm border-0 rounded-4 mb-4">
           <div className="card-body">
           <div
-  className="d-flex justify-content-between align-items-center dash-head mb-4"
-  onClick={() => {
-    if (window.innerWidth <= 768) {
-      setShowMobileInfo((prev) => !prev);
-    }
-  }}
+  className="d-flex justify-content-between align-items-center dash-head mb-4 section-header"
+               onClick={() => setOpen((prev) => !prev)}
+
 >
-  <h3 className="text-white d-flex align-items-center gap-2 mb-0"><FaHistory /> Event History</h3>
+  <h3 className="text-white d-flex align-items-center gap-2 mb-0 section-title"><FaHistory /> Event History</h3>
   <button
-    className="btn btn-outline-light d-flex align-items-center justify-content-center rounded-3 fw-semibold"
+    className="btn btn-outline-light  icon-btn d-flex align-items-center justify-content-center rounded-3 fw-semibold"
     style={{ width: 42, height: 42 }}
-    onClick={() => navigate(-1)}
+    onClick={(e) => {
+                  e.stopPropagation(); // IMPORTANT
+                  navigate(-1);
+                }}
   >
     <FaArrowLeft size={18} />
   </button>
 </div>
 
-           {/* Info Grid — mobile toggle wrapper */}
-<div className={`infobox-wrapper ${showMobileInfo ? "show" : ""}`}>
-  <div className="row g-4">
+ <div
+              className={`info-section border rounded-4 mb-4 p-3 p-md-4 bg-white ${
+                open ? "show" : ""
+              }`}
+            >
+  <div className="row g-3">
     <InfoBox title="Title" value={title} icon={<FaRegClipboard />} />
     <InfoBox title="Category" value={category} icon={<FaTags />} />
     <InfoBox title="Date" value={new Date(date).toLocaleDateString()} icon={<FaRegCalendarAlt />} />
@@ -126,7 +127,7 @@ const [showMobileInfo, setShowMobileInfo] = useState(false);
               <FaCog /> Columns
             </button>
             <button
-  className="btn fw-semibold rounded-3 btn-custom-dark bg-black text-light"
+  className="btn rounded-3 btn-custom-dark bg-black text-light"
   onClick={() => setShowHistoryModal(true)}
 >
   {history ? "Update History" : "+ Add History"}

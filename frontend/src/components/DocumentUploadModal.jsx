@@ -8,8 +8,6 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
   const [loading, setLoading] = useState(false);
-
-  // Use ref to store previous event_id/email to avoid unnecessary re-fetch
   const prevEventRef = useRef({ event_id: null, email: null });
 
   useEffect(() => {
@@ -22,16 +20,14 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       requiredDocs.length > 0
     ) {
       return; // Already fetched for this event
-    }
+    }             
 
     let isMounted = true;
 
     const fetchDocs = async () => {
       try {
         setLoading(true);
-
-        // Fetch required docs
-        const reqRes = await fetch(
+            const reqRes = await fetch(
           `http://localhost:5000/api/register/required-docs/${event_id}`
         );
         const reqData = await reqRes.json();
