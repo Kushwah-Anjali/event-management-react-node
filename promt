@@ -1,0 +1,10 @@
+I have multiple React files (components, pages, services, hooks, CSS) in my project. I want to refactor and improve them to be:
+
+1. Clean, modular, and maintainable (components handle only UI, services handle API calls).
+2. Shorter and readable using best practices (use ternary operators, optional chaining, .filter(Boolean), memoization where needed).
+3. Reusable (custom hooks for repeated logic like fetching, state management).
+4. Error-proof (handle null/undefined safely, protect against backend changes).
+5. Performance-optimized (useMemo/useCallback where needed, avoid unnecessary renders).
+6. Ready for testing (unit tests for services, component tests for pages/components).
+
+Analyze all the files I provide, point out problems, suggest improvements, and optionally rewrite the code in the improved version following these rules.

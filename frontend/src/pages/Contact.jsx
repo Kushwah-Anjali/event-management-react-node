@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { sendContactMessage } from "../services/contactService";
 import {
   Container,
   Row,
@@ -7,7 +8,6 @@ import {
   Button,
   Modal,
   ProgressBar,
-  
 } from "react-bootstrap";
 
 import "../styles/Contact.css";
@@ -18,47 +18,28 @@ const Contact = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const showAlert = (message, variant = "danger") =>
+    setAlert({ show: true, message, variant });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = async (e) => {
+    if (loading) return;
     e.preventDefault();
     setLoading(true);
-    setProgress(10);
 
     try {
-      const interval = setInterval(() => {
-        setProgress((p) => (p < 90 ? p + 10 : p));
-      }, 200);
-
-      const res = await fetch("http://localhost:5000/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      clearInterval(interval);
-      setProgress(100);
-
+      const data = await sendContactMessage(form, setProgress);
       if (data.success) {
+        showAlert("Message sent successfully!", "success");
         setShowModal(true);
         setForm({ name: "", email: "", message: "" });
       } else {
-        setAlert({
-          show: true,
-          message: "❌ " + data.error,
-          variant: "danger",
-        });
+        showAlert(data.error || "Something went wrong");
       }
-    } catch (error) {
-      setAlert({
-        show: true,
-        message: "⚠️ Server Error. Try again later.",
-        variant: "warning",
-      });
+    } catch (err) {
+      showAlert("Server error", "warning");
     } finally {
       setTimeout(() => setProgress(0), 800);
       setLoading(false);
@@ -75,7 +56,10 @@ const Contact = () => {
   return (
     <section className="contact-section py-5">
       {alert.show && (
-        <div className="position-fixed top-3 end-3 p-3" style={{ zIndex: 1050 }}>
+        <div
+          className="position-fixed top-3 end-3 p-3"
+          style={{ zIndex: 1050 }}
+        >
           <div
             className="d-flex align-items-center rounded-3 shadow-sm p-3 text-white fw-semibold"
             style={{
@@ -121,13 +105,17 @@ const Contact = () => {
         <div className="shadow-lg rounded-4 overflow-hidden mx-auto contact-card-wrapper">
           <Row className="g-0">
             {/* Left */}
-            <Col md={5} className="p-4 text-white d-flex flex-column justify-content-between con-left">
+            <Col
+              md={5}
+              className="p-4 text-white d-flex flex-column justify-content-between con-left"
+            >
               <div>
                 <h4 className="fw-bold mb-3">
                   <i className="fas fa-headset me-2"></i> Contact Info
                 </h4>
                 <p className="opacity-75 mb-4">
-                  Reach out for collaborations, partnerships, or event inquiries.
+                  Reach out for collaborations, partnerships, or event
+                  inquiries.
                 </p>
 
                 <div className="mb-3">
@@ -167,81 +155,87 @@ const Contact = () => {
             </Col>
 
             {/* Right */}
-            <Col md={7} className="p-4 bg-white d-flex flex-column justify-content-center">
+            <Col
+              md={7}
+              className="p-4 bg-white d-flex flex-column justify-content-center"
+            >
               <h4 className="fw-bold text-center text-gradient mb-4">
-                <i className="fas fa-paper-plane me-2"></i> Send a Message
+                Contact Us
               </h4>
-<Form onSubmit={handleSubmit} className="form-standardized">
+              <Form onSubmit={handleSubmit} className="form-standardized">
+                {/* Name */}
+                <div className="form-input-group">
+                  <i className="fas fa-user form-icon"></i>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-  {/* Name */}
-  <div className="form-input-group">
-    <i className="fas fa-user form-icon"></i>
-    <input
-      type="text"
-      name="name"
-      placeholder="Full Name"
-      value={form.name}
-      onChange={handleChange}
-      required
-    />
-  </div>
+                {/* Email */}
+                <div className="form-input-group">
+                  <i className="fas fa-envelope form-icon"></i>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-  {/* Email */}
-  <div className="form-input-group">
-    <i className="fas fa-envelope form-icon"></i>
-    <input
-      type="email"
-      name="email"
-      placeholder="Email"
-      value={form.email}
-      onChange={handleChange}
-      required
-    />
-  </div>
+                {/* Message */}
+                <div className="form-input-group">
+                  <i className="fas fa-comment-dots form-icon"></i>
+                  <textarea
+                    name="message"
+                    placeholder="Your message"
+                    value={form.message}
+                    onChange={handleChange}
+                    required
+                  ></textarea>
+                </div>
 
-  {/* Message */}
-  <div className="form-input-group">
-    <i className="fas fa-comment-dots form-icon"></i>
-    <textarea
-      name="message"
-      placeholder="Your message"
-      value={form.message}
-      onChange={handleChange}
-      required
-    ></textarea>
-  </div>
+                {loading && (
+                  <ProgressBar
+                    now={progress}
+                    animated
+                    striped
+                    variant="primary"
+                    className="mb-3"
+                  />
+                )}
 
-  {loading && (
-    <ProgressBar
-      now={progress}
-      animated
-      striped
-      variant="primary"
-      className="mb-3"
-    />
-  )}
-
-  <button
-    type="submit"
-    className="btn btn-gradient w-100 py-2 shine-btn"
-    disabled={loading}
-  >
-    {loading ? (
-      <div className="spinner-border spinner-border-sm text-light"></div>
-    ) : (
-      <>
-        <i className="fas fa-paper-plane me-2"></i> Send Message
-      </>
-    )}
-  </button>
-</Form>
-
+                <button
+                  type="submit"
+                  className="btn btn-gradient w-100 py-2 shine-btn"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="spinner-border spinner-border-sm text-light"></div>
+                  ) : (
+                    <>
+                      <i className="fas fa-paper-plane me-2"></i> Send Message
+                    </>
+                  )}
+                </button>
+              </Form>
             </Col>
           </Row>
         </div>
       </Container>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered backdrop="static">
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        backdrop="static"
+      >
         <Modal.Body
           className="text-center p-5 rounded-4"
           style={{
@@ -254,7 +248,9 @@ const Contact = () => {
           </div>
 
           <h4 className="fw-bold mb-2">Message Sent Successfully!</h4>
-          <p className="opacity-75 mb-4">Thank you! Our team will reach out soon 🚀</p>
+          <p className="opacity-75 mb-4">
+            Thank you! Our team will reach out soon
+          </p>
 
           <Button
             variant="light"
