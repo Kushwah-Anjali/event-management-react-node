@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
 import {
   FaEnvelope,
   FaArrowRight,
@@ -9,7 +10,7 @@ import {
   FaUser,
   FaUserPlus,
 } from "react-icons/fa";
-
+const Base_url=process.env.REACT_APP_API_URL;
 export default function RegisterModal({ show, handleClose, eventId }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -24,7 +25,7 @@ export default function RegisterModal({ show, handleClose, eventId }) {
       try {
         setLoading(true);
         const res = await fetch(
-          "http://localhost:5000/api/register/check-email",
+          `${Base_url}/api/register/check-email`,
           { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -58,7 +59,7 @@ export default function RegisterModal({ show, handleClose, eventId }) {
 
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:5000/api/register/new", {
+        const res = await fetch(`${Base_url}/api/register/new`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ event_id: eventId, name, email }),

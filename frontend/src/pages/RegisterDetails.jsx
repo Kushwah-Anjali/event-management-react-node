@@ -11,7 +11,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import InfoBox from "../components/InfoBox";
-
+const Base_url=process.env.REACT_APP_API_URL;
 function RegisterDetails() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function RegisterDetails() {
     const fetchEventDetails = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/register/event/${eventId}`
+          `${Base_url}/api/register/event/${eventId}`
         );
         const data = await res.json();
 

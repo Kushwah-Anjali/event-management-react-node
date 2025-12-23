@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 
 import InfoBox from "../components/InfoBox";
-
+const Base_url = process.env.REACT_APP_API_URL;
 const RegisterAdminView = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -22,6 +22,18 @@ const RegisterAdminView = () => {
     key: null,
     direction: "asc",
   });
+  const [requiredDocs, setRequiredDocs] = useState([]);
+  useEffect(() => {
+    if (!eventId) return;
+
+    fetch(`${Base_url}/api/register/required-docs/${eventId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          setRequiredDocs(data.required_docs || []);
+        }
+      });
+  }, [eventId]);
 
   const sortedUsers = [...registeredUsers].sort((a, b) => {
     if (!sortConfig.key) return 0;
@@ -30,10 +42,14 @@ const RegisterAdminView = () => {
 
     // For documents sorting
     if (sortConfig.key === "documents") {
-      const aPhoto = JSON.parse(a.documents || "{}")?.photo ? 1 : 0;
-      const bPhoto = JSON.parse(b.documents || "{}")?.photo ? 1 : 0;
-      aValue = aPhoto;
-      bValue = bPhoto;
+      const parseDocs = (docs) =>
+        typeof docs === "string" ? JSON.parse(docs || "{}") : docs || {};
+
+      const aDocs = parseDocs(a.documents);
+      const bDocs = parseDocs(b.documents);
+
+      aValue = Object.keys(aDocs).length;
+      bValue = Object.keys(bDocs).length;
     }
 
     if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
@@ -54,7 +70,7 @@ const RegisterAdminView = () => {
 
     const fetchRegisteredUsers = async () => {
       const res = await fetch(
-        `http://localhost:5000/api/register/${eventId}/registrations`
+        `${Base_url}/api/register/${eventId}/registrations`
       );
       const data = await res.json();
 
@@ -171,27 +187,36 @@ const RegisterAdminView = () => {
                     </tr>
                   ) : (
                     sortedUsers.map((user, idx) => {
-                      let documents = {};
+                      const documents =
+                        typeof user.documents === "string"
+                          ? JSON.parse(user.documents || "{}")
+                          : user.documents || {};
 
-                      try {
-                        documents = JSON.parse(user.documents || "{}");
-                      } catch {
-                        documents = {};
-                      }
+                      const uploadedDocNames = Object.keys(documents);
+                      const remainingDocs = requiredDocs.filter(
+                        (doc) => !uploadedDocNames.includes(doc)
+                      );
 
                       return (
                         <tr key={user.id}>
                           <td>{idx + 1}</td>
                           <td>{user.name}</td>
                           <td>{user.email}</td>
-
-                          {/* Documents */}
                           <td>
-                            <input
-                              type="checkbox"
-                              checked={Boolean(documents.photo)}
-                              readOnly
-                            />
+                            {uploadedDocNames.length > 0 ? (
+                              <div className="text-success small">
+                                ✅ Uploaded: {uploadedDocNames.join(", ")}
+                                {remainingDocs.length > 0 && (
+                                  <div className="text-warning mt-1">
+                                    ⏳ Pending: {remainingDocs.join(", ")}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-danger small">
+                                ❌ No documents uploaded
+                              </span>
+                            )}
                           </td>
                         </tr>
                       );

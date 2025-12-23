@@ -21,10 +21,11 @@ import {
 
 import { EventCategory } from "./EventCategory";
 import MapPicker from "../pages/MapPicker";
+const Base_Url = process.env.REACT_APP_API_URL;
 const getFullImageUrl = (imagePath) => {
   if (!imagePath) return "";
   if (imagePath.startsWith("http")) return imagePath;
-  return `http://localhost:5000/events/${imagePath}`;
+  return `${Base_Url}/events/${imagePath}`;
 };
 
 const steps = ["Basic Info", "Details", "Image", "Documents"];

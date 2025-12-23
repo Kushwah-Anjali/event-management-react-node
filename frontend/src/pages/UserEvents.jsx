@@ -16,10 +16,7 @@ import {
 } from "react-icons/fa";
 
 import Swal from "sweetalert2";
-
-const API_BASE = process.env.REACT_APP_API_URL
-  ? process.env.REACT_APP_API_URL.replace(/\/api$/, "")
-  : "http://localhost:5000";
+const Base_url=process.env.REACT_APP_API_URL;
 
 const UserEvents = () => {
   const navigate = useNavigate();
@@ -52,7 +49,7 @@ const [open, setOpen] = useState(false);
     setState((prev) => ({ ...prev, loading: true }));
     try {
       const res = await fetch(
-        `http://localhost:5000/api/userevents/user/${user.id}`
+        `${Base_url}/api/userevents/user/${user.id}`
       );
       const data = await res.json();
 
@@ -80,7 +77,7 @@ const [open, setOpen] = useState(false);
 
     try {
       formData.append("user_id", user.id);
-      const res = await fetch("http://localhost:5000/api/userevents/add", {
+      const res = await fetch(`${Base_url}/api/userevents/add`, {
         method: "POST",
         body: formData,
       });
@@ -125,7 +122,7 @@ const [open, setOpen] = useState(false);
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/userevents/update/${eventId}`,
+        `${Base_url}/api/userevents/update/${eventId}`,
 
         {
           method: "PUT",
@@ -171,7 +168,7 @@ const [open, setOpen] = useState(false);
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/userevents/delete/${id}`,
+        `${Base_url}/api/userevents/delete/${id}`,
         {
           method: "DELETE",
         }

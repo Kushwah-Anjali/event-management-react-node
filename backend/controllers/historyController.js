@@ -1,5 +1,6 @@
 // controllers/historyController.js
 const db = require("../config/db");
+const API_URL = process.env.SERVER_BASE_URL;
 
 // Helper: Map filenames to frontend-ready URLs
 const mapMediaUrls = (mediaArray) => {
@@ -8,7 +9,7 @@ const mapMediaUrls = (mediaArray) => {
     .filter((m) => m?.url)
     .map((m) => ({
       ...m,
-      src: `http://localhost:5000/history/${m.url}`,
+      src: `${API_URL}/history/${m.url}`,
     }));
 };
 

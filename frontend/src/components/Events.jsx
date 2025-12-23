@@ -2,11 +2,10 @@ import React, { useState, useEffect, useMemo } from "react";
 import EventsCard from "./EventsCard";
 import "../styles/Events.css";
 import axios from "axios";
+const Base_url = process.env.REACT_APP_API_URL;
 function formatDate(dateStr) {
   if (!dateStr) return "Date TBD";
-
   const cleanDate = dateStr.split("T")[0];
-
   const [year, month, day] = cleanDate.split("-");
   // in js month start from 0
   const date = new Date(year, month - 1, day);
@@ -22,7 +21,7 @@ export default function Events() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await axios.get("http://localhost:5000/api/events");
+        const res = await axios.get(`${Base_url}/api/events`);
         setEvents(res.data);
       } catch (err) {
         console.error("Error fetching events:", err);

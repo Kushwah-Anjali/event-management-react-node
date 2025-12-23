@@ -6,7 +6,7 @@ import MediaHistory from "../components/MediaHistory";
 import HistoryModal from "../components/HistoryModal";
 import ColumsModal from "../components/ColumsModal";
 import { FaHistory, FaRegClipboard, FaTags, FaRegCalendarAlt, FaArrowLeft, FaCog } from "react-icons/fa";
-import { getHistoryByEvent, saveHistory } from "../services/adminHistoryPage"; // Axios
+import { getHistoryByEvent, saveHistory } from "../services/adminHistoryService"; // Axios
 
 export default function HistoryPageAdmin() {
   const location = useLocation();

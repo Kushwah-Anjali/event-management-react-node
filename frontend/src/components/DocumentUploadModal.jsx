@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { FaUpload } from "react-icons/fa";
-
+const Base_Url = process.env.REACT_APP_API_URL;
 const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const [requiredDocs, setRequiredDocs] = useState([]);
   const [uploadedDocs, setUploadedDocs] = useState({});
@@ -28,7 +28,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       try {
         setLoading(true);
             const reqRes = await fetch(
-          `http://localhost:5000/api/register/required-docs/${event_id}`
+          `${Base_Url}/api/register/required-docs/${event_id}`
         );
         const reqData = await reqRes.json();
         if (!isMounted) return;
@@ -41,7 +41,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
 
         // Fetch uploaded docs
         const upRes = await fetch(
-          `http://localhost:5000/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
+          `${Base_Url}/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
         );
         const upData = await upRes.json();
         if (!isMounted) return;
@@ -88,7 +88,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       });
 
       const res = await fetch(
-        "http://localhost:5000/api/register/upload-documents",
+        `${Base_Url}/api/register/upload-documents`,
         {
           method: "POST",
           body: formData,

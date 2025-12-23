@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RegisterModal from "./RegisterModal";
 import "../styles/Events.css";
-
+const Base_url=process.env.REACT_APP_API_URL;
 export default function EventsCard({ event }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +30,7 @@ export default function EventsCard({ event }) {
       <div className="position-relative overflow-hidden">
         {event.image ? (
           <img
-            src={`http://localhost:5000/events/${event.image}`}
+            src={`${Base_url}/events/${event.image}`}
             alt={event.title || "Event"}
             className={`card-img-top img-fluid event-img ${
               event.isPastEvent ? "img-dim" : ""

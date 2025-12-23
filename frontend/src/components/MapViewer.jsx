@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
+const Base_url=process.env.REACT_APP_API_URL;
 export default function MapViewer({ lat, lng, height = 400 }) {
   const position = [lat, lng];
   const [address, setAddress] = useState("Loading address...");
@@ -30,7 +30,7 @@ export default function MapViewer({ lat, lng, height = 400 }) {
     console.log("Fetching address for:", lat, lng);
 
     const response = await fetch(
-      `http://localhost:5000/api/reverse-geo?lat=${lat}&lon=${lng}`
+      `${Base_url}/api/reverse-geo?lat=${lat}&lon=${lng}`
     );
 
     const data = await response.json();
