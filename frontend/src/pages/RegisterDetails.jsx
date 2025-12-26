@@ -11,7 +11,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import InfoBox from "../components/InfoBox";
-const Base_url=process.env.REACT_APP_API_URL;
+import { fetchEvent } from "../services/fetchEventService";
 function RegisterDetails() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,23 +22,19 @@ function RegisterDetails() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const fetchEventDetails = async () => {
-      try {
-           const res = await fetch(`${Base_url}/api/events/event/${eventId}`);
-        const data = await res.json();
+  const load = async () => {
+    setLoading(true);
+    const data = await fetchEvent(eventId);
 
-        if (data.status === "success") {
-          setEvent(data.event);
-        }
-      } catch (error) {
-        console.error("Error fetching event details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    console.log(data); 
 
-    if (eventId) fetchEventDetails();
-  }, [eventId]);
+    setEvent(data);
+    setLoading(false);
+  };
+
+  if (eventId) load();
+}, [eventId]);
+
 
   const formatEventDate = (dateString) => {
     if (!dateString) return "Not specified";
@@ -218,6 +214,7 @@ function RegisterDetails() {
             handleClose={() => setShowUploadModal(false)}
             email={email}
             event_id={eventId}
+            requiredDocs={event ? event.required_documents : []}
           />
         )}
       </div>

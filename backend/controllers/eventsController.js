@@ -409,7 +409,7 @@ exports.getEventById = async (req, res) => {
     const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
       eventId,
     ]);
-
+console.log(rows);
     if (rows.length === 0) {
       return res
         .status(404)

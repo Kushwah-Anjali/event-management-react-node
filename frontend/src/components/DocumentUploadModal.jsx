@@ -1,73 +1,52 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { FaUpload } from "react-icons/fa";
+
 const Base_Url = process.env.REACT_APP_API_URL;
-const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
-  const [requiredDocs, setRequiredDocs] = useState([]);
+
+const DocumentUploadModal = ({
+  show,
+  handleClose,
+  event_id,
+  email,
+  requiredDocs = [],
+}) => {
   const [uploadedDocs, setUploadedDocs] = useState({});
   const [selectedFiles, setSelectedFiles] = useState({});
   const [loading, setLoading] = useState(false);
-  const prevEventRef = useRef({ event_id: null, email: null });
 
+  // ✅ Fetch ONLY uploaded docs
   useEffect(() => {
-    if (!show) return;
-
-    // Only fetch if event_id or email changed or if first open
-    if (
-      prevEventRef.current.event_id === event_id &&
-      prevEventRef.current.email === email &&
-      requiredDocs.length > 0
-    ) {
-      return; // Already fetched for this event
-    }             
+    if (!show || !event_id || !email) return;
 
     let isMounted = true;
 
-    const fetchDocs = async () => {
+    const fetchUploadedDocs = async () => {
       try {
         setLoading(true);
-            const reqRes = await fetch(
-          `${Base_Url}/api/register/required-docs/${event_id}`
-        );
-        const reqData = await reqRes.json();
-        if (!isMounted) return;
 
-        if (reqData.status === "success") {
-          setRequiredDocs(reqData.required_docs);
-        } else {
-          console.error("Failed to load required documents");
-        }
-
-        // Fetch uploaded docs
-        const upRes = await fetch(
+        const res = await fetch(
           `${Base_Url}/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
         );
-        const upData = await upRes.json();
-        if (!isMounted) return;
+        const data = await res.json();
 
-        setUploadedDocs(upData.uploadedDocs || {});
-
-        // Save current event/email to ref
-        prevEventRef.current = { event_id, email };
+        if (isMounted) {
+          setUploadedDocs(data.uploadedDocs || {});
+        }
       } catch (error) {
-        console.error("Unable to fetch documents:", error);
+        console.error("Failed to fetch uploaded documents:", error);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchDocs();
+    fetchUploadedDocs();
 
     return () => {
       isMounted = false;
     };
-  }, [show, event_id, email, requiredDocs.length]);
-
-  const handleModalClose = () => {
-    setSelectedFiles({});
-    handleClose();
-  };
+  }, [show, event_id, email]);
 
   const handleFileChange = (e, docName) => {
     setSelectedFiles((prev) => ({
@@ -79,12 +58,13 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
   const handleUpload = async () => {
     try {
       setLoading(true);
+
       const formData = new FormData();
       formData.append("event_id", event_id);
       formData.append("email", email);
 
-      Object.entries(selectedFiles).forEach(([docKey, file]) => {
-        formData.append(docKey, file);
+      Object.entries(selectedFiles).forEach(([key, file]) => {
+        formData.append(key, file);
       });
 
       const res = await fetch(
@@ -94,32 +74,31 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
           body: formData,
         }
       );
+
       const data = await res.json();
 
       if (data.success) {
         Swal.fire("Success", "Documents uploaded successfully!", "success");
+
+        // ✅ Optimistic UI update
         setUploadedDocs((prev) => ({ ...prev, ...data.data }));
         setSelectedFiles({});
-        handleModalClose();
+        handleClose();
       } else {
-        Swal.fire(
-          "Upload Failed",
-          data.message || "Something went wrong.",
-          "error"
-        );
+        Swal.fire("Upload Failed", data.message, "error");
       }
     } catch (error) {
-      Swal.fire("Error", "Upload failed. Try again.", "error");
+      Swal.fire("Error", "Upload failed", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal show={show} onHide={handleModalClose} centered>
-      <Modal.Header closeButton className="bg-primary btn-close-white">
-        <Modal.Title className="fw-bold d-flex align-items-center gap-2 text-white ms-3">
-          <FaUpload className="text-light" />
+    <Modal show={show} onHide={handleClose} centered>
+      <Modal.Header closeButton className="bg-primary text-white">
+        <Modal.Title className="fw-bold d-flex align-items-center gap-2">
+          <FaUpload />
           Upload Required Docs
         </Modal.Title>
       </Modal.Header>
@@ -128,7 +107,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
         {loading ? (
           <div className="text-center py-4">
             <Spinner animation="border" />
-            <p className="mt-2">Loading documents…</p>
+            <p className="mt-2">Loading…</p>
           </div>
         ) : requiredDocs.length === 0 ? (
           <p className="text-center text-muted">
@@ -138,9 +117,9 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
           requiredDocs.map((doc, index) => (
             <div
               key={index}
-              className="p-3 mb-3 border rounded bg-light shadow-sm"
+              className="p-3 mb-3 border rounded bg-light"
             >
-              <div className="d-flex justify-content-between mb-2">
+              <div className="d-flex justify-content-between">
                 <strong>{doc}</strong>
                 {uploadedDocs[doc] && (
                   <span className="badge bg-success">Uploaded</span>
@@ -148,18 +127,14 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
               </div>
 
               {uploadedDocs[doc] && (
-                <p className="text-success small mb-2">
-                  <strong>File:</strong> {uploadedDocs[doc]}
+                <p className="text-success small mt-1">
+                  File: {uploadedDocs[doc]}
                 </p>
               )}
 
-              <label className="form-label mb-1">
-                {uploadedDocs[doc] ? "Re-upload file" : "Upload file"}
-              </label>
-
               <input
                 type="file"
-                className="form-control"
+                className="form-control mt-2"
                 onChange={(e) => handleFileChange(e, doc)}
               />
             </div>
@@ -168,11 +143,7 @@ const DocumentUploadModal = ({ show, handleClose, event_id, email }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={handleModalClose}
-          disabled={loading}
-        >
+        <Button variant="secondary" onClick={handleClose} disabled={loading}>
           Cancel
         </Button>
         <Button

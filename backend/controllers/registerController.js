@@ -158,41 +158,6 @@ exports.uploadDocuments = async (req, res) => {
   }
 };
 
-exports.getRequiredDocs = async (req, res) => {
-  try {
-    const { event_id } = req.params;
-
-    const [rows] = await db.query(
-      "SELECT required_documents FROM events WHERE id = ?",
-      [event_id]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        message: "Event not found",
-      });
-    }
-
-    const rawDocs =
-      typeof rows[0].required_documents === "string"
-        ? JSON.parse(rows[0].required_documents)
-        : rows[0].required_documents || [];
-
-    // 🔥 Normalize → final key format for entire system
-    const normalizedDocs = rawDocs.map((doc) =>
-      doc.toLowerCase().trim().replace(/\s+/g, "_")
-    );
-
-    res.json({
-      status: "success",
-      required_docs: normalizedDocs,
-    });
-  } catch (err) {
-    console.error("❌ Error in getRequiredDocs:", err.message);
-    res.status(500).json({ status: "error", message: err.message });
-  }
-};
 exports.getEventRegistrations = async (req, res) => {
   try {
     const { eventId } = req.params;

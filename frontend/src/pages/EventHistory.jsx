@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InfoBox from "../components/InfoBox";
 import MediaHistory from "../components/MediaHistory";
 import { fetchEventHistory } from "../services/eventHistoryService";
-
+import { fetchEvent } from "../services/fetchEventService";
 import {
   FaUsers,
   FaRegClock,
@@ -25,27 +25,19 @@ export default function EventHistory() {
   const [loading, setLoading] = useState(Boolean(eventId));
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!eventId) return;
+ useEffect(() => {
+  const load = async () => {
+    setLoading(true);
+    const event = await fetchEvent(eventId);
+    const history = await fetchEventHistory(eventId);
 
-      setLoading(true);
-      setError(null);
+    setEvent({ ...event, history });
+    setLoading(false);
+  };
 
-      try {
-        const data = await fetchEventHistory(eventId);
-        if (!data) throw new Error("No data returned");
-        setEvent(data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch event history");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (eventId) load();
+}, [eventId]);
 
-    load();
-  }, [eventId]);
 
   // Fade-in animation
   useEffect(() => {
