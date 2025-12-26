@@ -47,26 +47,19 @@ exports.register = async (req, res) => {
 
     const documents = JSON.stringify({});
 
- 
-   const [result] = await db.query(
+    const [result] = await db.query(
       "INSERT INTO registrations (event_id, name, email, documents) VALUES (?, ?, ?, ?)",
       [event_id, name, email, documents]
     );
 
-      const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
+    const [data] = await db.query("SELECT * FROM registrations WHERE id = ?", [
       result.insertId,
     ]);
-     
+
     const user = data[0];
     res.json({
       status: "success",
-      data: {
-        name: user.name, 
-        email: user.email,
-        event_id: user.event_id,
-        registered_at: user.created_at,
-        documents: JSON.parse(user.documents || "[]"),
-      },
+      data: user,
     });
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
@@ -76,51 +69,6 @@ exports.register = async (req, res) => {
     });
   }
 };
-exports.getEventById = async (req, res) => {
-  try {
-    const { eventId } = req.params;
-    const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
-      eventId,
-    ]);
-
-    if (rows.length === 0) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "Event not found" });
-    }
-
-    const event = rows[0];
-
-    // Construct image URL if available
-    const imageUrl = event.image
-      ? `${req.protocol}://${req.get("host")}/events/${event.image}`
-      : null;
-
-    res.json({
-      status: "success",
-      event: {
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        date: event.date,
-        venue: event.venue,
-        image: imageUrl,
-        fees: event.fees,
-        contact: event.contact,
-        author: event.author,
-        required_documents: event.required_documents
-          ? JSON.parse(event.required_documents)
-          : [],
-      },
-    });
-  } catch (err) {
-    console.error("❌ Error fetching event:", err.message);
-    res.status(500).json({ status: "error", message: err.message });
-  }
-};
-// ✅ Upload documents for an event registration
-
-// ✅ Get uploaded documents for a user & event
 
 exports.getUserDocuments = async (req, res) => {
   try {
@@ -172,7 +120,7 @@ exports.uploadDocuments = async (req, res) => {
     const [existing] = await db.query(
       "SELECT documents FROM registrations WHERE email = ? AND event_id = ?",
       [email, event_id]
-    );
+    );   
 
     let finalDocs = uploadedDocs;
 
@@ -209,7 +157,6 @@ exports.uploadDocuments = async (req, res) => {
     });
   }
 };
-
 
 exports.getRequiredDocs = async (req, res) => {
   try {
@@ -259,14 +206,13 @@ exports.getEventRegistrations = async (req, res) => {
 
     res.json({
       status: "success",
-      users: rows   // <--- FIXED
+      users: rows, // <--- FIXED
     });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({
       status: "error",
-      message: "Server error"
+      message: "Server error",
     });
   }
 };

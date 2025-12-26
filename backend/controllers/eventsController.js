@@ -2,6 +2,16 @@ const db = require("../config/db");
 const path = require("path");
 const fs = require("fs");
 
+exports.getAllEvents = async (req, res) => {
+  try {
+    const [events] = await db.query("SELECT * FROM events");
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+};
+
+
 exports.addEvent = async (req, res) => {
   try {
     const {
@@ -299,93 +309,139 @@ exports.getEventWithHistory = async (req, res) => {
   try {
     const { eventId } = req.params;
 
-    const sql = `
+    const [rows] = await db.query(
+      `
       SELECT 
-        e.id, e.title, e.category, e.description, e.date, e.author,
-        e.venue, e.image, e.fees, e.contact,
-        h.summary,
-        h.highlights,
-        h.attendees_count AS attendees,
-        h.guests,
-        h.budget_spent AS budget,
-        h.long_summary AS long_summary,
-        h.lessons_learned AS lessons,
-        h.media_links,
-        h.created_at
+        e.*, 
+        h.summary, h.highlights, h.attendees_count AS attendees,
+        h.guests, h.budget_spent AS budget,
+        h.long_summary, h.lessons_learned AS lessons,
+        h.media_links, h.created_at
       FROM events e
       LEFT JOIN history h ON e.id = h.event_id
       WHERE e.id = ?
       LIMIT 1
-    `;
+      `,
+      [eventId]
+    );
 
-    const [rows] = await db.query(sql, [eventId]);
+    if (!rows.length) {
+      return res.status(404).json({ status: "error", message: "Event not found" });
+    }
+
+    const row = rows[0];
+    const { photos, videos } = parseMediaLinks(row.media_links, req);
+
+    res.json({
+  status: "success",
+  event: {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    description: row.description,
+    date: row.date,
+    author: row.author,
+    venue: row.venue,
+    image: row.image
+      ? `${req.protocol}://${req.get("host")}/events/${row.image}`
+      : null,
+    fees: row.fees,
+    contact: row.contact,
+
+    summary: row.summary,
+    highlights: row.highlights,
+
+    // MAP to frontend expected names
+    attendees_count: row.attendees ?? 0,   // <- frontend expects this
+    guests: row.guests ?? 0,
+    budget_spent: row.budget ?? "N/A",     // <- frontend expects this
+
+    long_summary: row.long_summary,
+    lessons: row.lessons,
+
+    photos,
+    videos,
+    created_at: row.created_at,
+  },
+});
+
+  } catch (err) {
+    console.error("❌ getEventWithHistory failed:", err);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
+};
+function parseMediaLinks(media_links, req) {
+  if (!media_links) return { photos: [], videos: [] };
+
+  try {
+    const media = JSON.parse(media_links);
+
+    // If media is an array of objects with type & url
+    if (Array.isArray(media)) {
+      const photos = media
+        .filter((m) => m.type === "photo")
+        .map((m) => `${req.protocol}://${req.get("host")}/history/photos/${m.url}`);
+      const videos = media
+        .filter((m) => m.type === "video")
+        .map((m) => `${req.protocol}://${req.get("host")}/history/videos/${m.url}`);
+      return { photos, videos };
+    }
+
+    // If media is already object with photos & videos arrays
+    return {
+      photos: (media.photos || []).map(
+        (f) => `${req.protocol}://${req.get("host")}/history/photos/${f}`
+      ),
+      videos: (media.videos || []).map(
+        (f) => `${req.protocol}://${req.get("host")}/history/videos/${f}`
+      ),
+    };
+  } catch (err) {
+    console.error("⚠️ media_links parsing failed:", err);
+    return { photos: [], videos: [] };
+  }
+}
+
+
+exports.getEventById = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
+      eventId,
+    ]);
 
     if (rows.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        message: "Event not found",
-      });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Event not found" });
     }
 
     const event = rows[0];
 
-    // Convert event image path → URL
+    // Construct image URL if available
     const imageUrl = event.image
       ? `${req.protocol}://${req.get("host")}/events/${event.image}`
       : null;
-
-    // Parse media_links JSON
-    let photos = [];
-    let videos = [];
-
-    if (event.media_links) {
-      try {
-        const media = JSON.parse(event.media_links);
-
-        photos = (media.photos || []).map(
-          (file) =>
-            `${req.protocol}://${req.get("host")}/history/photos/${file}`
-        );
-
-        videos = (media.videos || []).map(
-          (file) =>
-            `${req.protocol}://${req.get("host")}/history/videos/${file}`
-        );
-      } catch (err) {
-        console.error("⚠️ media_links parsing failed", err);
-      }
-    }
 
     res.json({
       status: "success",
       event: {
         id: event.id,
         title: event.title,
-        category: event.category,
         description: event.description,
         date: event.date,
-        author: event.author,
         venue: event.venue,
         image: imageUrl,
         fees: event.fees,
         contact: event.contact,
-
-        // History fields
-        summary: event.summary,
-        highlights: event.highlights,
-        attendees: event.attendees,
-        guests: event.guests,
-        budget: event.budget,
-        long_summary: event.long_summary,
-        lessons: event.lessons,
-
-        photos,
-        videos,
-        created_at: event.created_at,
+        author: event.author,
+        required_documents: event.required_documents
+          ? JSON.parse(event.required_documents)
+          : [],
       },
     });
   } catch (err) {
-    console.error("❌ Error fetching event + history:", err);
-    res.status(500).json({ status: "error", message: "Server error" });
+    console.error("❌ Error fetching event:", err.message);
+    res.status(500).json({ status: "error", message: err.message });
   }
 };

@@ -24,9 +24,7 @@ function RegisterDetails() {
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
-        const res = await fetch(
-          `${Base_url}/api/register/event/${eventId}`
-        );
+           const res = await fetch(`${Base_url}/api/events/event/${eventId}`);
         const data = await res.json();
 
         if (data.status === "success") {

@@ -23,7 +23,6 @@ app.use(
 const authRoutes = require("./routes/auth");
 const eventRoutes = require("./routes/events");
 const usersRoutes = require("./routes/users");
-const userEventRoutes = require("./routes/userevents");
 const contactRoutes = require("./routes/contact");
 const registerRoutes = require("./routes/registerRoutes"); 
 const historyRoutes = require("./routes/historyRoutes");
@@ -38,7 +37,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/users", usersRoutes);
-app.use("/api/userevents", userEventRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/register", registerRoutes);
 app.use("/api/history", historyRoutes);
