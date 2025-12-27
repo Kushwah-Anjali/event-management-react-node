@@ -305,71 +305,60 @@ exports.getHistory = async (req, res) => {
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
-exports.getEventWithHistory = async (req, res) => {
+exports.getEventHistory = async (req, res) => {
   try {
     const { eventId } = req.params;
 
     const [rows] = await db.query(
       `
-      SELECT 
-        e.*, 
-        h.summary, h.highlights, h.attendees_count AS attendees,
-        h.guests, h.budget_spent AS budget,
-        h.long_summary, h.lessons_learned AS lessons,
-        h.media_links, h.created_at
-      FROM events e
-      LEFT JOIN history h ON e.id = h.event_id
-      WHERE e.id = ?
+      SELECT
+        summary,
+        highlights,
+        attendees_count,
+        guests,
+        budget_spent,
+        long_summary,
+        lessons_learned,
+        media_links,
+        created_at
+      FROM history
+      WHERE event_id = ?
       LIMIT 1
       `,
       [eventId]
     );
 
     if (!rows.length) {
-      return res.status(404).json({ status: "error", message: "Event not found" });
+      return res.json({
+        status: "success",
+        history: null, // 👈 important
+      });
     }
 
     const row = rows[0];
     const { photos, videos } = parseMediaLinks(row.media_links, req);
 
     res.json({
-  status: "success",
-  event: {
-    id: row.id,
-    title: row.title,
-    category: row.category,
-    description: row.description,
-    date: row.date,
-    author: row.author,
-    venue: row.venue,
-    image: row.image
-      ? `${req.protocol}://${req.get("host")}/events/${row.image}`
-      : null,
-    fees: row.fees,
-    contact: row.contact,
-
-    summary: row.summary,
-    highlights: row.highlights,
-
-    // MAP to frontend expected names
-    attendees_count: row.attendees ?? 0,   // <- frontend expects this
-    guests: row.guests ?? 0,
-    budget_spent: row.budget ?? "N/A",     // <- frontend expects this
-
-    long_summary: row.long_summary,
-    lessons: row.lessons,
-
-    photos,
-    videos,
-    created_at: row.created_at,
-  },
-});
-
+      status: "success",
+      history: {
+        summary: row.summary,
+        highlights: row.highlights,
+        attendees_count: row.attendees_count ?? 0,
+        guests: row.guests ?? 0,
+        budget_spent: row.budget_spent ?? "N/A",
+        long_summary: row.long_summary,
+        lessons: row.lessons_learned,
+        photos,
+        videos,
+        created_at: row.created_at,
+      },
+    });
   } catch (err) {
-    console.error("❌ getEventWithHistory failed:", err);
+    console.error("❌ getEventHistory failed:", err);
     res.status(500).json({ status: "error", message: "Server error" });
   }
 };
+
 function parseMediaLinks(media_links, req) {
   if (!media_links) return { photos: [], videos: [] };
 
@@ -409,7 +398,6 @@ exports.getEventById = async (req, res) => {
     const [rows] = await db.query("SELECT * FROM events WHERE id = ?", [
       eventId,
     ]);
-console.log(rows);
     if (rows.length === 0) {
       return res
         .status(404)

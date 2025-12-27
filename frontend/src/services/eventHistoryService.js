@@ -6,12 +6,15 @@ export async function fetchEventHistory(eventId) {
   if (!eventId) return null;
 
   try {
-    // Only ONE API call now
-    const { data } = await axios.get(`${API_BASE}/api/events/history/${eventId}`);
-    // backend already returns everything normalized
-    return data.event;
+    const { data } = await axios.get(
+      `${API_BASE}/api/events/history/${eventId}`
+    );
+
+    // 🔥 return HISTORY, not event
+    return data.history;
   } catch (err) {
     console.error("fetchEventHistory failed:", err);
     return null;
   }
 }
+

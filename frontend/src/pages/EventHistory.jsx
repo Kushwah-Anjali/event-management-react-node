@@ -29,8 +29,9 @@ export default function EventHistory() {
   const load = async () => {
     setLoading(true);
     const event = await fetchEvent(eventId);
+    
     const history = await fetchEventHistory(eventId);
-
+  console.log(history);
     setEvent({ ...event, history });
     setLoading(false);
   };
@@ -84,16 +85,31 @@ export default function EventHistory() {
       </div>
     );
 
-  // Generate sections from backend data
-  const sections = [
-    event.summary && { title: "Summary", content: event.summary },
-    event.long_summary && { title: "Long Summary", content: event.long_summary },
-    event.highlights && { title: "Highlights", content: event.highlights },
-    event.lessons && { title: "Lessons Learned", content: event.lessons },
-  ].filter(Boolean);
+const sections = [
+  event.history?.summary && {
+    title: "Summary",
+    content: event.history.summary,
+  },
+  event.history?.long_summary && {
+    title: "Long Summary",
+    content: event.history.long_summary,
+  },
+  event.history?.highlights && {
+    title: "Highlights",
+    content: event.history.highlights,
+  },
+  event.history?.lessons && {
+    title: "Lessons Learned",
+    content: event.history.lessons,
+  },
+].filter(Boolean);
 
-  // Combine photos and videos for MediaHistory component
-  const media = [...(event.photos || []), ...(event.videos || [])];
+
+const media = [
+  ...(event.history?.photos || []),
+  ...(event.history?.videos || []),
+];
+
 
   return (
     <div className="history-wrapper py-4" style={{ background: "#0d0d4d" }}>
@@ -125,9 +141,24 @@ export default function EventHistory() {
 
         {/* Info Boxes */}
         <div className="row g-3 mb-4">
-          <InfoBox title="Attendees" value={event.attendees_count} icon={<FaUsers />} />
-          <InfoBox title="Guests" value={event.guests} icon={<FaIdBadge />} />
-          <InfoBox title="Budget Spent" value={event.budget_spent} icon={<FaMoneyBill />} />
+         <InfoBox
+  title="Attendees"
+  value={event.history?.attendees_count ?? "N/A"}
+  icon={<FaUsers />}
+/>
+
+<InfoBox
+  title="Guests"
+  value={event.history?.guests ?? "N/A"}
+  icon={<FaIdBadge />}
+/>
+
+<InfoBox
+  title="Budget Spent"
+  value={event.history?.budget_spent ?? "N/A"}
+  icon={<FaMoneyBill />}
+/>
+
           <InfoBox title="Entry Fee" value={event.fees} icon={<FaWallet />} />
           <InfoBox title="Venue" value={event.venue} icon={<FaMapMarkerAlt />} />
           <InfoBox title="Contact" value={event.contact} icon={<FaPhone />} />
