@@ -16,37 +16,43 @@ const DocumentUploadModal = ({
   const [selectedFiles, setSelectedFiles] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch ONLY uploaded docs
-  useEffect(() => {
-    if (!show || !event_id || !email) return;
+  const syncDocuments = async (files = {}) => {
+    try {
+      setLoading(true);
 
-    let isMounted = true;
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("event_id", event_id);
 
-    const fetchUploadedDocs = async () => {
-      try {
-        setLoading(true);
+      // append files only if provided
+      Object.entries(files).forEach(([key, file]) => {
+        formData.append(key, file);
+      });
 
-        const res = await fetch(
-          `${Base_Url}/api/register/getUserDocuments?email=${email}&event_id=${event_id}`
-        );
-        const data = await res.json();
+      const res = await fetch(`${Base_Url}/api/register/handle-documents`, {
+        method: "POST",
+        body: formData,
+      });
 
-        if (isMounted) {
-          setUploadedDocs(data.uploadedDocs || {});
-        }
-      } catch (error) {
-        console.error("Failed to fetch uploaded documents:", error);
-      } finally {
-        if (isMounted) setLoading(false);
+      const data = await res.json();
+
+      if (data.success) {
+        setUploadedDocs(data.uploadedDocs);
+        setSelectedFiles({});
+      } else {
+        Swal.fire("Error", data.message, "error");
       }
-    };
-
-    fetchUploadedDocs();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [show, event_id, email]);
+    } catch (err) {
+      Swal.fire("Error", "Something went wrong", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (show && email && event_id) {
+      syncDocuments(); // 👈 no files = just fetch status
+    }
+  }, [show]);
 
   const handleFileChange = (e, docName) => {
     setSelectedFiles((prev) => ({
@@ -56,42 +62,11 @@ const DocumentUploadModal = ({
   };
 
   const handleUpload = async () => {
-    try {
-      setLoading(true);
+    if (Object.keys(selectedFiles).length === 0) return;
 
-      const formData = new FormData();
-      formData.append("event_id", event_id);
-      formData.append("email", email);
-
-      Object.entries(selectedFiles).forEach(([key, file]) => {
-        formData.append(key, file);
-      });
-
-      const res = await fetch(
-        `${Base_Url}/api/register/upload-documents`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        Swal.fire("Success", "Documents uploaded successfully!", "success");
-
-        // ✅ Optimistic UI update
-        setUploadedDocs((prev) => ({ ...prev, ...data.data }));
-        setSelectedFiles({});
-        handleClose();
-      } else {
-        Swal.fire("Upload Failed", data.message, "error");
-      }
-    } catch (error) {
-      Swal.fire("Error", "Upload failed", "error");
-    } finally {
-      setLoading(false);
-    }
+    await syncDocuments(selectedFiles);
+    Swal.fire("Success", "Documents uploaded successfully!", "success");
+    handleClose();
   };
 
   return (
@@ -115,10 +90,7 @@ const DocumentUploadModal = ({
           </p>
         ) : (
           requiredDocs.map((doc, index) => (
-            <div
-              key={index}
-              className="p-3 mb-3 border rounded bg-light"
-            >
+            <div key={index} className="p-3 mb-3 border rounded bg-light">
               <div className="d-flex justify-content-between">
                 <strong>{doc}</strong>
                 {uploadedDocs[doc] && (

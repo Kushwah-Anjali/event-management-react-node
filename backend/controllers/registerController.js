@@ -70,93 +70,64 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.getUserDocuments = async (req, res) => {
+exports.handleDocuments = async (req, res) => {
   try {
-    const { email, event_id } = req.query;
+    const { email, event_id } = req.body;
+
+    if (!email || !event_id) {
+      return res.status(400).json({
+        success: false,
+        message: "email and event_id required",
+      });
+    }
+
+    // 1️⃣ Get existing docs
     const [rows] = await db.query(
       "SELECT documents FROM registrations WHERE email = ? AND event_id = ?",
       [email, event_id]
     );
-    if (rows.length === 0)
-      return res
-        .status(404)
-        .json({ status: "error", message: "No registration found" });
 
+    let oldDocs = rows.length
+      ? JSON.parse(rows[0].documents || "{}")
+      : {};
+
+    // 2️⃣ If files exist → upload
+    let newDocs = {};
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file) => {
+        newDocs[file.fieldname] = file.filename;
+      });
+    }
+
+    // 3️⃣ Merge
+    const finalDocs = { ...oldDocs, ...newDocs };
+
+    // 4️⃣ Save only if new docs uploaded
+    if (Object.keys(newDocs).length > 0) {
+      if (rows.length) {
+        await db.query(
+          "UPDATE registrations SET documents = ? WHERE email = ? AND event_id = ?",
+          [JSON.stringify(finalDocs), email, event_id]
+        );
+      } else {
+        await db.query(
+          "INSERT INTO registrations (email, event_id, documents) VALUES (?, ?, ?)",
+          [email, event_id, JSON.stringify(finalDocs)]
+        );
+      }
+    }
+
+    // 5️⃣ Always return status
     res.json({
-      status: "success",
-      uploadedDocs: JSON.parse(rows[0].documents || "[]"),
-    });
-  } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
-  }
-};
-
-exports.uploadDocuments = async (req, res) => {
-  try {
-    const { event_id, email } = req.body;
-
-    if (!event_id || !email) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing event_id or email",
-      });
-    }
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No documents uploaded",
-      });
-    }
-
-    const uploadedDocs = {};
-
-    // 🔥 Store EXACT fieldname as key
-    req.files.forEach((file) => {
-      uploadedDocs[file.fieldname] = file.filename;
-    });
-
-    // 🔥 Load old documents
-    const [existing] = await db.query(
-      "SELECT documents FROM registrations WHERE email = ? AND event_id = ?",
-      [email, event_id]
-    );   
-
-    let finalDocs = uploadedDocs;
-
-    if (existing.length > 0) {
-      const oldDocs = existing[0].documents
-        ? JSON.parse(existing[0].documents)
-        : {};
-
-      // 🔥 Merge by exact same keys
-      finalDocs = { ...oldDocs, ...uploadedDocs };
-
-      await db.query(
-        "UPDATE registrations SET documents = ? WHERE email = ? AND event_id = ?",
-        [JSON.stringify(finalDocs), email, event_id]
-      );
-    } else {
-      await db.query(
-        "INSERT INTO registrations (email, event_id, documents) VALUES (?, ?, ?)",
-        [email, event_id, JSON.stringify(finalDocs)]
-      );
-    }
-
-    return res.status(200).json({
       success: true,
-      message: "Documents uploaded successfully",
-      data: finalDocs,
+      uploadedDocs: finalDocs,
     });
   } catch (err) {
-    console.error("❌ Document Upload Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: err.message,
-    });
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 exports.getEventRegistrations = async (req, res) => {
   try {
