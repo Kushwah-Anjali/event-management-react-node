@@ -12,7 +12,7 @@ exports.getAllEvents = async (req, res) => {
 };
 
 
-exports.addEvent = async (req, res) => {
+exports.saveEvent = async (req, res) => {
   try {
     const {
       title,
@@ -27,9 +27,11 @@ exports.addEvent = async (req, res) => {
       user_id,
       latitude,
       longitude,
+      existingImage,
+      eventId, // 👈 THIS decides create vs update
     } = req.body;
 
-    // Handle required_docs
+    // 🧠 normalize required_docs
     let docsArray = [];
     if (required_docs) {
       if (Array.isArray(required_docs)) docsArray = required_docs;
@@ -45,26 +47,53 @@ exports.addEvent = async (req, res) => {
       }
     }
 
-    // Handle image
-    let imagePath;
+    // 🖼 image handling
+    let imagePath = null;
     if (req.file) {
       imagePath = req.file.filename;
-    } else if (req.body.existingImage) {
-      // keep the old image if provided
-      imagePath = req.body.existingImage.replace(/^.*\/events\//, "");
-    } else {
-      imagePath = null;
+    } else if (existingImage) {
+      imagePath = existingImage.replace(/^.*\/events\//, "");
     }
 
-    // Insert query
-    const sql = `
-   INSERT INTO events 
-(title, category, description, date, author, venue, fees, contact, image, required_documents, users, latitude, longitude)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    // 🧠 UPDATE FLOW
+    if (eventId) {
+      const updateSql = `
+        UPDATE events
+        SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?,
+            image=?, required_documents=?, latitude=?, longitude=?
+        WHERE id=?
+      `;
 
+      await db.execute(updateSql, [
+        title,
+        category,
+        description,
+        date,
+        author,
+        venue,
+        fees,
+        contact,
+        imagePath,
+        JSON.stringify(docsArray),
+        latitude,
+        longitude,
+        eventId,
+      ]);
+
+      return res.json({
+        status: "success",
+        message: "Event updated successfully",
+      });
+    }
+
+    // 🧠 CREATE FLOW
+    const insertSql = `
+      INSERT INTO events
+      (title, category, description, date, author, venue, fees, contact, image, required_documents, users, latitude, longitude)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] = await db.execute(sql, [
+    const [result] = await db.execute(insertSql, [
       title,
       category,
       description,
@@ -80,12 +109,10 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       longitude,
     ]);
 
-    // ✅ Build full image URL for frontend
     const imageUrl = imagePath
       ? `${req.protocol}://${req.get("host")}/events/${imagePath}`
       : null;
 
-    // Send response
     res.json({
       status: "success",
       event: {
@@ -99,80 +126,21 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         fees,
         contact,
         required_documents: docsArray,
-        image: imageUrl, // ✅ now full URL sent
+        image: imageUrl,
         users: user_id,
         latitude,
         longitude,
       },
     });
   } catch (err) {
-    console.error("Add Event Error:", err);
-    res
-      .status(500)
-      .json({ status: "error", message: "Server error while adding event" });
+    console.error("Save Event Error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error while saving event",
+    });
   }
 };
 
-exports.updateEvent = async (req, res) => {
-  try {
-    const eventId = req.params.id;
-    const {
-      title,
-      category,
-      description,
-      date,
-      author,
-      venue,
-      fees,
-      contact,
-      required_docs,
-      existingImage,
-      latitude,
-      longitude,
-    } = req.body;
-
-    let imagePath;
-
-    if (req.file) {
-      // ✅ New image uploaded
-      imagePath = req.file.filename;
-    } else if (existingImage) {
-      // ✅ Keep old image path (remove any full URL)
-      imagePath = existingImage.replace(/^.*\/events\//, "");
-    } else {
-      // ✅ No image at all
-      imagePath = null;
-    }
-
-    const sql = `
-     UPDATE events 
-SET title=?, category=?, description=?, date=?, author=?, venue=?, fees=?, contact=?, image=?, required_documents=?, latitude=?, longitude=?
-WHERE id=?
-`;
-
-  await db.execute(sql, [
-  title,
-  category,
-  description,
-  date,
-  author,
-  venue,
-  fees,
-  contact,
-  imagePath,
-  JSON.stringify(required_docs),
-  latitude,     // correct
-  longitude,    // correct
-  eventId,      // correct
-]);
-
-
-    res.json({ status: "success", message: "Event updated successfully!" });
-  } catch (err) {
-    console.error("Update Event Error:", err);
-    res.status(500).json({ status: "error", message: "Server error" });
-  }
-};
 
 exports.deleteEvent = async (req, res) => {
   try {

@@ -16,7 +16,7 @@ import {
 } from "react-icons/fa";
 
 import Swal from "sweetalert2";
-const Base_url=process.env.REACT_APP_API_URL;
+const Base_url = process.env.REACT_APP_API_URL;
 
 const UserEvents = () => {
   const navigate = useNavigate();
@@ -31,9 +31,8 @@ const UserEvents = () => {
     editEvent: null,
     sortKey: "",
     sortOrder: "asc",
-    
   });
-const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { user, events, search, rowsPerPage, currentPage, isModalOpen } = state;
 
   useEffect(() => {
@@ -48,9 +47,7 @@ const [open, setOpen] = useState(false);
 
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const res = await fetch(
-        `${Base_url}/api/events/user/${user.id}`
-      );
+      const res = await fetch(`${Base_url}/api/events/user/${user.id}`);
       const data = await res.json();
 
       if (data.status === "success") {
@@ -70,14 +67,20 @@ const [open, setOpen] = useState(false);
     if (user?.id) fetchEvents();
   }, [user]);
 
-  // --- Add Event ---
-  const handleAddEvent = async (formData) => {
-    if (!user?.id)
-      return Swal.fire("Error", "User not found. Please log in.", "error");
+  const handleSaveEvent = async (formData) => {
+    if (!user?.id) {
+      return Swal.fire("Error", "User not found", "error");
+    }
 
     try {
       formData.append("user_id", user.id);
-      const res = await fetch(`${Base_url}/api/events/add`, {
+
+      // 👇 THIS is the ONLY difference between add & update
+      if (state.editEvent?.id) {
+        formData.append("eventId", state.editEvent.id);
+      }
+
+      const res = await fetch(`${Base_url}/api/events/save-event`, {
         method: "POST",
         body: formData,
       });
@@ -85,71 +88,24 @@ const [open, setOpen] = useState(false);
       const data = await res.json();
 
       if (data.status === "success") {
-        const newEvent = data.event;
+        Swal.fire(
+          "Success",
+          state.editEvent ? "Event updated!" : "Event added!",
+          "success"
+        );
 
-        // Normalize required_documents (convert string → array)
-        if (typeof newEvent.required_documents === "string") {
-          try {
-            newEvent.required_documents = JSON.parse(
-              newEvent.required_documents
-            );
-          } catch {
-            newEvent.required_documents = [newEvent.required_documents];
-          }
-        }
-
-        // Normalize image path
-        if (newEvent.image && !newEvent.image.startsWith("http")) {
-          newEvent.image = newEvent.image;
-        }
+        fetchEvents(); // single source of truth
 
         setState((prev) => ({
           ...prev,
-          events: [...prev.events, newEvent],
-        }));
-
-        Swal.fire("Success", "Event added successfully!", "success");
-      } else Swal.fire("Error", data.message || "Failed to add event", "error");
-    } catch {
-      Swal.fire("Error", "Backend connection failed", "error");
-    } finally {
-      setState((prev) => ({ ...prev, isModalOpen: false }));
-    }
-  };
-  const handleUpdateEvent = async (formData) => {
-    if (!state.editEvent) return;
-    const eventId = state.editEvent.id;
-
-    try {
-      const res = await fetch(
-        `${Base_url}/api/events/update/${eventId}`,
-
-        {
-          method: "PUT",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.status === "success") {
-        Swal.fire("Updated!", "Event updated successfully!", "success");
-        fetchEvents();
-
-        // Update the local state to reflect new changes instantly
-        setState((prev) => ({
-          ...prev,
-          events: prev.events.map((e) =>
-            e.id === eventId ? { ...e, ...data.updatedEvent } : e
-          ),
           isModalOpen: false,
           editEvent: null,
         }));
       } else {
-        Swal.fire("Error", data.message || "Failed to update event", "error");
+        Swal.fire("Error", data.message || "Operation failed", "error");
       }
-    } catch (err) {
-      Swal.fire("Error", "Backend connection failed", "error");
+    } catch {
+      Swal.fire("Error", "Backend not reachable", "error");
     }
   };
 
@@ -167,12 +123,9 @@ const [open, setOpen] = useState(false);
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await fetch(
-        `${Base_url}/api/events/delete/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`${Base_url}/api/events/delete/${id}`, {
+        method: "DELETE",
+      });
 
       const data = await res.json();
 
@@ -354,41 +307,48 @@ const [open, setOpen] = useState(false);
         <div className="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
           <div className="card-body  bg-light ">
             {/* Full-width header row */}
-          <div
-  className="d-flex justify-content-between align-items-center dash-head section-header"
-  onClick={() => setOpen((prev) => !prev)}
->
-   <h3 className="text-white d-flex align-items-center gap-2 mb-0 section-title">
-    <FaUserCircle />
-    My Events Dashboard
-  </h3>
+            <div
+              className="d-flex justify-content-between align-items-center dash-head section-header"
+              onClick={() => setOpen((prev) => !prev)}
+            >
+              <h3 className="text-white d-flex align-items-center gap-2 mb-0 section-title">
+                <FaUserCircle />
+                My Events Dashboard
+              </h3>
 
-  {/* Logout should NOT trigger toggle */}
-  <div
-    onClick={(e) => {
-      e.stopPropagation(); // KEY LINE
-    }}
-  >
-    <Logout />
-  </div>
-</div>
+              {/* Logout should NOT trigger toggle */}
+              <div
+                onClick={(e) => {
+                  e.stopPropagation(); // KEY LINE
+                }}
+              >
+                <Logout />
+              </div>
+            </div>
 
-<div
-  className={`info-section card border-0 shadow-sm mb-4 p-4 rounded-4 ${
-    open ? "show" : ""
-  }`}
->
-  <div className="row g-4">
-    <InfoBox title="Name" value={user?.name} icon="bi bi-people-fill" />
-    <InfoBox title="Email" value={user?.email} icon="bi bi-envelope-fill" />
-    <InfoBox
-      title="Total Events"
-      value={events.length}
-      icon="bi bi-calendar-event-fill"
-    />
-  </div>
-</div>
-
+            <div
+              className={`info-section card border-0 shadow-sm mb-4 p-4 rounded-4 ${
+                open ? "show" : ""
+              }`}
+            >
+              <div className="row g-4">
+                <InfoBox
+                  title="Name"
+                  value={user?.name}
+                  icon="bi bi-people-fill"
+                />
+                <InfoBox
+                  title="Email"
+                  value={user?.email}
+                  icon="bi bi-envelope-fill"
+                />
+                <InfoBox
+                  title="Total Events"
+                  value={events.length}
+                  icon="bi bi-calendar-event-fill"
+                />
+              </div>
+            </div>
           </div>
         </div>
         <div className="card shadow-sm border-0 rounded-3">
@@ -652,7 +612,7 @@ const [open, setOpen] = useState(false);
                 editEvent: null,
               }))
             }
-            onSubmit={state.editEvent ? handleUpdateEvent : handleAddEvent} // 👈 smart switch
+            onSubmit={handleSaveEvent} // 👈 smart switch
             existingData={state.editEvent}
             isEditing={!!state.editEvent} // 👈 pre-fill modal fields
           />
