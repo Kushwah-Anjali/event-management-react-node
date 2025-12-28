@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/multer"); // file upload and to store 
-const {  getAllEvents, getEventHistory, saveEvent, getUserEvents, getHistory,getEventById } = require("../controllers/eventsController");
+const {  getAllEvents, getEventHistory, deleteEvent,saveEvent, getUserEvents, getHistory,getEventById } = require("../controllers/eventsController");
 
 // GET events of a specific user   
 router.get("/", getAllEvents);
@@ -9,6 +9,9 @@ router.get("/", getAllEvents);
 router.get("/history/:eventId", getEventHistory);
 router.get("/user/:userId", getUserEvents);
 router.post("/save-event", upload.single("image"), saveEvent);
+
+
+router.delete("/delete/:id", deleteEvent);
 
 
 // GET all events + history

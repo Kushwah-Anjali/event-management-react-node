@@ -16,11 +16,11 @@ import {
   FaPhone,
   FaImage,
   FaFileAlt,
-  FaSearch,
 } from "react-icons/fa";
 
 import { EventCategory } from "./EventCategory";
 import MapPicker from "../pages/MapPicker";
+
 const Base_Url = process.env.REACT_APP_API_URL;
 const getFullImageUrl = (imagePath) => {
   if (!imagePath) return "";
@@ -56,7 +56,8 @@ export default function AddEventModal({
   });
   const [errors, setErrors] = useState({});
   const [preview, setPreview] = useState(null);
-    useEffect(() => {
+
+  useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
@@ -76,20 +77,21 @@ export default function AddEventModal({
 
         setData({
           title: existingData.title || "",
-          category: matchedCategory || null, // ✅ Correct category format for react-select
+          category: matchedCategory || null,
           description: existingData.description || "",
           date: existingData.date ? existingData.date.split("T")[0] : "",
           author: existingData.author || "",
           venue: existingData.venue || "",
           fees: existingData.fees || "",
           contact: existingData.contact || "",
-          image: existingData.image || null, // no auto-load for file input
+          image: existingData.image || null,
           required_docs: Array.isArray(existingData.required_documents)
             ? existingData.required_documents
             : [],
           latitude: existingData.latitude || "",
           longitude: existingData.longitude || "",
         });
+
         if (existingData.image) {
           setPreview(getFullImageUrl(existingData.image));
         } else {
@@ -128,6 +130,7 @@ export default function AddEventModal({
           fees: updatedValue ? "" : "Enter numeric value",
         }));
         break;
+
       case "contact":
         updatedValue = value.replace(/\D/g, "").slice(0, 10);
         setErrors((prev) => ({
@@ -138,12 +141,12 @@ export default function AddEventModal({
               : "",
         }));
         break;
+
       case "author":
-      case "venue":
         updatedValue = value;
         setErrors((prev) => ({
           ...prev,
-          venue: updatedValue ? "" : "Venue cannot be empty",
+          author: updatedValue ? "" : "Organizer is required",
         }));
         break;
 
@@ -154,11 +157,10 @@ export default function AddEventModal({
           date: value < today ? "Cannot select past date" : "",
         }));
         break;
+
       case "image":
         if (files[0]) {
           const file = files[0];
-
-          // Validate file size (optional)
           if (file.size > 5 * 1024 * 1024) {
             setErrors((prev) => ({ ...prev, image: "Max size 5MB allowed" }));
             setPreview(null);
@@ -166,7 +168,6 @@ export default function AddEventModal({
             return;
           }
 
-          // Validate image dimensions (exact match)
           const img = new Image();
           img.onload = () => {
             if (img.width < img.height) {
@@ -179,17 +180,23 @@ export default function AddEventModal({
               setData((d) => ({ ...d, image: null }));
             } else {
               setErrors((prev) => ({ ...prev, image: "" }));
-              setPreview(URL.createObjectURL(file)); // valid preview
+              setPreview(URL.createObjectURL(file));
               setData((d) => ({ ...d, image: file }));
             }
           };
-
           img.src = URL.createObjectURL(file);
         } else {
-          // No new file selected — keep old image
           updatedValue = data.image || "";
           if (data.image) setPreview(getFullImageUrl(data.image));
         }
+        break;
+
+      case "title":
+        updatedValue = value;
+        setErrors((prev) => ({
+          ...prev,
+          title: value.trim() ? "" : "Title is required",
+        }));
         break;
 
       case "required_docs":
@@ -210,6 +217,7 @@ export default function AddEventModal({
           return { ...d, required_docs: docs };
         });
         return;
+
       default:
         break;
     }
@@ -223,7 +231,7 @@ export default function AddEventModal({
   };
 
   const validateStep = (s) => {
-    if (s === 0)
+    if (s === 0) {
       return (
         data.title &&
         data.category &&
@@ -231,25 +239,40 @@ export default function AddEventModal({
         !errors.title &&
         !errors.date
       );
-    if (s === 1)
+    }
+    if (s === 1) {
       return (
+        data.latitude &&
+        data.longitude &&
         data.author &&
-        data.venue &&
         data.fees &&
         data.contact &&
         !errors.author &&
-        !errors.venue &&
         !errors.fees &&
         !errors.contact
       );
-    if (s === 2) return (data.image || preview) && !errors.image;
-
-    return true;
+    }
+    if (s === 2) {
+      return (data.image || preview) && !errors.image;
+    }
+    if (s === 3) {
+      return true;
+    }
+    return false;
   };
 
   const handleNext = () => {
+    if (step === 1 && (!data.latitude || !data.longitude)) {
+      setErrors((e) => ({
+        ...e,
+        venue: "Please select location from map",
+      }));
+      return;
+    }
+
     if (validateStep(step)) setStep((s) => s + 1);
   };
+
   const handlePrev = () => setStep((s) => s - 1);
 
   const handleSubmit = (e) => {
@@ -276,14 +299,10 @@ export default function AddEventModal({
     formData.append("latitude", data.latitude || "");
     formData.append("longitude", data.longitude || "");
     if (data.image instanceof File) {
-      // New image selected
       formData.append("image", data.image);
     } else if (isEditing && data.image) {
-      // Keep the old image path if no new file
       formData.append("existingImage", data.image);
     }
-
-    // Backend expects an array of docs
     data.required_docs.forEach((doc) =>
       formData.append("required_docs[]", doc)
     );
@@ -291,37 +310,13 @@ export default function AddEventModal({
     onSubmit(formData);
   };
 
+  const isStepValid = validateStep(step);
   if (!isOpen) return null;
 
   const renderCheckIcon = (field) =>
     !errors[field] && data[field] ? (
       <FaCheckCircle className="me-2 text-primary" />
     ) : null;
-  const handleVenueSearch = async (e) => {
-    const value = e.target.value;
-    setData((d) => ({ ...d, venue: value }));
-
-    if (!value.trim()) return;
-
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${value}`;
-      const res = await fetch(url);
-      const result = await res.json();
-
-      if (result.length > 0) {
-        const { lat, lon, display_name } = result[0];
-
-        setData((d) => ({
-          ...d,
-          venue: display_name,
-          latitude: lat,
-          longitude: lon,
-        }));
-      }
-    } catch (err) {
-      console.error("Search failed", err);
-    }
-  };
 
   return (
     <div className="modal show d-flex align-items-center justify-content-center">
@@ -455,24 +450,36 @@ export default function AddEventModal({
                 </div>
 
                 <label className="form-label fw-semibold">
-                  <FaMapMarkerAlt className="me-2 text-primary" /> Venue{" "}
-                  <span className="star">*</span>
+                  <FaMapMarkerAlt className="me-2 text-primary" /> Event
+                  Location *
                 </label>
+                <div className="small text-muted mb-1">
+                  Select location by clicking on the map below
+                </div>
 
                 <div className="input-group mb-3">
                   <span className="input-group-text">
-                    <FaSearch className="text-primary" />
+                    <FaMapMarkerAlt className="text-primary" />
                   </span>
 
                   <input
                     name="venue"
-                    value={data.venue}
-                    onChange={handleVenueSearch}
+                    value={data.venue || ""}
+                    readOnly
                     className={`form-control ${
                       errors.venue ? "is-invalid" : ""
                     }`}
-                    placeholder="Search location..."
+                    placeholder="Click map to select location"
                   />
+                  {errors.venue && (
+                    <div className="invalid-feedback">{errors.venue}</div>
+                  )}
+
+                  {data.latitude && data.longitude && (
+                    <div className="small text-success mt-1">
+                      📍 Location selected successfully
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-3">
@@ -482,12 +489,16 @@ export default function AddEventModal({
                         ...d,
                         latitude: lat,
                         longitude: lng,
-                        venue: address,
+                        venue: address || `Lat: ${lat}, Lng: ${lng}`,
                       }));
 
+                      setErrors((e) => ({ ...e, venue: "" }));
+
                       Swal.fire({
-                        icon: "success",
-                        title: "Location selected",
+                        icon: address ? "success" : "info",
+                        title: address
+                          ? "Location selected"
+                          : "Coordinates saved",
                         timer: 900,
                         showConfirmButton: false,
                       });
@@ -619,7 +630,7 @@ export default function AddEventModal({
                 type="button"
                 className="btn btn-primary rounded-pill px-4"
                 onClick={handleNext}
-                disabled={!validateStep(step)}
+                disabled={!isStepValid}
               >
                 Next <FaArrowRight className="me-2 text-light" />
               </button>
