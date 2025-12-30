@@ -88,11 +88,15 @@ const UserEvents = () => {
       const data = await res.json();
 
       if (data.status === "success") {
-        Swal.fire(
-          "Success",
-          state.editEvent ? "Event updated!" : "Event added!",
-          "success"
-        );
+        Swal.fire({
+          icon: "success",
+          title: state.editEvent ? "Event updated" : "Event added",
+          text: state.editEvent
+            ? "Your changes have been saved."
+            : "The event is now live.",
+          timer: 1600,
+          showConfirmButton: false,
+        });
 
         fetchEvents(); // single source of truth
 
@@ -134,7 +138,13 @@ const UserEvents = () => {
           ...prev,
           events: prev.events.filter((e) => e.id !== id),
         }));
-        Swal.fire("Deleted!", "Event deleted successfully.", "success");
+        Swal.fire({
+          icon: "success",
+          title: "Event deleted",
+          text: "The event has been removed permanently.",
+          timer: 1400,
+          showConfirmButton: false,
+        });
       } else {
         Swal.fire("Error", data.message || "Failed to delete event", "error");
       }
@@ -491,6 +501,8 @@ const UserEvents = () => {
                             title: event.title,
                             category: event.category,
                             date: event.date,
+                                requiredDocs: event?.required_documents || [],
+
                           },
                         })
                       }

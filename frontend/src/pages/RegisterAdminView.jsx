@@ -14,27 +14,14 @@ const Base_url = process.env.REACT_APP_API_URL;
 const RegisterAdminView = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { eventId, title, category, date } = state || {};
-  const [showMobileInfo, setShowMobileInfo] = useState(false);
+  const { eventId, title, category, date, requiredDocs = [] } = state || {};
+
   const [open, setOpen] = useState(false);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "asc",
   });
-  const [requiredDocs, setRequiredDocs] = useState([]);
-  useEffect(() => {
-    if (!eventId) return;
-
-    fetch(`${Base_url}/api/register/required-docs/${eventId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success") {
-          setRequiredDocs(data.required_docs || []);
-        }
-      });
-  }, [eventId]);
-
   const sortedUsers = [...registeredUsers].sort((a, b) => {
     if (!sortConfig.key) return 0;
     let aValue = a[sortConfig.key];
@@ -56,7 +43,29 @@ const RegisterAdminView = () => {
     if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
   });
+  const normalizeDocuments = (docs) => {
+    if (!docs) return {};
 
+    if (typeof docs === "string") {
+      try {
+        return JSON.parse(docs);
+      } catch {
+        return {};
+      }
+    }
+
+    if (Array.isArray(docs)) {
+      return docs.reduce((acc, d) => {
+        if (typeof d === "string") acc[d] = true;
+        else if (d?.name) acc[d.name] = true;
+        return acc;
+      }, {});
+    }
+
+    if (typeof docs === "object") return docs;
+
+    return {};
+  };
   const onSort = (column) => {
     setSortConfig((prev) => ({
       key: column,
@@ -187,11 +196,7 @@ const RegisterAdminView = () => {
                     </tr>
                   ) : (
                     sortedUsers.map((user, idx) => {
-                      const documents =
-                        typeof user.documents === "string"
-                          ? JSON.parse(user.documents || "{}")
-                          : user.documents || {};
-
+                      const documents = normalizeDocuments(user.documents);
                       const uploadedDocNames = Object.keys(documents);
                       const remainingDocs = requiredDocs.filter(
                         (doc) => !uploadedDocNames.includes(doc)

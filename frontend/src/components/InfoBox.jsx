@@ -15,7 +15,7 @@ export default function InfoBox({ title, value, icon }) {
         )}
 
         <div className="text-muted small">{title}</div>
-        <div className="fs-5 fw-semibold">{value ?? "N/A"}</div>
+        <div className="fs-6 fw-semibold">{value ?? "N/A"}</div>
       </div>
     </div>
   );

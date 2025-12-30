@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import EventsCard from "./EventsCard";
 import "../styles/Events.css";
 import axios from "axios";
+import { motion } from "framer-motion";
+
 const Base_url = process.env.REACT_APP_API_URL;
 function formatDate(dateStr) {
   if (!dateStr) return "Date TBD";
@@ -14,7 +16,7 @@ function formatDate(dateStr) {
     month: "short",
   });
 }
-
+const isMobile = window.innerWidth <= 768;
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -96,18 +98,31 @@ export default function Events() {
           </div>
         </div>
 
-        {/* Event Grid */}
-        <div className="row g-4">
-          {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => (
-              <div className="col-md-6 col-lg-4 d-flex" key={event.id}>
-                <EventsCard event={event} />
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-white">No events found.</p>
-          )}
-        </div>
+    
+
+
+<div className="row g-4">
+  {filteredEvents.length > 0 ? (
+    filteredEvents.map((event, index) => (
+      <motion.div
+        key={event.id}
+        className="col-md-6 col-lg-4 d-flex"
+        initial={{ opacity: 0, y: isMobile ? 30 : 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{
+          duration: isMobile ? 0.9 : 1.2,  // faster on mobile
+          delay: index * (isMobile ? 0.1 : 0.2), // stagger adjusted
+          ease: "easeOut",
+        }}
+      >
+        <EventsCard event={event} />
+      </motion.div>
+    ))
+  ) : (
+    <p className="text-center text-white">No events found.</p>
+  )}
+</div>
       </div>
     </section>
   );

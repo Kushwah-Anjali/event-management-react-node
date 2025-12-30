@@ -143,12 +143,13 @@ export default function AddEventModal({
         break;
 
       case "author":
-        updatedValue = value;
-        setErrors((prev) => ({
-          ...prev,
-          author: updatedValue ? "" : "Organizer is required",
-        }));
-        break;
+  updatedValue = value.replace(/[^a-zA-Z\s]/g, "");
+  setErrors((prev) => ({
+    ...prev,
+    author: updatedValue ? "" : "Organizer is required",
+  }));
+  break;
+
 
       case "date":
         const today = new Date().toISOString().split("T")[0];
@@ -494,15 +495,18 @@ export default function AddEventModal({
 
                       setErrors((e) => ({ ...e, venue: "" }));
 
-                      Swal.fire({
-                        icon: address ? "success" : "info",
-                        title: address
-                          ? "Location selected"
-                          : "Coordinates saved",
-                        timer: 900,
-                        showConfirmButton: false,
-                      });
+                    Swal.fire({
+  icon: address ? "success" : "info",
+  title: address ? "Venue location set" : "Location pinned",
+  text: address
+    ? address
+    : "Latitude and longitude saved successfully",
+  timer: 1400,
+  showConfirmButton: false,
+});
+
                     }}
+                    
                     initialPosition={
                       data.latitude && data.longitude
                         ? {
